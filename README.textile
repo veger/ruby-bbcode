@@ -4,8 +4,7 @@ This plugin adds support for "BBCode":http:/www.bbcode.org/ to Ruby. It is able 
 
 All "official tags":http://www.bbcode.org/reference.php are available.
 
-Example
-=======
+.h1 Example
 
 <pre><code>
 'This is [b]bold[/b] and this is [i]italic[/i].'.bbcode_to_html # => 'This is <span class="bb-b">bold</span> and this is <span class="bb-i">italic</span>.'
