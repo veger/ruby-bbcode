@@ -1,0 +1,16 @@
+.h1 Ruby-BBcode
+
+This plugin adds support for "BBCode":http:/www.bbcode.org/ to Ruby. It is able to convert (nested) BBCode tags in strings to their HTML equivalent. It also checks whether the BBCode is valid.
+
+All "official tags":http://www.bbcode.org/reference.php are available.
+
+Example
+=======
+
+<pre><code>
+'This is [b]bold[/b] and this is [i]italic[/i].'.bbcode_to_html # => 'This is <span class="bb-b">bold</span> and this is <span class="bb-i">italic</span>.'
+</code></pre>
+
+Using CSS for the styles makes sure that the styles can be adjusted to fit into any website/layout
+
+Copyright (c) 2010 Maarten Bezemer, released under the MIT license
