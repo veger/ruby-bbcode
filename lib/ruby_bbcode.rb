@@ -30,10 +30,8 @@ class RubyBBCode
     text.scan(/\[(\/?)([a-z]*)\]/) do |tag_info|
       ti_openclosed = tag_info[0]
       ti_tag = tag_info[1]
-      puts "Found " + tag_info.inspect
       if @@tags.include?(ti_tag.to_sym)
         tag = @@tags[ti_tag.to_sym]
-        puts "Found " + tag.inspect
         if ti_openclosed == ''
           tags_list += [ti_tag]
         else
@@ -61,5 +59,10 @@ class String
   # Replace the BBCode content of a string with its corresponding HTML markup
   def bbcode_to_html!(escape_html = true, additional_tags = {}, method = :disable, *tags)
     self.replace(RubyBBCode.to_html(self, escape_html, additional_tags, method, *tags))
+  end
+
+  # Check if string contains valid BBCode. Returns true when valid, else returns array with error(s)
+  def is_valid_bbcode?()
+    RubyBBCode.is_valid?(self)
   end
 end

@@ -8,7 +8,7 @@ h2. Example
 
 <pre><code>
 'This is [b]bold[/b] and this is [i]italic[/i].'.bbcode_to_html
- => 'This is <span class="bb-b">bold</span> and this is <span class="bb-i">italic</span>.'
+ => 'This is <strong>bold</strong> and this is <em>italic</em>.'
 </code></pre>
 
 Using CSS for the styles makes sure that the styles can be adjusted to fit into any website/layout
