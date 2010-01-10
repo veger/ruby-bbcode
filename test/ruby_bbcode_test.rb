@@ -13,8 +13,8 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
   
   def test_u
-    assert_equal '<u>simple</u>'.bbcode_to_html, '[u]simple[/u]'
-    assert_equal "<u>line 1<br />\nline 2</u>".bbcode_to_html, "[u]line 1\nline 2[/u]"
+    assert_equal '<u>simple</u>', '[u]simple[/u]'.bbcode_to_html
+    assert_equal "<u>line 1<br />\nline 2</u>", "[u]line 1\nline 2[/u]".bbcode_to_html
   end
 
   def test_strikethrough
@@ -125,15 +125,21 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
 
   def test_no_ending_tag
-    assert_equal "this [b]should not be bold", "this [b]should not be bold".bbcode_to_html 
+    assert_raise RuntimeError do
+      "this [b]should not be bold".bbcode_to_html 
+    end
   end
 
   def test_no_start_tag
-    assert_equal "this should not be bold[/b]", "this should not be bold[/b]".bbcode_to_html
+    assert_raise RuntimeError do
+      "this should not be bold[/b]".bbcode_to_html
+    end
   end
 
   def test_different_start_and_ending_tags
-    assert_equal "this [b]should not do formatting[/i]", "this [b]should not do formatting[/i]".bbcode_to_html
+    assert_raise RuntimeError do
+      "this [b]should not do formatting[/i]".bbcode_to_html
+    end
   end
 
 end
