@@ -3,6 +3,10 @@ require 'tags/tags'
 class RubyBBCode
   include BBCode::Tags
 
+  @@to_sentence_bbcode_tags = {:words_connector => "], [", 
+    :two_words_connector => "] and [", 
+    :last_word_connector => "] and ["}
+
   def self.to_html(text, escape_html = true, additional_tags = {}, method = :disable, *tags)
     # We cannot convert to HTML if the BBCode is not valid!
     valid = is_valid?(text)
@@ -27,20 +31,56 @@ class RubyBBCode
 
   def self.is_valid?(text)
     tags_list = []
-    text.scan(/\[(\/?)([a-z]*)\]/) do |tag_info|
-      ti_openclosed = tag_info[0]
-      ti_tag = tag_info[1]
-      if @@tags.include?(ti_tag.to_sym)
-        tag = @@tags[ti_tag.to_sym]
-        if ti_openclosed == ''
-          tags_list += [ti_tag]
-        else
-          return ["Closing tag [/#{ti_tag}] does match [#{tags_list.last}]"] if tags_list.last != ti_tag
-          tags_list -= [ti_tag]
+    text.scan(/(\[)(\/?)([a-z][^\]]*)\]|([^\[]+)/i) do |tag_info|
+      puts tag_info.inspect + " tl=" + tags_list.inspect
+      if tag_info[0] == '['
+        ti_istag = true
+        ti_openclosed = tag_info[1]
+        ti_tag = tag_info[2]
+      else
+        ti_istag = false
+        ti_text = tag_info[3]
+      end
+
+      if !ti_istag or @@tags.include?(ti_tag.to_sym)
+        if !ti_istag or ti_openclosed == ''
+          if ti_istag
+            tag = @@tags[ti_tag.to_sym]
+            unless tag[:only_in].nil? or (tags_list.length > 0 and tag[:only_in].include?(tags_list.last.to_sym))
+              # Tag not allowed in open tag
+              err = "[#{ti_tag}] can only be used in [#{tag[:only_in].to_sentence(@@to_sentence_bbcode_tags)}]"
+              err += ", so using it in a [#{tags_list.last}] tag is not allowed" if tags_list.length > 0
+              return [err]
+            end
+          end
+
+          puts 'Before allowed ' + ti_tag.to_s + " " + ti_text.to_s if tags_list.last == 'ul'
+          if tags_list.length > 0 and  @@tags[tags_list.last.to_sym][:only_allow] != nil
+            # Check if the found tag is allowed
+            allowed_tags =  @@tags[tags_list.last.to_sym][:only_allow]
+            puts "Allowed: " + allowed_tags.inspect + ", current: #{ti_tag}"
+            unless ti_istag and allowed_tags.include?(ti_tag.to_sym)
+              # Tag not allowed in open tag
+              err = "[#{tags_list.last}] can only contain [#{allowed_tags.to_sentence(@@to_sentence_bbcode_tags)}] tags, so "
+              err += "[#{ti_tag}]" if ti_istag
+              err += "\"#{ti_text}\"" unless ti_istag
+              err += ' is not allowed'
+              puts err
+              return [err]
+            end
+          end
+          tags_list += [ti_tag] if ti_istag
+        end
+
+        if ti_openclosed == '/' or !ti_istag
+          if ti_istag
+            return ["Closing tag [/#{ti_tag}] does match [#{tags_list.last}]"] if tags_list.last != ti_tag
+            tags_list -= [ti_tag]
+          end
         end
       end
     end
-    return ["[#{tags_list.last}] is not closed"] if tags_list.size != 0
+    return ["[#{tags_list.last}] is not closed"] if tags_list.length > 0
 
     true
   end
@@ -62,7 +102,7 @@ class String
   end
 
   # Check if string contains valid BBCode. Returns true when valid, else returns array with error(s)
-  def is_valid_bbcode?()
+  def is_valid_bbcode?
     RubyBBCode.is_valid?(self)
   end
 end

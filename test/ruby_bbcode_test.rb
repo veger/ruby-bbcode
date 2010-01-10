@@ -47,6 +47,46 @@ class RubyBbcodeTest < Test::Unit::TestCase
     assert_equal '<ul><li>item1</li><li>item2</li></ul><ul><li>item1</li><li>item2</li></ul>',
                    '[ul][li]item1[/li][li]item2[/li][/ul][ul][li]item1[/li][li]item2[/li][/ul]'.bbcode_to_html
   end
+
+  def test_illegal_items
+    assert_raise RuntimeError do
+      '[li]Illegal item[/li]'.bbcode_to_html
+    end
+    assert_equal ['[li] can only be used in [ul] and [ol]'],
+                   '[li]Illegal item[/li]'.is_valid_bbcode?
+    assert_raise RuntimeError do
+      '[b][li]Illegal item[/li][/b]'.bbcode_to_html
+    end
+    
+    assert_equal ['[li] can only be used in [ul] and [ol], so using it in a [b] tag is not allowed'],
+                   '[b][li]Illegal item[/li][/b]'.is_valid_bbcode?
+  end
+
+  def test_illegal_list_contents
+    assert_raise RuntimeError do
+      '[ul]Illegal list[/ul]'.bbcode_to_html
+    end
+    assert_equal ['[ul] can only contain [li] tags, so "Illegal list" is not allowed'],
+                   '[ul]Illegal list[/ul]'.is_valid_bbcode?
+    assert_raise RuntimeError do
+      '[ul][b]Illegal list[/b][/ul]'.bbcode_to_html
+    end
+    assert_equal ['[ul] can only contain [li] tags, so [b] is not allowed'],
+                   '[ul][b]Illegal list[/b][/ul][/b]'.is_valid_bbcode?
+  end
+
+  def test_illegal_list_contents_text_between_list_items
+    assert_raise RuntimeError do
+      '[ul][li]item[/li]Illegal list[/ul]'.bbcode_to_html
+    end
+    assert_equal ['[ul] can only contain [li] tags, so "Illegal text" is not allowed'],
+                   '[ul][li]item[/li]Illegal text[/ul]'.is_valid_bbcode?
+    assert_raise RuntimeError do
+      '[ul][li]item[/li]Illegal list[li]item[/li][/ul]'.bbcode_to_html
+    end
+    assert_equal ['[ul] can only contain [li] tags, so "Illegal text" is not allowed'],
+                   '[ul][li]item[/li]Illegal text[li]item[/li][/ul]'.is_valid_bbcode?
+  end
   
   def test_quote
     assert_equal '<div class="quote">quoting</div>',  '[quote]quoting[/quote]'.bbcode_to_html

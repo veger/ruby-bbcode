@@ -21,7 +21,22 @@ module BBCode
       :center => {
         :html_open => '<div style="text-align:center;">', :html_close => '</div>',
         :description => 'Center a text',
-        :example => '[center]This is centered[/center].'}
+        :example => '[center]This is centered[/center].'},
+      :ul => {
+        :html_open => '<ul>', :html_close => '</ul>',
+        :description => 'Unordered list',
+        :example => '[ul][li]List item[/li][li]Another list item[/li][/ul].',
+        :only_allow => [ :li ]},
+      :ol => {
+        :html_open => '<ol>', :html_close => '</ol>',
+        :description => 'Ordered list',
+        :example => '[ol][li]List item[/li][li]Another list item[/li][/ol].',
+        :only_allow => [ :li ]},
+      :li => {
+        :html_open => '<li>', :html_close => '</li>',
+        :description => 'List item',
+        :example => '[ul][li]List item[/li][li]Another list item[/li][/ul].',
+        :only_in => [ :ul, :ol ]}
     }
   end
 end
