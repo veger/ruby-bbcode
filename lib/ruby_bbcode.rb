@@ -9,9 +9,6 @@ class RubyBBCode
 
   def self.to_html(text, escape_html = true, additional_tags = {}, method = :disable, *tags)
     # We cannot convert to HTML if the BBCode is not valid!
-    valid = is_valid?(text)
-    raise valid.join(', ') if valid != true
-
     text = text.clone
 
     if escape_html
@@ -21,72 +18,141 @@ class RubyBBCode
     text.gsub!("\r\n", "\n")
     text.gsub!("\n", "<br />\n")
 
-    @@tags.each do |tag|
-      text.gsub!("[#{tag[0].to_s}]", tag[1][:html_open])
-      text.gsub!("[/#{tag[0].to_s}]", tag[1][:html_close])
-    end
+    valid = is_valid?(text)
+    raise valid.join(', ') if valid != true
 
-    text
+    bbtree_to_html(@bbtree[:nodes])
   end
 
   def self.is_valid?(text)
-    tags_list = []
-    text.scan(/(\[)(\/?)([a-z][^\]]*)\]|([^\[]+)/i) do |tag_info|
-      puts tag_info.inspect + " tl=" + tags_list.inspect
-      if tag_info[0] == '['
-        ti_istag = true
-        ti_openclosed = tag_info[1]
-        ti_tag = tag_info[2]
-      else
-        ti_istag = false
-        ti_text = tag_info[3]
-      end
-
-      if !ti_istag or @@tags.include?(ti_tag.to_sym)
-        if !ti_istag or ti_openclosed == ''
-          if ti_istag
-            tag = @@tags[ti_tag.to_sym]
-            unless tag[:only_in].nil? or (tags_list.length > 0 and tag[:only_in].include?(tags_list.last.to_sym))
-              # Tag not allowed in open tag
-              err = "[#{ti_tag}] can only be used in [#{tag[:only_in].to_sentence(@@to_sentence_bbcode_tags)}]"
-              err += ", so using it in a [#{tags_list.last}] tag is not allowed" if tags_list.length > 0
-              return [err]
-            end
-          end
-
-          puts 'Before allowed ' + ti_tag.to_s + " " + ti_text.to_s if tags_list.last == 'ul'
-          if tags_list.length > 0 and  @@tags[tags_list.last.to_sym][:only_allow] != nil
-            # Check if the found tag is allowed
-            allowed_tags =  @@tags[tags_list.last.to_sym][:only_allow]
-            puts "Allowed: " + allowed_tags.inspect + ", current: #{ti_tag}"
-            unless ti_istag and allowed_tags.include?(ti_tag.to_sym)
-              # Tag not allowed in open tag
-              err = "[#{tags_list.last}] can only contain [#{allowed_tags.to_sentence(@@to_sentence_bbcode_tags)}] tags, so "
-              err += "[#{ti_tag}]" if ti_istag
-              err += "\"#{ti_text}\"" unless ti_istag
-              err += ' is not allowed'
-              puts err
-              return [err]
-            end
-          end
-          tags_list += [ti_tag] if ti_istag
-        end
-
-        if ti_openclosed == '/' or !ti_istag
-          if ti_istag
-            return ["Closing tag [/#{ti_tag}] does match [#{tags_list.last}]"] if tags_list.last != ti_tag
-            tags_list -= [ti_tag]
-          end
-        end
-      end
-    end
-    return ["[#{tags_list.last}] is not closed"] if tags_list.length > 0
-
-    true
+    return parse(text);
   end
 
   def self.tag_list
     @@tags
+  end
+
+  protected
+  def self.parse(text)
+    tags_list = []
+    @bbtree = {:nodes => []}
+    bbtree_depth = 0
+    bbtree_current_node = @bbtree
+    between_text = nil
+    text.scan(/((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))/ix) do |tag_info|
+      ti = find_tag_info(tag_info)
+
+      if ti[:is_tag] and !@@tags.include?(ti[:tag].to_sym)
+        # Handle as text from now on!
+        ti[:is_tag] = false
+        ti[:text] = ti[:complete_match]
+      end
+     
+      if !ti[:is_tag] or !ti[:closing_tag]
+        if ti[:is_tag]
+          tag = @@tags[ti[:tag].to_sym]
+          unless tag[:only_in].nil? or (tags_list.length > 0 and tag[:only_in].include?(tags_list.last.to_sym))
+            # Tag does to be put in the last opened tag
+            err = "[#{ti[:tag]}] can only be used in [#{tag[:only_in].to_sentence(@@to_sentence_bbcode_tags)}]"
+            err += ", so using it in a [#{tags_list.last}] tag is not allowed" if tags_list.length > 0
+            return [err]
+          end
+        end
+
+        if tags_list.length > 0 and  @@tags[tags_list.last.to_sym][:only_allow] != nil
+          # Check if the found tag is allowed
+          last_tag = @@tags[tags_list.last.to_sym]
+          allowed_tags =  last_tag[:only_allow]
+          if (!ti[:is_tag] and last_tag[:require_between] != true) or (ti[:is_tag] and (allowed_tags.include?(ti[:tag].to_sym) == false))
+            # Last opened tag does not allow tag
+            err = "[#{tags_list.last}] can only contain [#{allowed_tags.to_sentence(@@to_sentence_bbcode_tags)}] tags, so "
+            err += "[#{ti[:tag]}]" if ti[:is_tag]
+            err += "\"#{ti[:text]}\"" unless ti[:is_tag]
+            err += ' is not allowed'
+            return [err]
+          end
+        end
+        if ti[:is_tag]
+          tags_list += [ti[:tag]]
+          element = {:is_tag => true, :tag => ti[:tag].to_sym, :nodes => [] }
+        else
+          element = {:is_tag => false, :text => ti[:text] }
+          if bbtree_current_node[:is_tag]
+            tag = @@tags[bbtree_current_node[:tag]]
+            if tag[:require_between] == true
+              bbtree_current_node[:between] = ti[:text]
+              element = nil
+            end
+          end
+        end
+        bbtree_current_node[:nodes] << element unless element == nil
+        if ti[:is_tag]
+          # Advance to next level (the node we just added)
+          bbtree_current_node = element
+          bbtree_depth += 1
+        end
+      end
+
+      if  ti[:is_tag] and ti[:closing_tag]
+        if ti[:is_tag]
+          tag = @@tags[ti[:tag].to_sym]
+          return ["Closing tag [/#{ti[:tag]}] does match [#{tags_list.last}]"] if tags_list.last != ti[:tag]
+          return ["No text between [#{ti[:tag]}] and [/#{ti[:tag]}] tags."] if tag[:require_between] == true and between_text.blank?
+          tags_list -= [ti[:tag]]
+
+          # Find parent node (kinda hard since no link to parent node is available...)
+          bbtree_depth -= 1
+          bbtree_current_node = @bbtree
+          bbtree_depth.times { bbtree_current_node = bbtree_current_node[:nodes].last }
+        end
+      end
+
+      between_text = (ti[:is_tag] ? nil : ti[:text])
+
+    end
+    return ["[#{tags_list.to_sentence((@@to_sentence_bbcode_tags))}] not closed"] if tags_list.length > 0
+
+    puts "tree = " + @bbtree.inspect
+    true
+  end
+
+  def self.find_tag_info(tag_info)
+    ti = {}
+    ti[:complete_match] = tag_info[0]
+    ti[:is_tag] = tag_info[0].starts_with? '['
+    if ti[:is_tag]
+      ti[:closing_tag] = (tag_info[2] == '/')
+      ti[:tag] = tag_info[3]
+      ti[:params] = {}
+      if tag_info[4][1] == '='
+        ti[:params][:tag_param] = tag_info[4][2..-1]
+      elsif tag_info[4][1] == ' '
+        #TODO: Find multiple params
+      end
+    else
+      # Plain text
+      ti[:text] = tag_info[8]
+    end
+    ti
+  end
+
+  def self.bbtree_to_html(node_list)
+    text = ""
+    node_list.each do |node|
+      if node[:is_tag]
+        tag = @@tags[node[:tag]]
+        t = tag[:html_open]
+        t.gsub!('%between%', node[:between]) if tag[:require_between]
+        text += t
+        text += bbtree_to_html(node[:nodes]) if node[:nodes].length > 0
+        t = tag[:html_close]
+        t.gsub!('%between%', node[:between]) if tag[:require_between]
+        text += t
+      else
+        text += node[:text]
+      end
+    end
+    text
   end
 end
 

@@ -96,8 +96,8 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
   
   def test_link
-    assert_equal '<a href="http://google.com">Google</a>', '[url=http://google.com]Google[/url]'.bbcode_to_html
     assert_equal '<a href="http://google.com">http://google.com</a>', '[url]http://google.com[/url]'.bbcode_to_html
+    assert_equal '<a href="http://google.com">Google</a>', '[url=http://google.com]Google[/url]'.bbcode_to_html
   end
   
   def test_image
