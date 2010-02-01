@@ -92,19 +92,19 @@ class RubyBbcodeTest < Test::Unit::TestCase
     assert_equal '<div class="quote">quoting</div>',  '[quote]quoting[/quote]'.bbcode_to_html
     assert_equal '<div class="quote"><strong>someone wrote:</strong>quoting</div>', '[quote=someone]quoting[/quote]'.bbcode_to_html
     assert_equal '<div class="quote"><strong>Kitten wrote:</strong><div class="quote"><strong>creatiu wrote:</strong>f1</div>f2</div>',
-                  '[quote="Kitten"][quote="creatiu"]f1[/quote]f2[/quote]'.bbcode_to_html
+                  '[quote=Kitten][quote=creatiu]f1[/quote]f2[/quote]'.bbcode_to_html
   end
   
   def test_link
-    assert_equal '<a href="http://google.com">http://google.com</a>', '[url]http://google.com[/url]'.bbcode_to_html
+    assert_equal '<a href="http://www.google.com">http://www.google.com</a>', '[url]http://www.google.com[/url]'.bbcode_to_html
     assert_equal '<a href="http://google.com">Google</a>', '[url=http://google.com]Google[/url]'.bbcode_to_html
   end
   
   def test_image
     assert_equal '<img src="http://www.ruby-lang.org/images/logo.gif" alt="" />',
                    '[img]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_to_html
-    assert_equal '<img src="http://www.ruby-lang.org/images/logo.gif" width="95" height="96" />', 
-                   '[img size=95x96]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_to_html
+    assert_equal '<img src="http://www.ruby-lang.org/images/logo.gif" width="95" height="96" alt="" />', 
+                   '[img=95x96]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_to_html
   end
   
   def test_youtube
@@ -160,8 +160,8 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
 
   def test_multiple_tag_test
-    assert_equal "<strong>bold</strong><em>italic</em><u>underline</u><div class=\"quote\">quote</div><a href=\"foobar\">link</a>",
-                   "[b]bold[/b][i]italic[/i][u]underline[/u][quote]quote[/quote][url=foobar]link[/url]".bbcode_to_html
+    assert_equal "<strong>bold</strong><em>italic</em><u>underline</u><div class=\"quote\">quote</div><a href=\"https://test.com\">link</a>",
+                   "[b]bold[/b][i]italic[/i][u]underline[/u][quote]quote[/quote][url=https://test.com]https://test.com[/url]".bbcode_to_html
   end
 
   def test_no_ending_tag

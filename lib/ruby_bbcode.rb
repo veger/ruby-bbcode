@@ -38,7 +38,6 @@ class RubyBBCode
     @bbtree = {:nodes => []}
     bbtree_depth = 0
     bbtree_current_node = @bbtree
-    between_text = nil
     text.scan(/((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))/ix) do |tag_info|
       ti = find_tag_info(tag_info)
 
@@ -57,12 +56,17 @@ class RubyBBCode
             err += ", so using it in a [#{tags_list.last}] tag is not allowed" if tags_list.length > 0
             return [err]
           end
+
+          if tag[:allow_tag_param] and ti[:params][:tag_param] != nil
+            # Test if matches
+            return [tag[:tag_param_description].gsub('%param%', ti[:params][:tag_params])] if ti[:params][:tag_param].match(tag[:tag_param]).nil?
+          end
         end
 
         if tags_list.length > 0 and  @@tags[tags_list.last.to_sym][:only_allow] != nil
           # Check if the found tag is allowed
           last_tag = @@tags[tags_list.last.to_sym]
-          allowed_tags =  last_tag[:only_allow]
+          allowed_tags = last_tag[:only_allow]
           if (!ti[:is_tag] and last_tag[:require_between] != true) or (ti[:is_tag] and (allowed_tags.include?(ti[:tag].to_sym) == false))
             # Last opened tag does not allow tag
             err = "[#{tags_list.last}] can only contain [#{allowed_tags.to_sentence(@@to_sentence_bbcode_tags)}] tags, so "
@@ -72,15 +76,26 @@ class RubyBBCode
             return [err]
           end
         end
+
+        # Validation of tag succeeded, add to tags_list and/or bbtree
         if ti[:is_tag]
-          tags_list += [ti[:tag]]
+          tag = @@tags[ti[:tag].to_sym]
+          tags_list.push ti[:tag]
           element = {:is_tag => true, :tag => ti[:tag].to_sym, :nodes => [] }
+          element[:params] = {:tag_param => ti[:params][:tag_param]} if tag[:allow_tag_param] and ti[:params][:tag_param] != nil
         else
           element = {:is_tag => false, :text => ti[:text] }
-          if bbtree_current_node[:is_tag]
+          if bbtree_depth > 0
             tag = @@tags[bbtree_current_node[:tag]]
             if tag[:require_between] == true
               bbtree_current_node[:between] = ti[:text]
+              if tag[:allow_tag_param] and tag[:allow_tag_param_between] and (bbtree_current_node[:params] == nil or bbtree_current_node[:params][:tag_param] == nil)
+                # Did not specify tag_param, so use between.
+                # Check if valid
+                return [tag[:tag_param_description].gsub('%param%', ti[:text])] if ti[:text].match(tag[:tag_param]).nil?
+                # Store as tag_param
+                bbtree_current_node[:params] = {:tag_param => ti[:text]} 
+              end
               element = nil
             end
           end
@@ -97,8 +112,8 @@ class RubyBBCode
         if ti[:is_tag]
           tag = @@tags[ti[:tag].to_sym]
           return ["Closing tag [/#{ti[:tag]}] does match [#{tags_list.last}]"] if tags_list.last != ti[:tag]
-          return ["No text between [#{ti[:tag]}] and [/#{ti[:tag]}] tags."] if tag[:require_between] == true and between_text.blank?
-          tags_list -= [ti[:tag]]
+          return ["No text between [#{ti[:tag]}] and [/#{ti[:tag]}] tags."] if tag[:require_between] == true and bbtree_current_node[:between].blank?
+          tags_list.pop
 
           # Find parent node (kinda hard since no link to parent node is available...)
           bbtree_depth -= 1
@@ -106,13 +121,9 @@ class RubyBBCode
           bbtree_depth.times { bbtree_current_node = bbtree_current_node[:nodes].last }
         end
       end
-
-      between_text = (ti[:is_tag] ? nil : ti[:text])
-
     end
     return ["[#{tags_list.to_sentence((@@to_sentence_bbcode_tags))}] not closed"] if tags_list.length > 0
 
-    puts "tree = " + @bbtree.inspect
     true
   end
 
@@ -124,10 +135,10 @@ class RubyBBCode
       ti[:closing_tag] = (tag_info[2] == '/')
       ti[:tag] = tag_info[3]
       ti[:params] = {}
-      if tag_info[4][1] == '='
-        ti[:params][:tag_param] = tag_info[4][2..-1]
-      elsif tag_info[4][1] == ' '
-        #TODO: Find multiple params
+      if tag_info[4][0] == ?=
+        ti[:params][:tag_param] = tag_info[4][1..-1]
+      elsif tag_info[4][0] == ?\s
+        #TODO: Find params
       end
     else
       # Plain text
@@ -141,8 +152,26 @@ class RubyBBCode
     node_list.each do |node|
       if node[:is_tag]
         tag = @@tags[node[:tag]]
-        t = tag[:html_open]
+        t = tag[:html_open].dup
         t.gsub!('%between%', node[:between]) if tag[:require_between]
+        if tag[:allow_tag_param]
+          if node[:params] and !node[:params][:tag_param].blank?
+            match_array = node[:params][:tag_param].scan(tag[:tag_param])[0]
+            index = 0
+            match_array.each do |match|
+              if index < tag[:tag_param_tokens].length
+                t.gsub!("%#{tag[:tag_param_tokens][index][:token].to_s}%", tag[:tag_param_tokens][index][:prefix].to_s+match+tag[:tag_param_tokens][index][:postfix].to_s)
+                index += 1
+              end
+            end
+          else
+            # Remove unused tokens
+            tag[:tag_param_tokens].each do |token|
+              t.gsub!("%#{token[:token]}%", '')
+            end
+          end
+        end
+
         text += t
         text += bbtree_to_html(node[:nodes]) if node[:nodes].length > 0
         t = tag[:html_close]
