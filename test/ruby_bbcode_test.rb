@@ -127,15 +127,15 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
 
   def test_disable_tags
-    assert_equal "[b]foobar[/b]", "[b]foobar[/b]".bbcode_to_html(true, {}, :disable, :bold)
-    assert_equal "[b]<em>foobar</em>[/b]", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :disable, :bold)
-    assert_equal "[b][i]foobar[/i][/b]", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :disable, :bold, :italic)
+    assert_equal "[b]foobar[/b]", "[b]foobar[/b]".bbcode_to_html(true, {}, :disable, :b)
+    assert_equal "[b]<em>foobar</em>[/b]", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :disable, :b)
+    assert_equal "[b][i]foobar[/i][/b]", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :disable, :b, :i)
   end
 
   def test_enable_tags
-    assert_equal "<strong>foobar</strong>" , "[b]foobar[/b]".bbcode_to_html(true, {}, :enable, :bold)
-    assert_equal "<strong>[i]foobar[/i]</strong>", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :enable, :bold)
-    assert_equal "<strong><em>foobar</em></strong>", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :enable, :bold, :italic)
+    assert_equal "<strong>foobar</strong>" , "[b]foobar[/b]".bbcode_to_html(true, {}, :enable, :b)
+    assert_equal "<strong>[i]foobar[/i]</strong>", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :enable, :b)
+    assert_equal "<strong><em>foobar</em></strong>", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :enable, :b, :i)
   end
 
   def test_to_html_bang_method
@@ -150,13 +150,13 @@ class RubyBbcodeTest < Test::Unit::TestCase
   
   def test_addition_of_tags
     mydef = {
-      'test' => ['test',
-        '<test>','</test>',
-        'This is a test',
-        '[test]Test here[/test]']
+      :test => {
+        :html_open => '<test>', :html_close => '</test>',
+        :description => 'This is a test',
+        :example => '[test]Test here[/test]'}
     }
-    assert_equal 'pre <test>Test here</text> post', 'pre [test]Test here[/test] post'.bbcode_to_html(true, mydef)
-    assert_equal 'pre <strong><test>Test here</text></strong> post', 'pre [b][test]Test here[/test][/b] post'.bbcode_to_html(true, mydef)
+    assert_equal 'pre <test>Test here</test> post', 'pre [test]Test here[/test] post'.bbcode_to_html(true, mydef)
+    assert_equal 'pre <strong><test>Test here</test></strong> post', 'pre [b][test]Test here[/test][/b] post'.bbcode_to_html(true, mydef)
   end
 
   def test_multiple_tag_test

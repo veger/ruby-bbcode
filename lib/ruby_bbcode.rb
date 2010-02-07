@@ -10,6 +10,15 @@ class RubyBBCode
   def self.to_html(text, escape_html = true, additional_tags = {}, method = :disable, *tags)
     # We cannot convert to HTML if the BBCode is not valid!
     text = text.clone
+    use_tags = @@tags.merge(additional_tags)
+
+    if method == :disable then
+      tags.each { |t| use_tags.delete(t) }
+    else
+      new_use_tags = {}
+      tags.each { |t| new_use_tags[t] = use_tags[t] if use_tags.key?(t) }
+      use_tags = new_use_tags
+    end
 
     if escape_html
       text.gsub!('<', '&lt;')
@@ -18,14 +27,14 @@ class RubyBBCode
     text.gsub!("\r\n", "\n")
     text.gsub!("\n", "<br />\n")
 
-    valid = is_valid?(text)
+    valid = parse(text, use_tags)
     raise valid.join(', ') if valid != true
 
-    bbtree_to_html(@bbtree[:nodes])
+    bbtree_to_html(@bbtree[:nodes], use_tags)
   end
 
-  def self.is_valid?(text)
-    return parse(text);
+  def self.is_valid?(text, additional_tags = {})
+    parse(text, @@tags.merge(additional_tags));
   end
 
   def self.tag_list
@@ -33,7 +42,8 @@ class RubyBBCode
   end
 
   protected
-  def self.parse(text)
+  def self.parse(text, tags = {})
+    tags = @@tags if tags == {}
     tags_list = []
     @bbtree = {:nodes => []}
     bbtree_depth = 0
@@ -41,7 +51,7 @@ class RubyBBCode
     text.scan(/((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))/ix) do |tag_info|
       ti = find_tag_info(tag_info)
 
-      if ti[:is_tag] and !@@tags.include?(ti[:tag].to_sym)
+      if ti[:is_tag] and !tags.include?(ti[:tag].to_sym)
         # Handle as text from now on!
         ti[:is_tag] = false
         ti[:text] = ti[:complete_match]
@@ -49,7 +59,7 @@ class RubyBBCode
      
       if !ti[:is_tag] or !ti[:closing_tag]
         if ti[:is_tag]
-          tag = @@tags[ti[:tag].to_sym]
+          tag = tags[ti[:tag].to_sym]
           unless tag[:only_in].nil? or (tags_list.length > 0 and tag[:only_in].include?(tags_list.last.to_sym))
             # Tag does to be put in the last opened tag
             err = "[#{ti[:tag]}] can only be used in [#{tag[:only_in].to_sentence(@@to_sentence_bbcode_tags)}]"
@@ -63,9 +73,9 @@ class RubyBBCode
           end
         end
 
-        if tags_list.length > 0 and  @@tags[tags_list.last.to_sym][:only_allow] != nil
+        if tags_list.length > 0 and  tags[tags_list.last.to_sym][:only_allow] != nil
           # Check if the found tag is allowed
-          last_tag = @@tags[tags_list.last.to_sym]
+          last_tag = tags[tags_list.last.to_sym]
           allowed_tags = last_tag[:only_allow]
           if (!ti[:is_tag] and last_tag[:require_between] != true) or (ti[:is_tag] and (allowed_tags.include?(ti[:tag].to_sym) == false))
             # Last opened tag does not allow tag
@@ -79,14 +89,14 @@ class RubyBBCode
 
         # Validation of tag succeeded, add to tags_list and/or bbtree
         if ti[:is_tag]
-          tag = @@tags[ti[:tag].to_sym]
+          tag = tags[ti[:tag].to_sym]
           tags_list.push ti[:tag]
           element = {:is_tag => true, :tag => ti[:tag].to_sym, :nodes => [] }
           element[:params] = {:tag_param => ti[:params][:tag_param]} if tag[:allow_tag_param] and ti[:params][:tag_param] != nil
         else
           element = {:is_tag => false, :text => ti[:text] }
           if bbtree_depth > 0
-            tag = @@tags[bbtree_current_node[:tag]]
+            tag = tags[bbtree_current_node[:tag]]
             if tag[:require_between] == true
               bbtree_current_node[:between] = ti[:text]
               if tag[:allow_tag_param] and tag[:allow_tag_param_between] and (bbtree_current_node[:params] == nil or bbtree_current_node[:params][:tag_param] == nil)
@@ -110,7 +120,7 @@ class RubyBBCode
 
       if  ti[:is_tag] and ti[:closing_tag]
         if ti[:is_tag]
-          tag = @@tags[ti[:tag].to_sym]
+          tag = tags[ti[:tag].to_sym]
           return ["Closing tag [/#{ti[:tag]}] does match [#{tags_list.last}]"] if tags_list.last != ti[:tag]
           return ["No text between [#{ti[:tag]}] and [/#{ti[:tag]}] tags."] if tag[:require_between] == true and bbtree_current_node[:between].blank?
           tags_list.pop
@@ -147,11 +157,12 @@ class RubyBBCode
     ti
   end
 
-  def self.bbtree_to_html(node_list)
+  def self.bbtree_to_html(node_list, tags = {})
+    tags = @@tags if tags == {}
     text = ""
     node_list.each do |node|
       if node[:is_tag]
-        tag = @@tags[node[:tag]]
+        tag = tags[node[:tag]]
         t = tag[:html_open].dup
         t.gsub!('%between%', node[:between]) if tag[:require_between]
         if tag[:allow_tag_param]
@@ -173,7 +184,7 @@ class RubyBBCode
         end
 
         text += t
-        text += bbtree_to_html(node[:nodes]) if node[:nodes].length > 0
+        text += bbtree_to_html(node[:nodes], tags) if node[:nodes].length > 0
         t = tag[:html_close]
         t.gsub!('%between%', node[:between]) if tag[:require_between]
         text += t
