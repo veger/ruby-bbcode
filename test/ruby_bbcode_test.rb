@@ -108,12 +108,12 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
   
   def test_youtube
-    assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/{param}"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>' ,
+    assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>' ,
                    '[youtube]E4Fbk52Mk1w[/youtube]'.bbcode_to_html
   end
   
   def test_google_video
-    assert_equal '<embed id="VideoPlayback" src="http://video.google.com/googleplayer.swf?docid=3972597293246812066&hl=en" style="width:500px; height:350px;" type="application/x-shockwave-flash"></embed>',
+    assert_equal '<embed id="VideoPlayback" src="http://video.google.com/googleplayer.swf?docid=397259729324681206&hl=en" style="width:400px; height:325px;" type="application/x-shockwave-flash"></embed>',
                    '[gvideo]397259729324681206[/gvideo]'.bbcode_to_html
   end
 
@@ -145,7 +145,7 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
 
   def test_self_tag_list
-    assert_equal 14, RubyBBCode.tag_list.size
+    assert_equal 15, RubyBBCode.tag_list.size
   end
   
   def test_addition_of_tags

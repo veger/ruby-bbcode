@@ -78,6 +78,18 @@ module BBCode
         :allow_tag_param => true, :allow_tag_param_between => false,
         :tag_param => /(([a-z]+)|(#[0-9a-f]{6}))/i, 
         :tag_param_tokens => [{:token => :color}]},
+      :youtube => {
+        :html_open => '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/%between%"></param><embed src="http://www.youtube.com/v/%between%" type="application/x-shockwave-flash" width="400" height="325"></embed></object>', :html_close => '',
+        :description => 'Youtube video',
+        :example => '[youtube]E4Fbk52Mk1w[/youtube]',
+        :only_allow => [],
+        :require_between => true},
+      :gvideo => {
+        :html_open => '<embed id="VideoPlayback" src="http://video.google.com/googleplayer.swf?docid=%between%&hl=en" style="width:400px; height:325px;" type="application/x-shockwave-flash"></embed>', :html_close => '',
+        :description => 'Google video',
+        :example => '[gvideo]397259729324681206[/gvideo]',
+        :only_allow => [],
+        :require_between => true},
     }
   end
 end
