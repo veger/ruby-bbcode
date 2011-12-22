@@ -11,7 +11,7 @@ h2. Example
  => 'This is <strong>bold</strong> and this is <em>italic</em>.'
 </code></pre>
 
-h2.Installing
+h2. Installing
 
 Add the folling line to the Gemfile in your Rails application:
 <pre><code>
