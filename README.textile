@@ -11,9 +11,24 @@ h2. Example
  => 'This is <strong>bold</strong> and this is <em>italic</em>.'
 </code></pre>
 
+h2.Installing
+
+Add the folling line to the Gemfile in your Rails application:
+<pre><code>
+gem 'ruby-bbcode', :git => 'git://github.com/veger/ruby-bbcode.git'
+</code></pre>
+Run
+<pre><code>
+bundle install 
+</code></pre>
+
+And the gem is available in you application
+
+_Note_: Do not forget to restart your server!
+
 h2. Acknowledgements
 
-Some of the ideas and the tests came form "bb-ruby":http://github.com/cpjolicoeur/bb-ruby of Craig P Jolicoeur
+Some of the ideas and the tests came from "bb-ruby":http://github.com/cpjolicoeur/bb-ruby of Craig P Jolicoeur
 
 h2. License
 
