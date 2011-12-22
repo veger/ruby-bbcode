@@ -6,21 +6,15 @@ The parser recognizes all "official tags":http://www.bbcode.org/reference.php an
 
 h2. Example
 
-<pre><code>
-'This is [b]bold[/b] and this is [i]italic[/i].'.bbcode_to_html
- => 'This is <strong>bold</strong> and this is <em>italic</em>.'
-</code></pre>
+<pre><code>'This is [b]bold[/b] and this is [i]italic[/i].'.bbcode_to_html
+ => 'This is <strong>bold</strong> and this is <em>italic</em>.'</code></pre>
 
 h2. Installing
 
 Add the folling line to the Gemfile in your Rails application:
-<pre><code>
-gem 'ruby-bbcode', :git => 'git://github.com/veger/ruby-bbcode.git'
-</code></pre>
+<pre><code>gem 'ruby-bbcode', :git => 'git://github.com/veger/ruby-bbcode.git'</code></pre>
 Run
-<pre><code>
-bundle install 
-</code></pre>
+<pre><code>bundle install</code></pre>
 
 And the gem is available in you application
 
