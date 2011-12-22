@@ -1,6 +1,6 @@
 require 'tags/tags'
 
-class RubyBBCode
+module RubyBBCode
   include BBCode::Tags
 
   @@to_sentence_bbcode_tags = {:words_connector => "], [", 
@@ -140,7 +140,7 @@ class RubyBBCode
   def self.find_tag_info(tag_info)
     ti = {}
     ti[:complete_match] = tag_info[0]
-    ti[:is_tag] = tag_info[0].starts_with? '['
+    ti[:is_tag] = (tag_info[0].start_with? '[')
     if ti[:is_tag]
       ti[:closing_tag] = (tag_info[2] == '/')
       ti[:tag] = tag_info[3]
@@ -189,14 +189,14 @@ class RubyBBCode
         t.gsub!('%between%', node[:between]) if tag[:require_between]
         text += t
       else
-        text += node[:text]
+        text += node[:text] unless node[:text].nil?
       end
     end
     text
   end
 end
 
-class String
+String.class_eval do
   # Convert a string with BBCode markup into its corresponding HTML markup
   def bbcode_to_html(escape_html = true, additional_tags = {}, method = :disable, *tags)
     RubyBBCode.to_html(self, escape_html, additional_tags, method, *tags)

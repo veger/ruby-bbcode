@@ -1,4 +1,7 @@
-ENV['RAILS_ROOT'] ||= File.dirname(__FILE__) + '/../../../..'
+# Configure Rails Environment
+ENV["RAILS_ENV"] = "test"
 
-require 'test/unit'
-require File.expand_path(File.join(ENV['RAILS_ROOT'], 'config/environment.rb'))
+require File.expand_path("../dummy/config/environment.rb",  __FILE__)
+require "rails/test_help"
+
+Rails.backtrace_cleaner.remove_silencers!

@@ -1,12 +1,31 @@
-require 'rake'
+#!/usr/bin/env rake
+begin
+  require 'bundler/setup'
+rescue LoadError
+  puts 'You must `gem install bundler` and `bundle install` to run rake tasks'
+end
+begin
+  require 'rdoc/task'
+rescue LoadError
+  require 'rdoc/rdoc'
+  require 'rake/rdoctask'
+  RDoc::Task = Rake::RDocTask
+end
+
+RDoc::Task.new(:rdoc) do |rdoc|
+  rdoc.rdoc_dir = 'rdoc'
+  rdoc.title    = 'RubyBbcode'
+  rdoc.options << '--line-numbers'
+  rdoc.rdoc_files.include('README.rdoc')
+  rdoc.rdoc_files.include('lib/**/*.rb')
+end
+
+
+
+Bundler::GemHelper.install_tasks
+
 require 'rake/testtask'
-require 'rake/rdoctask'
-require 'rake/gempackagetask'
 
-desc 'Default: run unit tests.'
-task :default => :test
-
-desc 'Test the ruby_bbcode plugin.'
 Rake::TestTask.new(:test) do |t|
   t.libs << 'lib'
   t.libs << 'test'
@@ -14,26 +33,5 @@ Rake::TestTask.new(:test) do |t|
   t.verbose = true
 end
 
-desc 'Generate documentation for the ruby_bbcode plugin.'
-Rake::RDocTask.new(:rdoc) do |rdoc|
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title    = 'Ruby-BBCode'
-  rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README')
-  rdoc.rdoc_files.include('lib/**/*.rb')
-end
 
-begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |s|
-    s.name = "ruby_bbcode"
-    s.version = "0.0.1"
-    s.summary = "BBCode for Ruby"
-    s.email = "maarten.bezemer@gmail.com"
-    s.homepage = "http://rails-i18n.org"
-    s.description = "Convert BBCode to HTML and check whether the BBCode is valid"
-    s.authors = ['Maarten Bezemer']
-  end
-rescue LoadError
-  puts "Jeweler, or one of its dependencies, is not available. Install it with: sudo gem install jeweler"
-end
+task :default => :test
