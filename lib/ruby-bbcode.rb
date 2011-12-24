@@ -69,7 +69,7 @@ module RubyBBCode
 
           if tag[:allow_tag_param] and ti[:params][:tag_param] != nil
             # Test if matches
-            return [tag[:tag_param_description].gsub('%param%', ti[:params][:tag_params])] if ti[:params][:tag_param].match(tag[:tag_param]).nil?
+            return [tag[:tag_param_description].gsub('%param%', ti[:params][:tag_param])] if ti[:params][:tag_param].match(tag[:tag_param]).nil?
           end
         end
 
