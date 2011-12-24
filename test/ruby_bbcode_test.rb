@@ -94,10 +94,22 @@ class RubyBbcodeTest < Test::Unit::TestCase
     assert_equal '<div class="quote"><strong>Kitten wrote:</strong><div class="quote"><strong>creatiu wrote:</strong>f1</div>f2</div>',
                   '[quote=Kitten][quote=creatiu]f1[/quote]f2[/quote]'.bbcode_to_html
   end
-  
+
   def test_link
     assert_equal '<a href="http://www.google.com">http://www.google.com</a>', '[url]http://www.google.com[/url]'.bbcode_to_html
     assert_equal '<a href="http://google.com">Google</a>', '[url=http://google.com]Google[/url]'.bbcode_to_html
+    assert_equal '<a href="/index.html">Home</a>', '[url=/index.html]Home[/url]'.bbcode_to_html
+  end
+
+  def test_illegal_link
+    assert_raise RuntimeError do
+      # Link within same domain must start with a /
+      '[url=index.html]Home[/url]'.bbcode_to_html
+    end
+    assert_raise RuntimeError do
+      # Link within same domain must start with a / and a link to another domain with http://, https:// or ftp://
+      '[url=www.google.com]Google[/url]'.bbcode_to_html
+    end
   end
   
   def test_image
