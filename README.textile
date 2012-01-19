@@ -12,6 +12,8 @@ h2. Example
 h2. Installing
 
 Add the folling line to the Gemfile in your Rails application:
+<pre><code>gem 'ruby-bbcode'</code></pre>
+Or grab it directly from the repository:
 <pre><code>gem 'ruby-bbcode', :git => 'git://github.com/veger/ruby-bbcode.git'</code></pre>
 Run
 <pre><code>bundle install</code></pre>
