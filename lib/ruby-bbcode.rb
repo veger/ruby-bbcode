@@ -24,8 +24,6 @@ module RubyBBCode
       text.gsub!('<', '&lt;')
       text.gsub!('>', '&gt;')
     end
-    text.gsub!("\r\n", "\n")
-    text.gsub!("\n", "<br />\n")
 
     valid = parse(text, use_tags)
     raise valid.join(', ') if valid != true
@@ -77,7 +75,7 @@ module RubyBBCode
           # Check if the found tag is allowed
           last_tag = tags[tags_list.last.to_sym]
           allowed_tags = last_tag[:only_allow]
-          if (!ti[:is_tag] and last_tag[:require_between] != true) or (ti[:is_tag] and (allowed_tags.include?(ti[:tag].to_sym) == false))
+          if (!ti[:is_tag] and last_tag[:require_between] != true and ti[:text].lstrip != "") or (ti[:is_tag] and (allowed_tags.include?(ti[:tag].to_sym) == false))
             # Last opened tag does not allow tag
             err = "[#{tags_list.last}] can only contain [#{allowed_tags.to_sentence(@@to_sentence_bbcode_tags)}] tags, so "
             err += "[#{ti[:tag]}]" if ti[:is_tag]
@@ -94,7 +92,10 @@ module RubyBBCode
           element = {:is_tag => true, :tag => ti[:tag].to_sym, :nodes => [] }
           element[:params] = {:tag_param => ti[:params][:tag_param]} if tag[:allow_tag_param] and ti[:params][:tag_param] != nil
         else
-          element = {:is_tag => false, :text => ti[:text] }
+          text = ti[:text]
+          text.gsub!("\r\n", "\n")
+          text.gsub!("\n", "<br />\n")
+          element = {:is_tag => false, :text => text }
           if bbtree_depth > 0
             tag = tags[bbtree_current_node[:tag]]
             if tag[:require_between] == true
