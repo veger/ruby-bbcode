@@ -2,6 +2,11 @@ require 'test_helper'
 
 class RubyBbcodeTest < Test::Unit::TestCase
 
+  def test_multiline
+    assert_equal "line1<br />\nline2", "line1\nline2".bbcode_to_html
+    assert_equal "line1<br />\nline2", "line1\r\nline2".bbcode_to_html
+  end
+  
   def test_strong
     assert_equal '<strong>simple</strong>', '[b]simple[/b]'.bbcode_to_html
     assert_equal "<strong>line 1<br />\nline 2</strong>", "[b]line 1\nline 2[/b]".bbcode_to_html
