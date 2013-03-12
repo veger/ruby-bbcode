@@ -56,12 +56,11 @@ module RubyBBCode
       ti.handle_unregistered_tags_as_text  # if the tag isn't in the tags list, then treat it as text
       
       # if it's text or if it's an opening tag...
-      if !ti[:is_tag] or !ti[:closing_tag]
+      if ti.element_is_text? or ti.element_is_opening_tag?
         # if it's an opening tag...
-        if ti[:is_tag]
+        if ti.element_is_tag?
           tag = tags[ti[:tag].to_sym]
-          #binding.pry
-          # tag[:only_in].nil? == allowed_outside_parent_tags?
+          
           unless ti.allowed_outside_parent_tags? or (tags_list.length > 0 and tag[:only_in].include?(tags_list.last.to_sym))
             # Tag does to be put in the last opened tag
             err = "[#{ti[:tag]}] can only be used in [#{tag[:only_in].to_sentence(@@to_sentence_bbcode_tags)}]"

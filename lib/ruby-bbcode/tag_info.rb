@@ -36,6 +36,14 @@ module RubyBBCode
       self[:is_tag]
     end
     
+    def element_is_opening_tag?
+      !self[:closing_tag]
+    end
+    
+    def element_is_text?
+      !self[:is_tag]
+    end
+    
     def tag_included_in_tags_list?
       !@tags.include?(self[:tag].to_sym)
     end
