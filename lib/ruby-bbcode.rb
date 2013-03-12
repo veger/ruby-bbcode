@@ -50,20 +50,9 @@ module RubyBBCode
   def self.parse(text, tags = {})
     tags = @@tags if tags == {}
     @tag_collection = TagCollection.new(text, tags)
-    
-=begin
-    tags = @@tags if tags == {}
-    tags_list = []
-    @bbtree = {:nodes => []}
-    bbtree_depth = 0
-    bbtree_current_node = @bbtree
-=end
    
-    if @tag_collection.valid != true
-      return @tag_collection.valid
-    end
+    return @tag_collection.errors if @tag_collection.invalid?
     
-    # return ["[#{tags_list.to_sentence((@@to_sentence_bbcode_tags))}] not closed"] if tags_list.length > 0
     return ["[#{@tag_collection.tags_list.to_sentence((@@to_sentence_bbcode_tags))}] not closed"] if @tag_collection.tags_list.length > 0
 
     true

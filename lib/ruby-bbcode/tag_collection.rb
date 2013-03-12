@@ -9,7 +9,7 @@ module RubyBBCode
       @bbtree_current_node = @bbtree
       
       @tag_info_collection = []
-      @valid = true
+      @errors = false
       
       commence_scan
     end
@@ -46,7 +46,7 @@ module RubyBBCode
               # Tag does to be put in the last opened tag
               err = "[#{ti[:tag]}] can only be used in [#{tag[:only_in].to_sentence(RubyBBCode.to_sentence_bbcode_tags)}]"
               err += ", so using it in a [#{@tags_list.last}] tag is not allowed" if @tags_list.length > 0
-              @valid = [err]  # TODO: Currently working on this...
+              @errors = [err]  # TODO: Currently working on this...
               #return [err]
               return   # TODO:  refactor these returns so that they follow a case when style syntax...  I think this will break things
                        #  Like when you parse a huge string, and it contains 1 error at the top... it will stop scanning the file
@@ -57,7 +57,7 @@ module RubyBBCode
             if tag[:allow_tag_param] and ti[:params][:tag_param] != nil
               # Test if matches
               if ti[:params][:tag_param].match(tag[:tag_param]).nil?
-                @valid = [tag[:tag_param_description].gsub('%param%', ti[:params][:tag_param])]
+                @errors = [tag[:tag_param_description].gsub('%param%', ti[:params][:tag_param])]
                 return
               end
             end
@@ -73,7 +73,7 @@ module RubyBBCode
               err += "[#{ti[:tag]}]" if ti[:is_tag]
               err += "\"#{ti[:text]}\"" unless ti[:is_tag]
               err += ' is not allowed'
-              @valid = [err]
+              @errors = [err]
               return
             end
           end
@@ -98,7 +98,7 @@ module RubyBBCode
                   
                   # Check if valid
                   if ti[:text].match(tag[:tag_param]).nil?
-                    @valid = [tag[:tag_param_description].gsub('%param%', ti[:text])]
+                    @errors = [tag[:tag_param_description].gsub('%param%', ti[:text])]
                     return
                   end
                   
@@ -123,11 +123,11 @@ module RubyBBCode
             tag = @defined_tags[ti[:tag].to_sym]
             
             if @tags_list.last != ti[:tag]
-              @valid = ["Closing tag [/#{ti[:tag]}] does match [#{@tags_list.last}]"] 
+              @errors = ["Closing tag [/#{ti[:tag]}] does match [#{@tags_list.last}]"] 
               return
             end
             if tag[:require_between] == true and @bbtree_current_node[:between].blank?
-              @valid = ["No text between [#{ti[:tag]}] and [/#{ti[:tag]}] tags."]
+              @errors = ["No text between [#{ti[:tag]}] and [/#{ti[:tag]}] tags."]
               return
             end
             @tags_list.pop
@@ -149,8 +149,12 @@ module RubyBBCode
       @bbtree
     end
     
-    def valid
-      @valid
+    def errors
+      @errors
+    end
+    
+    def invalid?
+      @errors != false
     end
     
   end
