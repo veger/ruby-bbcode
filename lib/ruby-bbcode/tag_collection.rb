@@ -8,7 +8,7 @@ module RubyBBCode
       @bbtree_depth = 0
       @bbtree_current_node = @bbtree
       
-      @current_tag_definition = ''
+      @last_tag_symbol = ''
       
       @tag_info_collection = []
       @errors = false
@@ -42,11 +42,11 @@ module RubyBBCode
             tag = @defined_tags[ti[:tag].to_sym]
             
             # ti.allowed_in(@tags_list.last.to_sym)
-            unless ti.allowed_outside_parent_tags? or (expecting_a_closing_tag? and tag[:only_in].include?(@tags_list.last.to_sym))
+            unless ti.allowed_outside_parent_tags? or (expecting_a_closing_tag? and ti.allowed_in(parent_tag.to_sym))
               #binding.pry
               # Tag does to be put in the last opened tag
               err = "[#{ti[:tag]}] can only be used in [#{tag[:only_in].to_sentence(RubyBBCode.to_sentence_bbcode_tags)}]"
-              err += ", so using it in a [#{@tags_list.last}] tag is not allowed" if @tags_list.length > 0
+              err += ", so using it in a [#{parent_tag}] tag is not allowed" if @tags_list.length > 0
               @errors = [err]  # TODO: Currently working on this...
               #return [err]
               return   # TODO:  refactor these returns so that they follow a case when style syntax...  I think this will break things
@@ -64,13 +64,13 @@ module RubyBBCode
             end
           end
   
-          if @tags_list.length > 0 and  @defined_tags[@tags_list.last.to_sym][:only_allow] != nil
+          if @tags_list.length > 0 and  @defined_tags[parent_tag][:only_allow] != nil
             # Check if the found tag is allowed
-            last_tag = @defined_tags[@tags_list.last.to_sym]
+            last_tag = @defined_tags[parent_tag]
             allowed_tags = last_tag[:only_allow]
             if (!ti[:is_tag] and last_tag[:require_between] != true and ti[:text].lstrip != "") or (ti[:is_tag] and (allowed_tags.include?(ti[:tag].to_sym) == false))
               # Last opened tag does not allow tag
-              err = "[#{@tags_list.last}] can only contain [#{allowed_tags.to_sentence(RubyBBCode.to_sentence_bbcode_tags)}] tags, so "
+              err = "[#{parent_tag}] can only contain [#{allowed_tags.to_sentence(RubyBBCode.to_sentence_bbcode_tags)}] tags, so "
               err += "[#{ti[:tag]}]" if ti[:is_tag]
               err += "\"#{ti[:text]}\"" unless ti[:is_tag]
               err += ' is not allowed'
@@ -94,7 +94,10 @@ module RubyBBCode
               tag = @defined_tags[@bbtree_current_node[:tag]]
               if tag[:require_between] == true
                 @bbtree_current_node[:between] = ti[:text]
-                if tag[:allow_tag_param] and tag[:allow_tag_param_between] and (@bbtree_current_node[:params] == nil or @bbtree_current_node[:params][:tag_param] == nil)
+                if tag[:allow_tag_param] and 
+                     tag[:allow_tag_param_between] and 
+                     (@bbtree_current_node[:params] == nil or 
+                     @bbtree_current_node[:params][:tag_param] == nil)
                   # Did not specify tag_param, so use between.
                   
                   # Check if valid
@@ -123,8 +126,9 @@ module RubyBBCode
           if ti[:is_tag]
             tag = @defined_tags[ti[:tag].to_sym]
             
-            if @tags_list.last != ti[:tag]
-              @errors = ["Closing tag [/#{ti[:tag]}] does match [#{@tags_list.last}]"] 
+            #binding.pry
+            if parent_tag != ti[:tag].to_sym
+              @errors = ["Closing tag [/#{ti[:tag]}] does match [#{parent_tag}]"] 
               return
             end
             if tag[:require_between] == true and @bbtree_current_node[:between].blank?
@@ -146,6 +150,11 @@ module RubyBBCode
       @tags_list
     end
     
+    def parent_tag
+      return nil if @tags_list.last.nil?
+      @tags_list.last.to_sym
+    end
+    
     def bbtree
       @bbtree
     end
@@ -163,7 +172,7 @@ module RubyBBCode
     end
     
     def tag_valid_for_current_parent?
-      tag[:only_in].include?(@tags_list.last.to_sym)
+      tag[:only_in].include?(parent_tag)
     end
     
   end

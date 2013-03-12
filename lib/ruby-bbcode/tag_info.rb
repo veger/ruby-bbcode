@@ -27,12 +27,10 @@ module RubyBBCode
     end
     
     def allowed_outside_parent_tags?
-      @tag_definition = @tag_dictionary[@tag_data[:tag].to_sym]
       @tag_definition[:only_in].nil?
     end
     
     def constrained_to_within_parent_tags?
-      @tag_definition = @tag_dictionary[@tag_data[:tag].to_sym]
       !@tag_definition[:only_in].nil?
     end
     
