@@ -1,4 +1,5 @@
 require 'tags/tags'
+require 'ruby-bbcode/tag_info'
 
 module RubyBBCode
   include BBCode::Tags
@@ -47,18 +48,21 @@ module RubyBBCode
     bbtree_depth = 0
     bbtree_current_node = @bbtree
     text.scan(/((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))/ix) do |tag_info|
-      ti = find_tag_info(tag_info)
+      require 'pry'
+      #binding.pry
+      
+      ti = TagInfo.new(tag_info, tags)    # TODO:  ti should be a full fledged class, not just a hash... it should have methods like #handle_bracketed_item_as_text...
 
-      if ti[:is_tag] and !tags.include?(ti[:tag].to_sym)
-        # Handle as text from now on!
-        ti[:is_tag] = false
-        ti[:text] = ti[:complete_match]
-      end
-     
+      ti.handle_unregistered_tags_as_text  # if the tag isn't in the tags list, then treat it as text
+      
+      # if it's text or if it's an opening tag...
       if !ti[:is_tag] or !ti[:closing_tag]
+        # if it's an opening tag...
         if ti[:is_tag]
           tag = tags[ti[:tag].to_sym]
-          unless tag[:only_in].nil? or (tags_list.length > 0 and tag[:only_in].include?(tags_list.last.to_sym))
+          #binding.pry
+          # tag[:only_in].nil? == allowed_outside_parent_tags?
+          unless ti.allowed_outside_parent_tags? or (tags_list.length > 0 and tag[:only_in].include?(tags_list.last.to_sym))
             # Tag does to be put in the last opened tag
             err = "[#{ti[:tag]}] can only be used in [#{tag[:only_in].to_sentence(@@to_sentence_bbcode_tags)}]"
             err += ", so using it in a [#{tags_list.last}] tag is not allowed" if tags_list.length > 0
@@ -118,6 +122,7 @@ module RubyBBCode
           bbtree_depth += 1
         end
       end
+      
 
       if  ti[:is_tag] and ti[:closing_tag]
         if ti[:is_tag]
@@ -138,25 +143,6 @@ module RubyBBCode
     true
   end
 
-  def self.find_tag_info(tag_info)
-    ti = {}
-    ti[:complete_match] = tag_info[0]
-    ti[:is_tag] = (tag_info[0].start_with? '[')
-    if ti[:is_tag]
-      ti[:closing_tag] = (tag_info[2] == '/')
-      ti[:tag] = tag_info[3]
-      ti[:params] = {}
-      if tag_info[4][0] == ?=
-        ti[:params][:tag_param] = tag_info[4][1..-1]
-      elsif tag_info[4][0] == ?\s
-        #TODO: Find params
-      end
-    else
-      # Plain text
-      ti[:text] = tag_info[8]
-    end
-    ti
-  end
 
   def self.bbtree_to_html(node_list, tags = {})
     tags = @@tags if tags == {}
@@ -195,6 +181,25 @@ module RubyBBCode
     end
     text
   end
+  
+  def self.parse_youtube_id(url)
+    #url = "http://www.youtube.com/watch?v=E4Fbk52Mk1w"
+    url =~ /[vV]=([^&]*)/
+    
+    id = $1
+    
+    
+    if id.nil?
+      # when there is no match for v=blah, then maybe they just 
+      # provided us with the ID the way the system used to work... 
+      # just "E4Fbk52Mk1w"
+      return url  
+    else
+      # else we got a match for an id and we can return that ID...
+      return id
+    end
+  end
+  
 end
 
 String.class_eval do
