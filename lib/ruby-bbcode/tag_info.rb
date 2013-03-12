@@ -37,13 +37,13 @@ module RubyBBCode
     end
     
     def element_is_opening_tag?
-      !self[:closing_tag]
+      self[:is_tag] and !self[:closing_tag]
     end
     
     def element_is_text?
-      !self[:is_tag]
+      !self[:text].nil?
     end
-    
+
     def tag_included_in_tags_list?
       !@tags.include?(self[:tag].to_sym)
     end
@@ -66,6 +66,10 @@ module RubyBBCode
         ti[:text] = tag_info[8]
       end
       ti
+    end
+    
+    def tag_data
+      @tag_data
     end
     
   end

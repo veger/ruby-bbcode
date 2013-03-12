@@ -1,4 +1,5 @@
 require 'tags/tags'
+require 'ruby-bbcode/debugging'
 require 'ruby-bbcode/tag_info'
 
 module RubyBBCode
@@ -56,9 +57,21 @@ module RubyBBCode
       ti.handle_unregistered_tags_as_text  # if the tag isn't in the tags list, then treat it as text
       
       # if it's text or if it's an opening tag...
+      # originally:  !ti[:is_tag] or !ti[:closing_tag]
       if ti.element_is_text? or ti.element_is_opening_tag?
+        
+        left = !ti[:is_tag] and !ti.element_is_opening_tag?
+        right = ti[:is_tag] and ti.element_is_opening_tag?
+        # debugging
+        if right
+          #log("got here...")
+          #log(ti[:closing_tag].inspect)
+          #log(ti.tag_data.inspect)
+        end
+        
         # if it's an opening tag...
-        if ti.element_is_tag?
+        # originally:  ti[:is_tag]
+        if ti.element_is_opening_tag?
           tag = tags[ti[:tag].to_sym]
           
           unless ti.allowed_outside_parent_tags? or (tags_list.length > 0 and tag[:only_in].include?(tags_list.last.to_sym))
