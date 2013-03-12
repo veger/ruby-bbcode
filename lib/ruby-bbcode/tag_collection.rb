@@ -8,6 +8,8 @@ module RubyBBCode
       @bbtree_depth = 0
       @bbtree_current_node = @bbtree
       
+      @current_tag_definition = ''
+      
       @tag_info_collection = []
       @errors = false
       
@@ -16,8 +18,6 @@ module RubyBBCode
     
     def commence_scan
       @text.scan(/((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))/ix) do |tag_info|
-        require 'pry'
-        
         
         ti = TagInfo.new(tag_info, @defined_tags)    # TODO:  ti should be a full fledged class, not just a hash... it should have methods like #handle_bracketed_item_as_text...
   
@@ -41,7 +41,8 @@ module RubyBBCode
           if ti.element_is_opening_tag?
             tag = @defined_tags[ti[:tag].to_sym]
             
-            unless ti.allowed_outside_parent_tags? or (@tags_list.length > 0 and tag[:only_in].include?(@tags_list.last.to_sym))
+            # ti.allowed_in(@tags_list.last.to_sym)
+            unless ti.allowed_outside_parent_tags? or (expecting_a_closing_tag? and tag[:only_in].include?(@tags_list.last.to_sym))
               #binding.pry
               # Tag does to be put in the last opened tag
               err = "[#{ti[:tag]}] can only be used in [#{tag[:only_in].to_sentence(RubyBBCode.to_sentence_bbcode_tags)}]"
@@ -155,6 +156,14 @@ module RubyBBCode
     
     def invalid?
       @errors != false
+    end
+    
+    def expecting_a_closing_tag?
+      @tags_list.length > 0
+    end
+    
+    def tag_valid_for_current_parent?
+      tag[:only_in].include?(@tags_list.last.to_sym)
     end
     
   end

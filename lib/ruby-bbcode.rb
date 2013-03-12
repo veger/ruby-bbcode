@@ -1,3 +1,5 @@
+require 'pry'
+
 require 'tags/tags'
 require 'ruby-bbcode/debugging'
 require 'ruby-bbcode/tag_info'
@@ -50,12 +52,15 @@ module RubyBBCode
   def self.parse(text, tags = {})
     tags = @@tags if tags == {}
     @tag_collection = TagCollection.new(text, tags)
-   
-    return @tag_collection.errors if @tag_collection.invalid?
     
-    return ["[#{@tag_collection.tags_list.to_sentence((@@to_sentence_bbcode_tags))}] not closed"] if @tag_collection.tags_list.length > 0
-
-    true
+    if @tag_collection.invalid?
+      @tag_collection.errors 
+    elsif @tag_collection.expecting_a_closing_tag?  # we're still expecting a closing tag...
+      ["[#{@tag_collection.tags_list.to_sentence((@@to_sentence_bbcode_tags))}] not closed"]
+    else
+      true
+    end
+    
   end
 
 

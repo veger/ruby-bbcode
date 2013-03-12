@@ -2,8 +2,12 @@ module RubyBBCode
   class TagInfo
     def initialize(tag_info, tags)
       @tag_data = find_tag_info(tag_info)
-      @tags = tags
-      @tag = @tags[@tag_data[:tag].to_sym] unless @tag_data[:tag].nil?
+      @tag_dictionary = tags
+      @tag_definition = @tag_dictionary[@tag_data[:tag].to_sym] unless @tag_data[:tag].nil?
+      
+      #unless @tag_data[:tag].nil?
+        #binding.pry
+      #end
     end
     
     def [](key)
@@ -23,13 +27,13 @@ module RubyBBCode
     end
     
     def allowed_outside_parent_tags?
-      @tag = @tags[@tag_data[:tag].to_sym]
-      @tag[:only_in].nil?
+      @tag_definition = @tag_dictionary[@tag_data[:tag].to_sym]
+      @tag_definition[:only_in].nil?
     end
     
     def constrained_to_within_parent_tags?
-      @tag = @tags[@tag_data[:tag].to_sym]
-      !@tag[:only_in].nil?
+      @tag_definition = @tag_dictionary[@tag_data[:tag].to_sym]
+      !@tag_definition[:only_in].nil?
     end
     
     def element_is_tag?
@@ -45,7 +49,7 @@ module RubyBBCode
     end
 
     def tag_included_in_tags_list?
-      !@tags.include?(self[:tag].to_sym)
+      !@tag_dictionary.include?(self[:tag].to_sym)
     end
 
     def find_tag_info(tag_info)
@@ -70,6 +74,10 @@ module RubyBBCode
     
     def tag_data
       @tag_data
+    end
+    
+    def allowed_in(tag_symbol)
+      @tag_definition[:only_in].include?(tag_symbol)
     end
     
   end
