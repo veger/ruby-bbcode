@@ -49,14 +49,7 @@ module RubyBBCode
                      @bbtree_current_node[:params][:tag_param] == nil)
                   # Did not specify tag_param, so use between.
                   
-                  #binding.pry
-                  # Check if valid
-                  if ti[:text].match(tag[:tag_param]).nil?
-                    binding.pry
-                    # this code path is never tested!  Interesting.  FIXME  Can it be removed?  Is it handled elsewhere?
-                    @errors = [tag[:tag_param_description].gsub('%param%', ti[:text])]
-                    return
-                  end
+                  return if !valid_param_supplied_as_text?
                   
                   # Store as tag_param
                   @bbtree_current_node[:params] = {:tag_param => ti[:text]}
@@ -139,6 +132,18 @@ module RubyBBCode
         return false
       end
       
+      true
+    end
+    
+    def valid_param_supplied_as_text?
+      ti = @current_ti
+      tag = @defined_tags[@bbtree_current_node[:tag]]
+      
+      # Check if valid
+      if ti[:text].match(tag[:tag_param]).nil?
+        @errors = [tag[:tag_param_description].gsub('%param%', ti[:text])]
+        return false
+      end
       true
     end
     

@@ -37,7 +37,6 @@ module RubyBBCode
     valid = parse(text, use_tags)
     raise valid.join(', ') if valid != true
 
-    #binding.pry
     bbtree_to_html(@tag_collection.bbtree[:nodes], use_tags)
   end
 
