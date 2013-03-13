@@ -26,7 +26,6 @@ module RubyBBCode
         
         ti.handle_unregistered_tags_as_text  # if the tag isn't in the @defined_tags list, then treat it as text
         
-        binding.pry
         
         # if it's text or if it's an opening tag...
         # originally:  !ti[:is_tag] or !ti[:closing_tag]

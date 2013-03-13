@@ -19,7 +19,8 @@ module RubyBBCode
     end
     
     def handle_unregistered_tags_as_text
-      if element_is_tag? and tag_included_in_tags_list?
+      binding.pry
+      if element_is_tag? and tag_missing_from_tag_list?
         # Handle as text from now on!
         self[:is_tag] = false
         self[:text] = self[:complete_match]
@@ -46,7 +47,7 @@ module RubyBBCode
       !self[:text].nil?
     end
 
-    def tag_included_in_tags_list?
+    def tag_missing_from_tag_list?
       !@tag_dictionary.include?(self[:tag].to_sym)
     end
 
