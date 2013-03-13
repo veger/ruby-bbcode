@@ -2,9 +2,10 @@ require 'test_helper'
 
 class RubyBbcodeTest < Test::Unit::TestCase
 
-  def test_youtube
-    assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>' ,
-                   '[youtube]E4Fbk52Mk1w[/youtube]'.bbcode_to_html
+  def test_enable_tags
+    #assert_equal "<strong>foobar</strong>" , "[b]foobar[/b]".bbcode_to_html(true, {}, :enable, :b)
+    assert_equal "<strong>[i]foobar[/i]</strong>", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :enable, :b)
+    #assert_equal "<strong><em>foobar</em></strong>", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :enable, :b, :i)
   end
   
   
