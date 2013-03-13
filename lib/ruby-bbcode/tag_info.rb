@@ -27,6 +27,7 @@ module RubyBBCode
       if element_is_tag? and tag_missing_from_tag_list?
         # Handle as text from now on!
         self[:is_tag] = false
+        self[:closing_tag] = false
         self[:text] = self[:complete_match]
       end
     end
@@ -45,6 +46,10 @@ module RubyBBCode
     
     def element_is_opening_tag?
       self[:is_tag] and !self[:closing_tag]
+    end
+    
+    def element_is_closing_tag?
+      self[:closing_tag]
     end
     
     def element_is_text?
