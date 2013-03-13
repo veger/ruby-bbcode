@@ -2,10 +2,15 @@ require 'test_helper'
 
 class RubyBbcodeTest < Test::Unit::TestCase
 
-  def test_enable_tags
-    #assert_equal "<strong>foobar</strong>" , "[b]foobar[/b]".bbcode_to_html(true, {}, :enable, :b)
-    #assert_equal "<strong>[i]foobar[/i]</strong>", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :enable, :b)
-    assert_equal "<strong><em>foobar</em></strong>", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :enable, :b, :i)
+  def test_addition_of_tags
+    mydef = {
+      :test => {
+        :html_open => '<test>', :html_close => '</test>',
+        :description => 'This is a test',
+        :example => '[test]Test here[/test]'}
+    }
+    assert_equal 'pre <test>Test here</test> post', 'pre [test]Test here[/test] post'.bbcode_to_html(true, mydef)
+    #assert_equal 'pre <strong><test>Test here</test></strong> post', 'pre [b][test]Test here[/test][/b] post'.bbcode_to_html(true, mydef)
   end
   
   

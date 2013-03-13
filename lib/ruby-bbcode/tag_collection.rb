@@ -13,11 +13,9 @@ module RubyBBCode
       
       @tag_info_collection = []
       @errors = false
-      
-      commence_scan
     end
     
-    def commence_scan
+    def process_text
       @text.scan(/((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))/ix) do |tag_info|
         
         @current_ti = TagInfo.new(tag_info, @defined_tags)
@@ -36,17 +34,16 @@ module RubyBBCode
             @tags_list.push ti[:tag]
             element = {:is_tag => true, :tag => ti[:tag].to_sym, :nodes => [] }
             element[:params] = {:tag_param => ti[:params][:tag_param]} if ti.can_have_params? and ti.has_params?
-          elsif ti.element_is_text? # element_is_text
+          elsif ti.element_is_text?
             
             element = {:is_tag => false, :text => ti.text }
             if @bbtree_depth > 0
               tag = @defined_tags[@bbtree_current_node[:tag]]
+              #binding.pry
               if tag[:require_between] == true
                 @bbtree_current_node[:between] = ti[:text]
-                if tag[:allow_tag_param] and 
-                     tag[:allow_tag_param_between] and 
-                     (@bbtree_current_node[:params] == nil or 
-                     @bbtree_current_node[:params][:tag_param] == nil)
+                if tag[:allow_tag_param] and tag[:allow_tag_param_between] and 
+                     (@bbtree_current_node[:params] == nil or @bbtree_current_node[:params][:tag_param] == nil)
                   # Did not specify tag_param, so use between.
                   
                   return if !valid_param_supplied_as_text?

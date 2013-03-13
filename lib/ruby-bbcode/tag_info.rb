@@ -5,6 +5,11 @@ module RubyBBCode
       @tag_dictionary = tags
       @tag_definition = @tag_dictionary[@tag_data[:tag].to_sym] unless @tag_data[:tag].nil?
       
+      if @tag_data[:tag].nil?
+        # TODO:  I'm working on this now
+        # If this is a text tag, then we won't know our @tag_definition... though that information would be useful...
+        # For purposes...  It should be possible to ... we're doomed!
+      end
       #unless @tag_data[:tag].nil?
         #binding.pry
       #end

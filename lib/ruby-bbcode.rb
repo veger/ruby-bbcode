@@ -54,6 +54,8 @@ module RubyBBCode
     
     @tag_collection = TagCollection.new(text, tags)
     
+    @tag_collection.process_text
+    
     if @tag_collection.invalid?
       @tag_collection.errors 
     elsif @tag_collection.expecting_a_closing_tag?  # we're still expecting a closing tag...
