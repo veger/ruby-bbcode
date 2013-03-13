@@ -19,7 +19,6 @@ module RubyBBCode
     end
     
     def handle_unregistered_tags_as_text
-      binding.pry
       if element_is_tag? and tag_missing_from_tag_list?
         # Handle as text from now on!
         self[:is_tag] = false
@@ -95,6 +94,15 @@ module RubyBBCode
       @tag_data[:params][:tag_param].match(@tag_definition[:tag_param]).nil?
     end
     
+    # This represents the text value of the element (if it's not a tag element)
+    # Newlines are converted to html <br /> syntax before being returned.  
+    def text
+      text = @tag_data[:text]
+      # convert_newlines_to_br  
+      text.gsub!("\r\n", "\n")
+      text.gsub!("\n", "<br />\n")
+      text
+    end
     
   end
 end

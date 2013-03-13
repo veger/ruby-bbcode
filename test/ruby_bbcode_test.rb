@@ -123,6 +123,9 @@ class RubyBbcodeTest < Test::Unit::TestCase
       # Link within same domain must start with a / and a link to another domain with http://, https:// or ftp://
       '[url=www.google.com]Google[/url]'.bbcode_to_html
     end
+    assert_raise RuntimeError do
+      '[url]htfp://www.google.com[/url]'.bbcode_to_html
+    end
   end
   
   def test_image

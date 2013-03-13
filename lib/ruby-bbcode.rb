@@ -37,6 +37,7 @@ module RubyBBCode
     valid = parse(text, use_tags)
     raise valid.join(', ') if valid != true
 
+    #binding.pry
     bbtree_to_html(@tag_collection.bbtree[:nodes], use_tags)
   end
 
@@ -51,6 +52,7 @@ module RubyBBCode
   protected
   def self.parse(text, tags = {})
     tags = @@tags if tags == {}
+    
     @tag_collection = TagCollection.new(text, tags)
     
     if @tag_collection.invalid?
@@ -66,10 +68,12 @@ module RubyBBCode
 
   def self.bbtree_to_html(node_list, tags = {})
     tags = @@tags if tags == {}
+    
     text = ""
     node_list.each do |node|
       if node[:is_tag]
         tag = tags[node[:tag]]
+        #binding.pry if tag.nil?
         t = tag[:html_open].dup
         t.gsub!('%between%', node[:between]) if tag[:require_between]
         if tag[:allow_tag_param]
