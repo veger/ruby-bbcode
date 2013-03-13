@@ -74,8 +74,28 @@ module RubyBBCode
       @tag_data
     end
     
+    def definition
+      @tag_definition
+    end
+    
     def allowed_in(tag_symbol)
       @tag_definition[:only_in].include?(tag_symbol)
+    end
+    
+    def can_have_params?
+      @tag_definition[:allow_tag_param]
+    end
+    
+    def has_params?
+      @tag_data[:params][:tag_param] != nil
+    end
+    
+    def invalid_param?
+      @tag_data[:params][:tag_param].match(@tag_definition[:tag_param]).nil?
+    end
+    
+    def valid_element?
+      
     end
     
   end

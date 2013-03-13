@@ -9,6 +9,7 @@ module RubyBBCode
       @bbtree_current_node = @bbtree
       
       @last_tag_symbol = ''
+      @current_ti = nil
       
       @tag_info_collection = []
       @errors = false
@@ -19,69 +20,47 @@ module RubyBBCode
     def commence_scan
       @text.scan(/((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))/ix) do |tag_info|
         
-        ti = TagInfo.new(tag_info, @defined_tags)    # TODO:  ti should be a full fledged class, not just a hash... it should have methods like #handle_bracketed_item_as_text...
-  
+        @current_ti = TagInfo.new(tag_info, @defined_tags)
+        ti = @current_ti
+        tag = ti.definition
+        
         ti.handle_unregistered_tags_as_text  # if the tag isn't in the @defined_tags list, then treat it as text
         
         # if it's text or if it's an opening tag...
         # originally:  !ti[:is_tag] or !ti[:closing_tag]
         if ti.element_is_text? or ti.element_is_opening_tag?
           
-          left = !ti[:is_tag] and !ti.element_is_opening_tag?
-          right = ti[:is_tag] and ti.element_is_opening_tag?
-          # debugging
-          if right
-            #log("got here...")
-            #log(ti[:closing_tag].inspect)
-            #log(ti.tag_data.inspect)
-          end
-          
-          # if it's an opening tag...
-          # originally:  ti[:is_tag]
+          # TODO:  rename this if statement to #validate_opening_tag
           if ti.element_is_opening_tag?
-            tag = @defined_tags[ti[:tag].to_sym]
-            
-            # ti.allowed_in(@tags_list.last.to_sym)
             unless ti.allowed_outside_parent_tags? or (expecting_a_closing_tag? and ti.allowed_in(parent_tag.to_sym))
-              #binding.pry
-              # Tag does to be put in the last opened tag
-              err = "[#{ti[:tag]}] can only be used in [#{tag[:only_in].to_sentence(RubyBBCode.to_sentence_bbcode_tags)}]"
-              err += ", so using it in a [#{parent_tag}] tag is not allowed" if @tags_list.length > 0
-              @errors = [err]  # TODO: Currently working on this...
-              #return [err]
-              return   # TODO:  refactor these returns so that they follow a case when style syntax...  I think this will break things
-                       #  Like when you parse a huge string, and it contains 1 error at the top... it will stop scanning the file
-                       #  when a return is struck because it's popping completely out of the class and won't have a chance to keep scanning
-                       #  ... although wait a second... that's the current behavior isn't it??
+              # Tag doesn't belong in the last opened tag
+              throw_child_requires_specific_parent_error; return false
             end
-  
-            if tag[:allow_tag_param] and ti[:params][:tag_param] != nil
+
+            # Originally:  tag[:allow_tag_param] and ti[:params][:tag_param] != nil
+            if ti.can_have_params? and ti.has_params?
               # Test if matches
-              if ti[:params][:tag_param].match(tag[:tag_param]).nil?
-                @errors = [tag[:tag_param_description].gsub('%param%', ti[:params][:tag_param])]
-                return
+              if ti.invalid_param?
+                throw_invalid_param_error; return false
               end
             end
           end
-  
-          if @tags_list.length > 0 and  @defined_tags[parent_tag][:only_allow] != nil
+          
+          # TODO:  Rename this if statement to #validate_constraints_on_child
+          if expecting_a_closing_tag? and parent_has_constraints_on_children?
             # Check if the found tag is allowed
             last_tag = @defined_tags[parent_tag]
             allowed_tags = last_tag[:only_allow]
-            if (!ti[:is_tag] and last_tag[:require_between] != true and ti[:text].lstrip != "") or (ti[:is_tag] and (allowed_tags.include?(ti[:tag].to_sym) == false))
+            if (!ti[:is_tag] and last_tag[:require_between] != true and ti[:text].lstrip != "") or (ti[:is_tag] and (allowed_tags.include?(ti[:tag].to_sym) == false))  # TODO: refactor this
               # Last opened tag does not allow tag
-              err = "[#{parent_tag}] can only contain [#{allowed_tags.to_sentence(RubyBBCode.to_sentence_bbcode_tags)}] tags, so "
-              err += "[#{ti[:tag]}]" if ti[:is_tag]
-              err += "\"#{ti[:text]}\"" unless ti[:is_tag]
-              err += ' is not allowed'
-              @errors = [err]
-              return
+              throw_parent_prohibits_this_child_error; return false
             end
           end
-  
+
+          # TODO:  Refactor to if ti.valid? which will run the above validations and then return false if ti.errors exists...
+
           # Validation of tag succeeded, add to @tags_list and/or bbtree
-          if ti[:is_tag]
-            tag = @defined_tags[ti[:tag].to_sym]
+          if ti.element_is_tag?
             @tags_list.push ti[:tag]
             element = {:is_tag => true, :tag => ti[:tag].to_sym, :nodes => [] }
             element[:params] = {:tag_param => ti[:params][:tag_param]} if tag[:allow_tag_param] and ti[:params][:tag_param] != nil
@@ -124,9 +103,7 @@ module RubyBBCode
   
         if  ti[:is_tag] and ti[:closing_tag]
           if ti[:is_tag]
-            tag = @defined_tags[ti[:tag].to_sym]
             
-            #binding.pry
             if parent_tag != ti[:tag].to_sym
               @errors = ["Closing tag [/#{ti[:tag]}] does match [#{parent_tag}]"] 
               return
@@ -146,6 +123,28 @@ module RubyBBCode
       end
     end
     
+    def throw_child_requires_specific_parent_error
+      ti = @current_ti
+      err = "[#{ti[:tag]}] can only be used in [#{ti.definition[:only_in].to_sentence(RubyBBCode.to_sentence_bbcode_tags)}]"
+      err += ", so using it in a [#{parent_tag}] tag is not allowed" if expecting_a_closing_tag?
+      @errors = [err]
+    end
+    
+    def throw_invalid_param_error
+      ti = @current_ti
+      @errors = [ti.definition[:tag_param_description].gsub('%param%', ti[:params][:tag_param])]
+    end
+    
+    def throw_parent_prohibits_this_child_error
+      ti = @current_ti
+      allowed_tags = @defined_tags[parent_tag][:only_allow]
+      err = "[#{parent_tag}] can only contain [#{allowed_tags.to_sentence(RubyBBCode.to_sentence_bbcode_tags)}] tags, so "
+      err += "[#{ti[:tag]}]" if ti[:is_tag]
+      err += "\"#{ti[:text]}\"" unless ti[:is_tag]
+      err += ' is not allowed'
+      @errors = [err]
+    end
+    
     def tags_list
       @tags_list
     end
@@ -153,6 +152,10 @@ module RubyBBCode
     def parent_tag
       return nil if @tags_list.last.nil?
       @tags_list.last.to_sym
+    end
+    
+    def parent_has_constraints_on_children?
+      @defined_tags[parent_tag][:only_allow] != nil
     end
     
     def bbtree
