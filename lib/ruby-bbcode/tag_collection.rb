@@ -30,34 +30,7 @@ module RubyBBCode
         # originally:  !ti[:is_tag] or !ti[:closing_tag]
         if ti.element_is_text? or ti.element_is_opening_tag?
           
-          # TODO:  rename this if statement to #validate_opening_tag
-          if ti.element_is_opening_tag?
-            unless ti.allowed_outside_parent_tags? or (expecting_a_closing_tag? and ti.allowed_in(parent_tag.to_sym))
-              # Tag doesn't belong in the last opened tag
-              throw_child_requires_specific_parent_error; return false
-            end
-
-            # Originally:  tag[:allow_tag_param] and ti[:params][:tag_param] != nil
-            if ti.can_have_params? and ti.has_params?
-              # Test if matches
-              if ti.invalid_param?
-                throw_invalid_param_error; return false
-              end
-            end
-          end
-          
-          # TODO:  Rename this if statement to #validate_constraints_on_child
-          if expecting_a_closing_tag? and parent_has_constraints_on_children?
-            # Check if the found tag is allowed
-            last_tag = @defined_tags[parent_tag]
-            allowed_tags = last_tag[:only_allow]
-            if (!ti[:is_tag] and last_tag[:require_between] != true and ti[:text].lstrip != "") or (ti[:is_tag] and (allowed_tags.include?(ti[:tag].to_sym) == false))  # TODO: refactor this
-              # Last opened tag does not allow tag
-              throw_parent_prohibits_this_child_error; return false
-            end
-          end
-
-          # TODO:  Refactor to if ti.valid? which will run the above validations and then return false if ti.errors exists...
+          return if !valid_element?
 
           # Validation of tag succeeded, add to @tags_list and/or bbtree
           if ti.element_is_tag?
@@ -121,6 +94,39 @@ module RubyBBCode
           end
         end
       end
+    end
+    
+    def valid_element?
+      ti = @current_ti
+      
+      # TODO:  rename this if statement to #validate_opening_tag
+      if ti.element_is_opening_tag?
+        unless ti.allowed_outside_parent_tags? or (expecting_a_closing_tag? and ti.allowed_in(parent_tag.to_sym))
+          # Tag doesn't belong in the last opened tag
+          throw_child_requires_specific_parent_error; return false
+        end
+
+        # Originally:  tag[:allow_tag_param] and ti[:params][:tag_param] != nil
+        if ti.can_have_params? and ti.has_params?
+          # Test if matches
+          if ti.invalid_param?
+            throw_invalid_param_error; return false
+          end
+        end
+      end
+      
+      # TODO:  Rename this if statement to #validate_constraints_on_child
+      if expecting_a_closing_tag? and parent_has_constraints_on_children?
+        # Check if the found tag is allowed
+        last_tag = @defined_tags[parent_tag]
+        allowed_tags = last_tag[:only_allow]
+        if (!ti[:is_tag] and last_tag[:require_between] != true and ti[:text].lstrip != "") or (ti[:is_tag] and (allowed_tags.include?(ti[:tag].to_sym) == false))  # TODO: refactor this
+          # Last opened tag does not allow tag
+          throw_parent_prohibits_this_child_error; return false
+        end
+      end
+      
+      true
     end
     
     def throw_child_requires_specific_parent_error

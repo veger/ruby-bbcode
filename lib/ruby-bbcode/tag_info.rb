@@ -94,9 +94,6 @@ module RubyBBCode
       @tag_data[:params][:tag_param].match(@tag_definition[:tag_param]).nil?
     end
     
-    def valid_element?
-      
-    end
     
   end
 end
