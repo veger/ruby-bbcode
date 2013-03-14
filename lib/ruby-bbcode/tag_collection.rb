@@ -4,7 +4,7 @@ module RubyBBCode
       @text = text
       @defined_tags = tags
       @tags_list = []
-      @bbtree = {:nodes => []}
+      @bbtree = BBTree.new({:nodes => []})
       @bbtree_depth = 0
       @bbtree_current_node = @bbtree
       
@@ -34,7 +34,7 @@ module RubyBBCode
           @tags_list.push ti[:tag]
           element = {:is_tag => true, :tag => ti[:tag].to_sym, :nodes => [] }
           element[:params] = {:tag_param => ti[:params][:tag_param]} if ti.can_have_params? and ti.has_params?
-          @bbtree_current_node[:nodes] << element unless element == nil  # FIXME:  It can't be nil here... but can elsewhere
+          @bbtree_current_node[:nodes] << BBTree.new(element) unless element == nil  # FIXME:  It can't be nil here... but can elsewhere
           escalate_bbtree(element) #  if ti.element_is_opening_tag?
         elsif ti.element_is_text?
           element = {:is_tag => false, :text => ti.text }
@@ -42,9 +42,10 @@ module RubyBBCode
             tag = @defined_tags[@bbtree_current_node[:tag]]
             if tag[:require_between]
               @bbtree_current_node[:between] = ti[:text]
-              # tag_requires_param_but_didnt_specify_tag_param
+              #binding.pry
+              # requires_param_but_none_specified_in_tag_param?
               if tag[:allow_tag_param] and tag[:allow_tag_param_between] and 
-                   (@bbtree_current_node[:params].nil? or @bbtree_current_node[:params][:tag_param].nil?)
+                  @bbtree_current_node.requires_param_but_none_specified_in_tag_param?
                 # binding.pry
                 # Did not specify tag_param, so use between.
                 return if !valid_param_supplied_as_text?
@@ -56,7 +57,7 @@ module RubyBBCode
           
           end
           
-          @bbtree_current_node[:nodes] << element unless element == nil
+          @bbtree_current_node[:nodes] << BBTree.new(element) unless element == nil
           
         elsif ti.element_is_closing_tag?
           retrogress_bbtree
@@ -73,7 +74,7 @@ module RubyBBCode
     
     # Advance to next level (the node we just added)
     def escalate_bbtree(element)
-      @bbtree_current_node = element
+      @bbtree_current_node = BBTree.new(element)
       @bbtree_depth += 1
     end
     
@@ -84,7 +85,7 @@ module RubyBBCode
       # Find parent node (kinda hard since no link to parent node is available...)
       @bbtree_depth -= 1
       @bbtree_current_node = @bbtree
-      @bbtree_depth.times { @bbtree_current_node = @bbtree_current_node[:nodes].last }
+      @bbtree_depth.times { @bbtree_current_node = @bbtree_current_node[:nodes].last }  # FIXME:  fuck...  I wonder what this shit's about...  I think I need @bbtree[:nodes] to actually be a hash... but contain BBTree elements??...
     end
     
     def valid_text_or_opening_element?
