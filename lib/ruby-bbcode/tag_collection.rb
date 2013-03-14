@@ -172,9 +172,7 @@ module RubyBBCode
     
     
     
-    def use_between_as_tag_param
-      @bbtree_current_node[:params] = {:tag_param => @ti[:text]}
-    end
+    
     
     # Advance to next level (the node we just added)
     def escalate_bbtree(element)
@@ -191,10 +189,14 @@ module RubyBBCode
       @bbtree_depth -= 1
       @bbtree_current_node = @bbtree
       
-      @bbtree_current_node = @bbtree_current_node[:nodes].last if @bbtree_depth > 0
+      # Set the current node to be the node we've just parsed over which is infact within another node??...
+      @bbtree_current_node = @bbtree_current_node[:nodes].last if within_open_tag?
     end
     
     
+    def use_between_as_tag_param
+      @bbtree_current_node[:params] = {:tag_param => @ti[:text]}
+    end
     
     def candidate_for_using_between_as_param?
       # TODO:  the bool values... 
@@ -217,9 +219,16 @@ module RubyBBCode
     # Responsibilities:  
     #   #escalate_bbtree
     #   #retrogress_bbtree
+    #   #use_between_as_tag_param
+    #   
+    #
     #   #depth
     #   #[](key)
-    #   
+    #   #within_open_tag? ..???
+    #   #parent_has_constraints_on_children?
+    #   #candidate_for_using_between_as_param?
+    #
+    #   FIXME:  Consider the merits of the above proposal when you're not so sleepy
     def within_open_tag?
       @bbtree_depth > 0
     end
