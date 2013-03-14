@@ -22,6 +22,8 @@ module RubyBBCode
         ti = @current_ti
         tag = ti.definition
         
+        # @bbtree_current_node # FIXME:  Should be a full fledged class with methods, shouldn't just be a hash...
+        
         ti.handle_unregistered_tags_as_text  # if the tag isn't in the @defined_tags list, then treat it as text
         
         return if !valid_text_or_opening_element?  # TODO:  refactor into return if !valid_element?
@@ -43,6 +45,7 @@ module RubyBBCode
               # tag_requires_param_but_didnt_specify_tag_param
               if tag[:allow_tag_param] and tag[:allow_tag_param_between] and 
                    (@bbtree_current_node[:params].nil? or @bbtree_current_node[:params][:tag_param].nil?)
+                # binding.pry
                 # Did not specify tag_param, so use between.
                 return if !valid_param_supplied_as_text?
                 

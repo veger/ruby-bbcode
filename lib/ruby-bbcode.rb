@@ -4,6 +4,7 @@ require 'tags/tags'
 require 'ruby-bbcode/debugging'
 require 'ruby-bbcode/tag_info'
 require 'ruby-bbcode/tag_collection'
+require 'ruby-bbcode/bbtree'
 
 module RubyBBCode
   include BBCode::Tags
