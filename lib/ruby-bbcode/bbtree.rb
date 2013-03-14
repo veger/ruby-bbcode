@@ -12,7 +12,7 @@ module RubyBBCode
       @hash[key] = value
     end
     
-    def requires_param_but_none_specified_in_tag_param?
+    def param_not_set?
       (@hash[:params].nil? or @hash[:params][:tag_param].nil?)
     end
     

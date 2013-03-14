@@ -28,36 +28,28 @@ module RubyBBCode
         
         return if !valid_text_or_opening_element?  # TODO:  refactor into return if !valid_element?
         return if !valid_closing_element?
+        return if !valid_param_supplied_as_text?  
         
         # Validation of tag succeeded, add to @tags_list and/or bbtree
         if ti.element_is_opening_tag?
-          @tags_list.push ti[:tag]
           element = {:is_tag => true, :tag => ti[:tag].to_sym, :nodes => [] }
           element[:params] = {:tag_param => ti[:params][:tag_param]} if ti.can_have_params? and ti.has_params?
-          @bbtree_current_node[:nodes] << BBTree.new(element) unless element == nil  # FIXME:  It can't be nil here... but can elsewhere
-          escalate_bbtree(element) #  if ti.element_is_opening_tag?
+          @bbtree_current_node[:nodes] << BBTree.new(element) unless element.nil?  # FIXME:  It can't be nil here... but can elsewhere
+          escalate_bbtree(element)
         elsif ti.element_is_text?
           element = {:is_tag => false, :text => ti.text }
-          if @bbtree_depth > 0
+          if @bbtree_depth > 0  # FIXME:  I think there's a redundancy of methods for looking up if we're "Expecting a closing tag" aka "we're within an open tag"
             tag = @defined_tags[@bbtree_current_node[:tag]]
             if tag[:require_between]
               @bbtree_current_node[:between] = ti[:text]
-              #binding.pry
-              # requires_param_but_none_specified_in_tag_param?
-              if tag[:allow_tag_param] and tag[:allow_tag_param_between] and 
-                  @bbtree_current_node.requires_param_but_none_specified_in_tag_param?
-                # binding.pry
-                # Did not specify tag_param, so use between.
-                return if !valid_param_supplied_as_text?
-                
-                use_between_as_tag_param
+              if candidate_for_using_between_as_param?
+                use_between_as_tag_param    # Did not specify tag_param, so use between.
               end
               element = nil
             end
-          
           end
-          
-          @bbtree_current_node[:nodes] << BBTree.new(element) unless element == nil
+
+          @bbtree_current_node[:nodes] << BBTree.new(element) unless element.nil?
           
         elsif ti.element_is_closing_tag?
           retrogress_bbtree
@@ -74,6 +66,8 @@ module RubyBBCode
     
     # Advance to next level (the node we just added)
     def escalate_bbtree(element)
+      ti = @current_ti
+      @tags_list.push ti[:tag]
       @bbtree_current_node = BBTree.new(element)
       @bbtree_depth += 1
     end
@@ -139,17 +133,16 @@ module RubyBBCode
       true
     end
     
-    # Validate if params match node constraints
+    # This validation is for text elements with between text 
+    # that might be construed as a param.
+    # The validation code checks if the params match constraints
+    # imposed by the node/tag/parent.  
     def valid_param_supplied_as_text?
       ti = @current_ti
       tag = @defined_tags[@bbtree_current_node[:tag]]
       
-      # FIXME:  See about giving this a proper name...
-      confusing_bool = tag[:allow_tag_param] and tag[:allow_tag_param_between] and 
-                         (@bbtree_current_node[:params].nil? or @bbtree_current_node[:params][:tag_param].nil?)
-      
       # this conditional ensures whether the validation is apropriate to this tag type
-      if ti.element_is_text? and @bbtree_depth > 0 and tag[:require_between] and confusing_bool
+      if ti.element_is_text? and @bbtree_depth > 0 and tag[:require_between] and candidate_for_using_between_as_param?
       
         # check if valid
         if ti[:text].match(tag[:tag_param]).nil?
@@ -158,6 +151,16 @@ module RubyBBCode
         end
       end
       true
+    end
+    
+    def candidate_for_using_between_as_param?
+      # TODO:  the bool values... 
+      # are unclear and should be worked on.  Additional tag might be tag[:requires_param] such that
+      # [img] would have that as true...  and [url] would have that as well...  
+      # as it is now, if a tag (say youtube) has tag[:require_between] == true and tag[:allow_tag_param].nil?
+      # then the :between is assumed to be the param...  that is, a tag that should respond 'true' to tag.requires_param?  
+      tag = @defined_tags[@bbtree_current_node[:tag]]
+      tag[:allow_tag_param_between] and @bbtree_current_node.param_not_set?
     end
     
     def throw_child_requires_specific_parent_error
@@ -209,6 +212,13 @@ module RubyBBCode
     
     def expecting_a_closing_tag?
       @tags_list.length > 0
+    end
+    
+    # This function is essentially a duplication of 'expecting_a_closing_tag?'
+    # I'm not exactly sure what to do... they use two different methods of lookup...
+    # I wonder if the @bbtree_depth variable is entirely redundant...
+    def within_open_tag?
+      @bbtree_depth > 0
     end
     
     def tag_valid_for_current_parent?
