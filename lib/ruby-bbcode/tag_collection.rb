@@ -17,13 +17,10 @@ module RubyBBCode
     
     def process_text
       @text.scan(/((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))/ix) do |tag_info|
-        
         @current_ti = TagInfo.new(tag_info, @defined_tags)
         ti = @current_ti
-        tag = ti.definition
         
         ti.handle_unregistered_tags_as_text  # if the tag isn't in the @defined_tags list, then treat it as text
-        
         return if !valid_element?
         
         # Validation of tag succeeded, add to @tags_list and/or bbtree
@@ -53,11 +50,12 @@ module RubyBBCode
       end
     end
     
+    # Validates the element
     def valid_element?
       return false if !valid_text_or_opening_element?
       return false if !valid_closing_element?
       return false if !valid_param_supplied_as_text?
-      true  
+      true
     end
     
     def use_between_as_tag_param
