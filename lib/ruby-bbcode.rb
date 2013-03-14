@@ -59,8 +59,6 @@ module RubyBBCode
     
     if @tag_collection.invalid?
       @tag_collection.errors 
-    elsif @tag_collection.expecting_a_closing_tag?  # we're still expecting a closing tag...
-      ["[#{@tag_collection.tags_list.to_sentence((@@to_sentence_bbcode_tags))}] not closed"]
     else
       true
     end

@@ -15,6 +15,23 @@ module RubyBBCode
       @errors = false
     end
     
+    def tags_list
+      @tags_list
+    end
+    
+    def bbtree
+      @bbtree
+    end
+    
+    def errors
+      @errors
+    end
+    
+    def invalid?
+      @errors != false
+    end
+    
+    
     def process_text
       @text.scan(/((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))/ix) do |tag_info|
         @ti = TagInfo.new(tag_info, @defined_tags)
@@ -47,7 +64,30 @@ module RubyBBCode
           retrogress_bbtree
         end
       end
+      
+      
+      # if we're still expecting a closing tag and we've come to the end of the string... throw error
+      if expecting_a_closing_tag?
+        @errors = ["[#{@tags_list.to_sentence(RubyBBCode.to_sentence_bbcode_tags)}] not closed"]
+        return
+      end
     end
+    
+    # It's a bit sloppy that this function isn't private
+    # The error of unexpected termination of string should
+    # be handled at the end of the scan... I'll patch that FIXME now actually...
+    def expecting_a_closing_tag?
+      @tags_list.length > 0
+    end
+    
+    # This function is essentially a duplication of 'expecting_a_closing_tag?'
+    # I'm not exactly sure what to do... they use two different methods of lookup...
+    # I wonder if the @bbtree_depth variable is entirely redundant...
+    def within_open_tag?
+      @bbtree_depth > 0
+    end
+    
+    protected
     
     # Validates the element
     def valid_element?
@@ -143,16 +183,7 @@ module RubyBBCode
       @errors = [err]
     end
     
-    def expecting_a_closing_tag?
-      @tags_list.length > 0
-    end
     
-    # This function is essentially a duplication of 'expecting_a_closing_tag?'
-    # I'm not exactly sure what to do... they use two different methods of lookup...
-    # I wonder if the @bbtree_depth variable is entirely redundant...
-    def within_open_tag?
-      @bbtree_depth > 0
-    end
     
     
     def use_between_as_tag_param
@@ -188,10 +219,6 @@ module RubyBBCode
       tag[:allow_tag_param_between] and @bbtree_current_node.param_not_set?
     end
     
-    def tags_list
-      @tags_list
-    end
-    
     def parent_tag
       return nil if @tags_list.last.nil?
       @tags_list.last.to_sym
@@ -199,18 +226,6 @@ module RubyBBCode
     
     def parent_has_constraints_on_children?
       @defined_tags[parent_tag][:only_allow] != nil
-    end
-    
-    def bbtree
-      @bbtree
-    end
-    
-    def errors
-      @errors
-    end
-    
-    def invalid?
-      @errors != false
     end
     
     def tag_valid_for_current_parent?
