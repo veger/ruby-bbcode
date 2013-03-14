@@ -190,7 +190,8 @@ module RubyBBCode
       # Find parent node (kinda hard since no link to parent node is available...)
       @bbtree_depth -= 1
       @bbtree_current_node = @bbtree
-      @bbtree_depth.times { @bbtree_current_node = @bbtree_current_node[:nodes].last }  # FIXME:  fuck...  I wonder what this shit's about...  I think I need @bbtree[:nodes] to actually be a hash... but contain BBTree elements??...
+      
+      @bbtree_current_node = @bbtree_current_node[:nodes].last if @bbtree_depth > 0
     end
     
     
