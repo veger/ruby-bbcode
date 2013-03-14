@@ -75,7 +75,6 @@ module RubyBBCode
     node_list.each do |node|
       if node[:is_tag]
         tag = tags[node[:tag]]
-        #binding.pry if tag.nil?
         t = tag[:html_open].dup
         t.gsub!('%between%', node[:between]) if tag[:require_between]
         if tag[:allow_tag_param]
@@ -108,12 +107,10 @@ module RubyBBCode
     text
   end
   
+  # Parses a youtube video url and extracts the ID  
   def self.parse_youtube_id(url)
-    #url = "http://www.youtube.com/watch?v=E4Fbk52Mk1w"
     url =~ /[vV]=([^&]*)/
-    
     id = $1
-    
     
     if id.nil?
       # when there is no match for v=blah, then maybe they just 

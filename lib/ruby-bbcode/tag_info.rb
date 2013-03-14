@@ -10,9 +10,6 @@ module RubyBBCode
         # If this is a text tag, then we won't know our @tag_definition... though that information would be useful...
         # For purposes...  It should be possible to ... we're doomed!
       end
-      #unless @tag_data[:tag].nil?
-        #binding.pry
-      #end
     end
     
     def [](key)

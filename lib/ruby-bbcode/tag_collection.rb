@@ -22,13 +22,9 @@ module RubyBBCode
         ti = @current_ti
         tag = ti.definition
         
-        # @bbtree_current_node # FIXME:  Should be a full fledged class with methods, shouldn't just be a hash...
-        
         ti.handle_unregistered_tags_as_text  # if the tag isn't in the @defined_tags list, then treat it as text
         
-        return if !valid_text_or_opening_element?  # TODO:  refactor into return if !valid_element?
-        return if !valid_closing_element?
-        return if !valid_param_supplied_as_text?  
+        return if !valid_element?
         
         # Validation of tag succeeded, add to @tags_list and/or bbtree
         if ti.element_is_opening_tag?
@@ -54,9 +50,14 @@ module RubyBBCode
         elsif ti.element_is_closing_tag?
           retrogress_bbtree
         end
-        
-        #RubyBBCode.log(@bbtree_depth.inspect)
       end
+    end
+    
+    def valid_element?
+      return false if !valid_text_or_opening_element?
+      return false if !valid_closing_element?
+      return false if !valid_param_supplied_as_text?
+      true  
     end
     
     def use_between_as_tag_param
