@@ -32,46 +32,49 @@ module RubyBBCode
           @tags_list.push ti[:tag]
           element = {:is_tag => true, :tag => ti[:tag].to_sym, :nodes => [] }
           element[:params] = {:tag_param => ti[:params][:tag_param]} if ti.can_have_params? and ti.has_params?
+          @bbtree_current_node[:nodes] << element unless element == nil  # FIXME:  It can't be nil here... but can elsewhere
+          escalate_bbtree(element) #  if ti.element_is_opening_tag?
         elsif ti.element_is_text?
-          
           element = {:is_tag => false, :text => ti.text }
           if @bbtree_depth > 0
             tag = @defined_tags[@bbtree_current_node[:tag]]
-            #binding.pry
-            if tag[:require_between] == true
+            if tag[:require_between]
               @bbtree_current_node[:between] = ti[:text]
+              # tag_requires_param_but_didnt_specify_tag_param
               if tag[:allow_tag_param] and tag[:allow_tag_param_between] and 
-                   (@bbtree_current_node[:params] == nil or @bbtree_current_node[:params][:tag_param] == nil)
+                   (@bbtree_current_node[:params].nil? or @bbtree_current_node[:params][:tag_param].nil?)
                 # Did not specify tag_param, so use between.
-                
                 return if !valid_param_supplied_as_text?
                 
-                # Store as tag_param
-                @bbtree_current_node[:params] = {:tag_param => ti[:text]}
+                use_between_as_tag_param
               end
               element = nil
             end
-          end
-        end
-        
-        @bbtree_current_node[:nodes] << element unless element == nil
-        
-        if ti.element_is_opening_tag?
-          # advance_bbtree
-          # Advance to next level (the node we just added)
-          @bbtree_current_node = element
-          @bbtree_depth += 1
-        end
-        
-        
-        # ----------------------------------- begin other code...
-
-        retrogress_bbtree if ti.element_is_closing_tag?
           
+          end
+          
+          @bbtree_current_node[:nodes] << element unless element == nil
+          
+        elsif ti.element_is_closing_tag?
+          retrogress_bbtree
+        end
+        
         #RubyBBCode.log(@bbtree_depth.inspect)
       end
     end
     
+    def use_between_as_tag_param
+      ti = @current_ti
+      @bbtree_current_node[:params] = {:tag_param => ti[:text]}
+    end
+    
+    # Advance to next level (the node we just added)
+    def escalate_bbtree(element)
+      @bbtree_current_node = element
+      @bbtree_depth += 1
+    end
+    
+    # Step down the bbtree a notch because we've reached a closing tag
     def retrogress_bbtree
       @tags_list.pop # remove latest tag in tags_list since it's closed now
 
@@ -119,7 +122,7 @@ module RubyBBCode
       ti = @current_ti
       tag = ti.definition
       
-      if ti[:is_tag] and ti[:closing_tag]
+      if ti.element_is_closing_tag?
         if parent_tag != ti[:tag].to_sym
           @errors = ["Closing tag [/#{ti[:tag]}] does match [#{parent_tag}]"] 
           return false
@@ -132,14 +135,23 @@ module RubyBBCode
       true
     end
     
+    # Validate if params match node constraints
     def valid_param_supplied_as_text?
       ti = @current_ti
       tag = @defined_tags[@bbtree_current_node[:tag]]
       
-      # Check if valid
-      if ti[:text].match(tag[:tag_param]).nil?
-        @errors = [tag[:tag_param_description].gsub('%param%', ti[:text])]
-        return false
+      # FIXME:  See about giving this a proper name...
+      confusing_bool = tag[:allow_tag_param] and tag[:allow_tag_param_between] and 
+                         (@bbtree_current_node[:params].nil? or @bbtree_current_node[:params][:tag_param].nil?)
+      
+      # this conditional ensures whether the validation is apropriate to this tag type
+      if ti.element_is_text? and @bbtree_depth > 0 and tag[:require_between] and confusing_bool
+      
+        # check if valid
+        if ti[:text].match(tag[:tag_param]).nil?
+          @errors = [tag[:tag_param_description].gsub('%param%', ti[:text])]
+          return false
+        end
       end
       true
     end

@@ -55,6 +55,13 @@ module RubyBBCode
     def element_is_text?
       !self[:text].nil?
     end
+    
+    # allows for a very snazy case/ when conditional
+    def type
+      :closing_tag if element_is_closing_tag?
+      :opening_tag if element_is_opening_tag?
+      :text if element_is_text?
+    end
 
     def tag_missing_from_tag_list?
       !@tag_dictionary.include?(self[:tag].to_sym)
