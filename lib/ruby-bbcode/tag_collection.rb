@@ -34,7 +34,7 @@ module RubyBBCode
     
     
     def process_text
-      regex_notes
+      regex_notes # This method doesn't do anything, I just have a few notes on the regex statement
       regex_string = '((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))'
       @text.scan(/#{regex_string}/ix) do |tag_info|
         @ti = TagInfo.new(tag_info, @defined_tags)
@@ -43,13 +43,14 @@ module RubyBBCode
         @ti.handle_unregistered_tags_as_text  # if the tag isn't in the @defined_tags list, then treat it as text
         return if !valid_element?
         
+        case @ti.type
         # Validation of tag succeeded, add to @tags_list and/or bbtree
-        if @ti.element_is_opening_tag?
+        when :opening_tag
           element = {:is_tag => true, :tag => @ti[:tag].to_sym, :nodes => [] }
           element[:params] = {:tag_param => @ti[:params][:tag_param]} if @ti.can_have_params? and @ti.has_params?
           @bbtree_current_node[:nodes] << BBTree.new(element) unless element.nil?  # FIXME:  It can't be nil here... but can elsewhere
           escalate_bbtree(element)
-        elsif @ti.element_is_text?
+        when :text
           element = {:is_tag => false, :text => @ti.text }
           if within_open_tag?
             tag = @defined_tags[@bbtree_current_node[:tag]]
@@ -64,7 +65,7 @@ module RubyBBCode
 
           @bbtree_current_node[:nodes] << BBTree.new(element) unless element.nil?
           
-        elsif @ti.element_is_closing_tag?
+        when :closing_tag
           retrogress_bbtree
         end
         
@@ -258,8 +259,10 @@ module RubyBBCode
     
     # Uggghhh...  I tried to make the regex easier to read but it's just not happening...
     # Here are my notes on it...
+    # This method doesn't actually do anything.  
+    # TODO:  Delete this method before you issue the pull request, I think it's sloppy and unhelpful
     def regex_notes
-      # TODO:  I'm refactoring the regex into modules that explain what it's doing...
+      # I'm refactoring the regex into modules that explain what it's doing...
       start_of_tag = '\['
       closing_tag_slash = '(\/)?'
       tag_name = '(\w+)'

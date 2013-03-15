@@ -55,9 +55,9 @@ module RubyBBCode
     
     # allows for a very snazy case/ when conditional
     def type
-      return :closing_tag if element_is_closing_tag?
       return :opening_tag if element_is_opening_tag?
       return :text if element_is_text?
+      return :closing_tag if element_is_closing_tag?
     end
 
     def tag_missing_from_tag_list?
