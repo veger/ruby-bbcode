@@ -34,10 +34,8 @@ module RubyBBCode
     
     
     def process_text
-      # TODO:  I'm refactoring the regex into modules that explain what it's doing...
-      #raise "come back to this..."
+      regex_notes
       regex_string = '((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))'
-      
       @text.scan(/#{regex_string}/ix) do |tag_info|
         @ti = TagInfo.new(tag_info, @defined_tags)
         #binding.pry
@@ -255,6 +253,37 @@ module RubyBBCode
     
     def parent_has_constraints_on_children?
       @defined_tags[parent_tag][:only_allow] != nil
+    end
+    
+    
+    # Uggghhh...  I tried to make the regex easier to read but it's just not happening...
+    # Here are my notes on it...
+    def regex_notes
+      # TODO:  I'm refactoring the regex into modules that explain what it's doing...
+      start_of_tag = '\['
+      closing_tag_slash = '(\/)?'
+      tag_name = '(\w+)'
+      param_after_equal_sign = '(=[^\[\]]+)'
+      param_after_space = '(\s\w+=\w+)*'    # words then the equal sign in the parameter slot...
+      odd1 = '([^\]]*)'    # Captures any number of characters but NOT close bracket...  So parameters?  Or maybe the tag name somehow??...
+      odd3 = '([^\[]+)'
+      #regex_string = "((#{start_of_tag} #{closing_tag_slash} #{tag_name} (#{param_after_equal_sign} | #{param_after_space} | #{odd1})? \\]) | #{odd3})"
+      #regex_string = '((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))'
+      regex_string = '(
+                        (\[ 
+                          (\/)? 
+                          (\w+) 
+                          (
+                            (=[^\[\]]+) | 
+                            (\s\w+=\w+)* | 
+                            ([^\]]*)
+                          )? 
+                          \]
+                        ) | 
+                        (
+                          [^\[]+
+                        )
+                      )'
     end
     
   end
