@@ -4,9 +4,8 @@ module RubyBBCode
     def initialize(text, tags)
       @text = text
       @defined_tags = tags
-      @bbtree = BBTree.new({:nodes => []})
+      @bbtree = BBTree.new({:nodes => []}, tags)
       @bbtree_depth = 0
-      @bbtree_current_node = TagNode.new(@bbtree)
       
       @last_tag_symbol = ''
       @ti = nil
@@ -41,38 +40,32 @@ module RubyBBCode
         @ti.handle_unregistered_tags_as_text  # if the tag isn't in the @defined_tags list, then treat it as text
         return if !valid_element?
         
-        # Validation of tag succeeded, add to @bbtree.tags_list and/or bbtree
-        case @ti.type
+        case @ti.type   # Validation of tag succeeded, add to @bbtree.tags_list and/or bbtree
         when :opening_tag
-          element = {:is_tag => true, :tag => @ti[:tag].to_sym, :nodes => [] }
+          element = {:is_tag => true, :tag => @ti[:tag].to_sym, :definition => @ti.definition, :nodes => [] }
           element[:params] = {:tag_param => @ti[:params][:tag_param]} if @ti.can_have_params? and @ti.has_params?
-          @bbtree_current_node[:nodes] << TagNode.new(element) unless element.nil?  # FIXME:  It can't be nil here... but can elsewhere
-          escalate_bbtree(element)
+          @bbtree.current_node[:nodes] << TagNode.new(element)
+          @bbtree.escalate_bbtree(element)
         when :text
           element = {:is_tag => false, :text => @ti.text }
           if within_open_tag?
-            tag = @defined_tags[@bbtree_current_node[:tag]]
+            tag = @bbtree.current_node.definition
             if tag[:require_between]
-              @bbtree_current_node[:between] = @ti[:text]
+              @bbtree.current_node[:between] = @ti[:text]
               if candidate_for_using_between_as_param?
-                use_between_as_tag_param    # Did not specify tag_param, so use between.
+                use_between_as_tag_param    # Did not specify tag_param, so use between text.
               end
-              element = nil
+              next  # don't add this node to @bbtree.current_node[:nodes] if we're within an open tag that requires_between (to be a param), and the between couldn't be used as a param... Yet it passed validation so the param must have been specified within the opening tag???
             end
           end
-          @bbtree_current_node[:nodes] << TagNode.new(element) unless element.nil?
-          
+          @bbtree.current_node[:nodes] << TagNode.new(element)
         when :closing_tag
-          retrogress_bbtree
+          @bbtree.retrogress_bbtree
         end
         
       end # scan loop
       
-      # if we're still expecting a closing tag and we've come to the end of the string... throw error
-      if expecting_a_closing_tag?
-        @errors = ["[#{@bbtree.tags_list.to_sentence(RubyBBCode.to_sentence_bbcode_tags)}] not closed"]
-        return
-      end
+      validate_all_tags_closed_off
     end
     
     protected
@@ -89,7 +82,7 @@ module RubyBBCode
       if @ti.element_is_text? or @ti.element_is_opening_tag?
         # TODO:  rename this if statement to #validate_opening_tag
         if @ti.element_is_opening_tag?
-          unless @ti.allowed_outside_parent_tags? or (expecting_a_closing_tag? and @ti.allowed_in(parent_tag.to_sym))
+          unless @ti.allowed_outside_parent_tags? or (within_open_tag? and @ti.allowed_in(parent_tag.to_sym))
             # Tag doesn't belong in the last opened tag
             throw_child_requires_specific_parent_error; return false
           end
@@ -104,7 +97,7 @@ module RubyBBCode
         end
         
         # TODO:  Rename this if statement to #validate_constraints_on_child
-        if expecting_a_closing_tag? and parent_has_constraints_on_children?
+        if within_open_tag? and parent_has_constraints_on_children?
           # Check if the found tag is allowed
           last_tag = @defined_tags[parent_tag]
           allowed_tags = last_tag[:only_allow]
@@ -125,7 +118,7 @@ module RubyBBCode
           @errors = ["Closing tag [/#{@ti[:tag]}] does match [#{parent_tag}]"] 
           return false
         end
-        if tag[:require_between] == true and @bbtree_current_node[:between].blank?
+        if tag[:require_between] == true and @bbtree.current_node[:between].blank?
           @errors = ["No text between [#{@ti[:tag]}] and [/#{@ti[:tag]}] tags."]
           return false
         end
@@ -139,7 +132,7 @@ module RubyBBCode
     # imposed by the node/tag/parent.  
     def valid_param_supplied_as_text?
       #binding.pry if @bbtree.current_node.nil?
-      tag = @defined_tags[@bbtree_current_node[:tag]]
+      tag = @bbtree.current_node.definition
       
       # this conditional ensures whether the validation is apropriate to this tag type
       if @ti.element_is_text? and within_open_tag? and tag[:require_between] and candidate_for_using_between_as_param?
@@ -151,6 +144,11 @@ module RubyBBCode
         end
       end
       true
+    end
+    
+    def validate_all_tags_closed_off
+      # if we're still expecting a closing tag and we've come to the end of the string... throw error
+      throw_unexpected_end_of_string_error if expecting_a_closing_tag?
     end
     
     def throw_child_requires_specific_parent_error
@@ -172,42 +170,18 @@ module RubyBBCode
       @errors = [err]
     end
     
-    
-    
-    
-    
-    
-    # Advance to next level (the node we just added)
-    def escalate_bbtree(element)
-      @bbtree.tags_list.push @ti[:tag]
-      @bbtree_current_node = TagNode.new(element)
-      @bbtree_depth += 1
+    def throw_unexpected_end_of_string_error
+      @errors = ["[#{@bbtree.tags_list.to_sentence(RubyBBCode.to_sentence_bbcode_tags)}] not closed"]
     end
     
-    # Step down the bbtree a notch because we've reached a closing tag
-    def retrogress_bbtree
-      @bbtree.tags_list.pop     # remove latest tag in tags_list since it's closed now
-
-      @bbtree_depth -= 1 # step down the depth one
-      
-      # Since we just stepped down we should set the current node to be the @bbtree...
-      # This works because the @bbtree includes everything except for the currently open node (which is being worked on)
-      # ...But where does the node get stored...  
-      @bbtree_current_node = TagNode.new(@bbtree) # Set current_node to be the whole @bbtree
-      
-      if within_open_tag?
-        # Set the current node to be the node we've just parsed over which is infact within another node??...
-        @bbtree_current_node = TagNode.new(@bbtree_current_node[:nodes].last)
-      else # if we're still at the root of the BBTree or have returned to the root via encountring closing tags...
-        
-        @bbtree_current_node = TagNode.new(@bbtree)
-      end
-
-    end
     
+    
+    def expecting_a_closing_tag?
+      @bbtree.expecting_a_closing_tag?
+    end
     
     def use_between_as_tag_param
-      @bbtree_current_node[:params] = {:tag_param => @ti[:text]}
+      @bbtree.current_node.tag_param = @ti[:text]      # @bbtree.current_node[:params] = {:tag_param => @ti[:text]}
     end
     
     def candidate_for_using_between_as_param?
@@ -216,19 +190,11 @@ module RubyBBCode
       # [img] would have that as true...  and [url] would have that as well...  
       # as it is now, if a tag (say youtube) has tag[:require_between] == true and tag[:allow_tag_param].nil?
       # then the :between is assumed to be the param...  that is, a tag that should respond 'true' to tag.requires_param?  
-      tag = @defined_tags[@bbtree_current_node[:tag]]
-      tag[:allow_tag_param_between] and param_not_set?         #  @bbtree_current_node.param_not_set?
+      tag = @bbtree.current_node.definition
+      tag[:allow_tag_param_between] and @bbtree.current_node.param_not_set?
     end
     
-    # Move this into what ever object @bbtree.current_node is going to be....
-    # It can't be in BBTree since that's the container of @current_node..........
-    def param_not_set?
-      (@bbtree_current_node[:params].nil? or @bbtree_current_node[:params][:tag_param].nil?)
-    end
     
-    def expecting_a_closing_tag?
-      @bbtree.tags_list.length > 0
-    end
     
     # This function is essentially a duplication of 'expecting_a_closing_tag?'
     # I'm not exactly sure what to do... they use two different methods of lookup...
@@ -249,16 +215,15 @@ module RubyBBCode
     #  ... the @bbtree should have a container for many TagNodes... Fuck... this is so complicated rightnow...
     #   FIXME:  Consider the merits of the above proposal when you're not so sleepy
     def within_open_tag?
-      @bbtree.depth > 0
+      @bbtree.within_open_tag?
     end
     
     def parent_tag
-      return nil if @bbtree.tags_list.last.nil?
-      @bbtree.tags_list.last.to_sym
+      @bbtree.parent_tag
     end
     
     def parent_has_constraints_on_children?
-      @defined_tags[parent_tag][:only_allow] != nil
+      @bbtree.parent_has_constraints_on_children?
     end
     
     

@@ -25,5 +25,13 @@ module RubyBBCode
     def param_not_set?
       (@element[:params].nil? or @element[:params][:tag_param].nil?)
     end
+    
+    def definition
+      @element[:definition]
+    end
+    
+    def tag_param=(param)
+      @element[:params] = {:tag_param => param}
+    end
   end
 end

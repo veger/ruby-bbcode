@@ -10,15 +10,16 @@ module RubyBBCode
   # The closing of the nodes seems to be implied which is fine by me --less to keep track of.  
   #  
   class BBTree
-    def initialize(hash = {})
+    def initialize(hash = {}, dictionary)
       @bbtree = hash
       
       # I have a stacking problem....
       # The @bbtree contains a current_node which I suppose should be of the type TagNode, OR just a plain hash...
       # But during the retrogress process, sometimes the @bbtree get's written to the @current_node... thus current node is of the type
       # BBTree.......  
-      @current_node = TagNode.new({:nodes => []})
+      @current_node = TagNode.new(@bbtree)
       @tags_list = []
+      @dictionary = dictionary
       @definition = nil
     end
     
@@ -56,31 +57,38 @@ module RubyBBCode
       else # if we're still at the root of the BBTree or have returned to the root via encountring closing tags...
         @current_node = TagNode.new(@bbtree)
       end
-      
-
     end
     
+    # STEPS TO GET ESCALATE AND RETROGRESS WITHIN THIS CLASS:
+    #
+    # 1)  Refactor @bbtree_current_node -> @bbtree.current_node
+    # 2)  Move escalate_bbtree(element) and retrogress_bbtree into the class
+    # 3)  Profit
+    
     attr_accessor :current_node
-    #def current_node
-    #  @current_node
-    #end
     
     def parent_tag
       return nil if @tags_list.last.nil?
       @tags_list.last.to_sym
     end
     
+    def parent_has_constraints_on_children?
+      @dictionary[parent_tag][:only_allow] != nil
+    end
+    
+
+    
     # This method might never be needed for anything other than determining within_open_tag?
     def depth
       @tags_list.length
     end
     
-    def within_open_tag?
+    def expecting_a_closing_tag?
       @tags_list.length > 0
     end
     
-    def definition
-      
+    def within_open_tag?
+      @tags_list.length > 0
     end
     
   end
