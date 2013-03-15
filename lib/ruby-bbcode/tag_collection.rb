@@ -1,29 +1,14 @@
 module RubyBBCode
   # TODO:  Rename to something cooler, like TagDetector or maybe TextTransmutor.  Or TagSifter
   class TagCollection
-    def initialize(text, tags)
-      @text = text
+    attr_reader :bbtree, :errors
+    
+    def initialize(text_to_parse, tags)
+      @text = text_to_parse
       @defined_tags = tags
       @bbtree = BBTree.new({:nodes => []}, tags)
-      @bbtree_depth = 0
-      
-      @last_tag_symbol = ''
       @ti = nil
-      
-      @tag_info_collection = []
       @errors = false
-    end
-    
-    def tags_list
-      @bbtree.tags_list
-    end
-    
-    def bbtree
-      @bbtree
-    end
-    
-    def errors
-      @errors
     end
     
     def invalid?
@@ -63,10 +48,11 @@ module RubyBBCode
           @bbtree.retrogress_bbtree
         end
         
-      end # scan loop
+      end # end of scan loop
       
       validate_all_tags_closed_off
     end
+    
     
     protected
     
