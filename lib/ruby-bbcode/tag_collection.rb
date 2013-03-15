@@ -1,12 +1,12 @@
 module RubyBBCode
-  # TODO:  Rename to something cooler, like TagDetector or maybe TextTransmutor.  
+  # TODO:  Rename to something cooler, like TagDetector or maybe TextTransmutor.  Or TagSifter
   class TagCollection
     def initialize(text, tags)
       @text = text
       @defined_tags = tags
       @bbtree = BBTree.new({:nodes => []})
       @bbtree_depth = 0
-      @bbtree_current_node = @bbtree
+      @bbtree_current_node = TagNode.new(@bbtree)
       
       @last_tag_symbol = ''
       @ti = nil
@@ -46,7 +46,7 @@ module RubyBBCode
         when :opening_tag
           element = {:is_tag => true, :tag => @ti[:tag].to_sym, :nodes => [] }
           element[:params] = {:tag_param => @ti[:params][:tag_param]} if @ti.can_have_params? and @ti.has_params?
-          @bbtree_current_node[:nodes] << BBTree.new(element) unless element.nil?  # FIXME:  It can't be nil here... but can elsewhere
+          @bbtree_current_node[:nodes] << TagNode.new(element) unless element.nil?  # FIXME:  It can't be nil here... but can elsewhere
           escalate_bbtree(element)
         when :text
           element = {:is_tag => false, :text => @ti.text }
@@ -60,7 +60,7 @@ module RubyBBCode
               element = nil
             end
           end
-          @bbtree_current_node[:nodes] << BBTree.new(element) unless element.nil?
+          @bbtree_current_node[:nodes] << TagNode.new(element) unless element.nil?
           
         when :closing_tag
           retrogress_bbtree
@@ -138,6 +138,7 @@ module RubyBBCode
     # The validation code checks if the params match constraints
     # imposed by the node/tag/parent.  
     def valid_param_supplied_as_text?
+      #binding.pry if @bbtree.current_node.nil?
       tag = @defined_tags[@bbtree_current_node[:tag]]
       
       # this conditional ensures whether the validation is apropriate to this tag type
@@ -179,7 +180,7 @@ module RubyBBCode
     # Advance to next level (the node we just added)
     def escalate_bbtree(element)
       @bbtree.tags_list.push @ti[:tag]
-      @bbtree_current_node = BBTree.new(element)
+      @bbtree_current_node = TagNode.new(element)
       @bbtree_depth += 1
     end
     
@@ -192,14 +193,14 @@ module RubyBBCode
       # Since we just stepped down we should set the current node to be the @bbtree...
       # This works because the @bbtree includes everything except for the currently open node (which is being worked on)
       # ...But where does the node get stored...  
-      @bbtree_current_node = @bbtree # Set the BBTree to be the current node
+      @bbtree_current_node = TagNode.new(@bbtree) # Set current_node to be the whole @bbtree
       
       if within_open_tag?
         # Set the current node to be the node we've just parsed over which is infact within another node??...
-        @bbtree_current_node = @bbtree_current_node[:nodes].last
+        @bbtree_current_node = TagNode.new(@bbtree_current_node[:nodes].last)
       else # if we're still at the root of the BBTree or have returned to the root via encountring closing tags...
         
-        @bbtree_current_node = @bbtree
+        @bbtree_current_node = TagNode.new(@bbtree)
       end
 
     end
@@ -216,7 +217,13 @@ module RubyBBCode
       # as it is now, if a tag (say youtube) has tag[:require_between] == true and tag[:allow_tag_param].nil?
       # then the :between is assumed to be the param...  that is, a tag that should respond 'true' to tag.requires_param?  
       tag = @defined_tags[@bbtree_current_node[:tag]]
-      tag[:allow_tag_param_between] and @bbtree_current_node.param_not_set?
+      tag[:allow_tag_param_between] and param_not_set?         #  @bbtree_current_node.param_not_set?
+    end
+    
+    # Move this into what ever object @bbtree.current_node is going to be....
+    # It can't be in BBTree since that's the container of @current_node..........
+    def param_not_set?
+      (@bbtree_current_node[:params].nil? or @bbtree_current_node[:params][:tag_param].nil?)
     end
     
     def expecting_a_closing_tag?
@@ -234,14 +241,15 @@ module RubyBBCode
     #   
     #
     #   #depth
-    #   #[](key)
+    #   #[](key)  aka @bbtree aka the_hash_data...
     #   #within_open_tag? ..???
     #   #parent_has_constraints_on_children?
     #   #candidate_for_using_between_as_param?
     #
+    #  ... the @bbtree should have a container for many TagNodes... Fuck... this is so complicated rightnow...
     #   FIXME:  Consider the merits of the above proposal when you're not so sleepy
     def within_open_tag?
-      @bbtree_depth > 0
+      @bbtree.depth > 0
     end
     
     def parent_tag
