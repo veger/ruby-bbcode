@@ -1,4 +1,5 @@
 module RubyBBCode
+  # TODO:  Rename to something cooler, like TagDetector or maybe TextTransmutor.  
   class TagCollection
     def initialize(text, tags)
       @text = text
@@ -33,8 +34,13 @@ module RubyBBCode
     
     
     def process_text
-      @text.scan(/((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))/ix) do |tag_info|
+      # TODO:  I'm refactoring the regex into modules that explain what it's doing...
+      #raise "come back to this..."
+      regex_string = '((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))'
+      
+      @text.scan(/#{regex_string}/ix) do |tag_info|
         @ti = TagInfo.new(tag_info, @defined_tags)
+        #binding.pry
         
         @ti.handle_unregistered_tags_as_text  # if the tag isn't in the @defined_tags list, then treat it as text
         return if !valid_element?
@@ -63,8 +69,8 @@ module RubyBBCode
         elsif @ti.element_is_closing_tag?
           retrogress_bbtree
         end
-      end
-      
+        
+      end # scan loop
       
       # if we're still expecting a closing tag and we've come to the end of the string... throw error
       if expecting_a_closing_tag?
@@ -183,14 +189,23 @@ module RubyBBCode
     
     # Step down the bbtree a notch because we've reached a closing tag
     def retrogress_bbtree
-      @tags_list.pop # remove latest tag in tags_list since it's closed now
+      @tags_list.pop     # remove latest tag in tags_list since it's closed now
 
-      # Find parent node (kinda hard since no link to parent node is available...)
-      @bbtree_depth -= 1
-      @bbtree_current_node = @bbtree
+      @bbtree_depth -= 1 # step down the depth one
       
-      # Set the current node to be the node we've just parsed over which is infact within another node??...
-      @bbtree_current_node = @bbtree_current_node[:nodes].last if within_open_tag?
+      # Since we just stepped down we should set the current node to be the @bbtree...
+      # This works because the @bbtree includes everything except for the currently open node (which is being worked on)
+      # ...But where does the node get stored...  
+      @bbtree_current_node = @bbtree # Set the BBTree to be the current node
+      
+      if within_open_tag?
+        # Set the current node to be the node we've just parsed over which is infact within another node??...
+        @bbtree_current_node = @bbtree_current_node[:nodes].last
+      else # if we're still at the root of the BBTree or have returned to the root via encountring closing tags...
+        
+        @bbtree_current_node = @bbtree
+      end
+
     end
     
     
