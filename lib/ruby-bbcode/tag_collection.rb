@@ -4,7 +4,6 @@ module RubyBBCode
     def initialize(text, tags)
       @text = text
       @defined_tags = tags
-      @tags_list = []
       @bbtree = BBTree.new({:nodes => []})
       @bbtree_depth = 0
       @bbtree_current_node = @bbtree
@@ -17,7 +16,7 @@ module RubyBBCode
     end
     
     def tags_list
-      @tags_list
+      @bbtree.tags_list
     end
     
     def bbtree
@@ -38,13 +37,12 @@ module RubyBBCode
       regex_string = '((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))'
       @text.scan(/#{regex_string}/ix) do |tag_info|
         @ti = TagInfo.new(tag_info, @defined_tags)
-        #binding.pry
         
         @ti.handle_unregistered_tags_as_text  # if the tag isn't in the @defined_tags list, then treat it as text
         return if !valid_element?
         
+        # Validation of tag succeeded, add to @bbtree.tags_list and/or bbtree
         case @ti.type
-        # Validation of tag succeeded, add to @tags_list and/or bbtree
         when :opening_tag
           element = {:is_tag => true, :tag => @ti[:tag].to_sym, :nodes => [] }
           element[:params] = {:tag_param => @ti[:params][:tag_param]} if @ti.can_have_params? and @ti.has_params?
@@ -62,7 +60,6 @@ module RubyBBCode
               element = nil
             end
           end
-
           @bbtree_current_node[:nodes] << BBTree.new(element) unless element.nil?
           
         when :closing_tag
@@ -73,7 +70,7 @@ module RubyBBCode
       
       # if we're still expecting a closing tag and we've come to the end of the string... throw error
       if expecting_a_closing_tag?
-        @errors = ["[#{@tags_list.to_sentence(RubyBBCode.to_sentence_bbcode_tags)}] not closed"]
+        @errors = ["[#{@bbtree.tags_list.to_sentence(RubyBBCode.to_sentence_bbcode_tags)}] not closed"]
         return
       end
     end
@@ -181,14 +178,14 @@ module RubyBBCode
     
     # Advance to next level (the node we just added)
     def escalate_bbtree(element)
-      @tags_list.push @ti[:tag]
+      @bbtree.tags_list.push @ti[:tag]
       @bbtree_current_node = BBTree.new(element)
       @bbtree_depth += 1
     end
     
     # Step down the bbtree a notch because we've reached a closing tag
     def retrogress_bbtree
-      @tags_list.pop     # remove latest tag in tags_list since it's closed now
+      @bbtree.tags_list.pop     # remove latest tag in tags_list since it's closed now
 
       @bbtree_depth -= 1 # step down the depth one
       
@@ -223,7 +220,7 @@ module RubyBBCode
     end
     
     def expecting_a_closing_tag?
-      @tags_list.length > 0
+      @bbtree.tags_list.length > 0
     end
     
     # This function is essentially a duplication of 'expecting_a_closing_tag?'
@@ -248,8 +245,8 @@ module RubyBBCode
     end
     
     def parent_tag
-      return nil if @tags_list.last.nil?
-      @tags_list.last.to_sym
+      return nil if @bbtree.tags_list.last.nil?
+      @bbtree.tags_list.last.to_sym
     end
     
     def parent_has_constraints_on_children?

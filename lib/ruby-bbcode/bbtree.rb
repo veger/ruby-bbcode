@@ -14,6 +14,7 @@ module RubyBBCode
       @bbtree = hash
       @current_node = nil
       @tags_list = []
+      @definition = nil
     end
     
     def [](key)
@@ -25,10 +26,20 @@ module RubyBBCode
       @bbtree[key] = value
     end
     
+    def tags_list
+      @tags_list
+    end
+    
     def current_node
       
     end
     
+    def parent_tag
+      return nil if @tags_list.last.nil?
+      @tags_list.last.to_sym
+    end
+    
+    # This method might never be needed for anything other than determining within_open_tag?
     def depth
       @tags_list.length
     end
@@ -37,7 +48,13 @@ module RubyBBCode
       (@bbtree[:params].nil? or @bbtree[:params][:tag_param].nil?)
     end
     
+    def within_open_tag?
+      @tags_list.length > 0
+    end
     
+    def definition
+      
+    end
     
   end
 end
