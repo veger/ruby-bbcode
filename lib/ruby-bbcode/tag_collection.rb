@@ -117,7 +117,6 @@ module RubyBBCode
     # The validation code checks if the params match constraints
     # imposed by the node/tag/parent.  
     def valid_param_supplied_as_text?
-      #binding.pry if @bbtree.current_node.nil?
       tag = @bbtree.current_node.definition
       
       # this conditional ensures whether the validation is apropriate to this tag type
