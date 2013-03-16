@@ -137,7 +137,7 @@ module RubyBBCode
     end
     
     def throw_child_requires_specific_parent_error
-      err = "[#{@ti[:tag]}] can only be used in [#{@ti.definition[:only_in].to_sentence(RubyBBCode.to_sentence_bbcode_tags)}]"
+      err = "[#{@ti[:tag]}] can only be used in [#{@ti.definition[:only_in].to_sentence(to_sentence_bbcode_tags)}]"
       err += ", so using it in a [#{parent_tag}] tag is not allowed" if expecting_a_closing_tag?
       @errors = [err]
     end
@@ -148,7 +148,7 @@ module RubyBBCode
     
     def throw_parent_prohibits_this_child_error
       allowed_tags = @dictionary[parent_tag][:only_allow]
-      err = "[#{parent_tag}] can only contain [#{allowed_tags.to_sentence(RubyBBCode.to_sentence_bbcode_tags)}] tags, so "
+      err = "[#{parent_tag}] can only contain [#{allowed_tags.to_sentence(to_sentence_bbcode_tags)}] tags, so "
       err += "[#{@ti[:tag]}]" if @ti[:is_tag]
       err += "\"#{@ti[:text]}\"" unless @ti[:is_tag]
       err += ' is not allowed'
@@ -156,9 +156,14 @@ module RubyBBCode
     end
     
     def throw_unexpected_end_of_string_error
-      @errors = ["[#{@bbtree.tags_list.to_sentence(RubyBBCode.to_sentence_bbcode_tags)}] not closed"]
+      @errors = ["[#{@bbtree.tags_list.to_sentence(to_sentence_bbcode_tags)}] not closed"]
     end
     
+    def to_sentence_bbcode_tags
+      {:words_connector => "], [", 
+        :two_words_connector => "] and [", 
+        :last_word_connector => "] and ["}
+    end
     
     
     def expecting_a_closing_tag?

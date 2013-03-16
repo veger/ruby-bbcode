@@ -11,14 +11,6 @@ require 'ruby-bbcode/bbtree'
 module RubyBBCode
   include BBCode::Tags
 
-  @@to_sentence_bbcode_tags = {:words_connector => "], [", 
-    :two_words_connector => "] and [", 
-    :last_word_connector => "] and ["}
-    
-  def self.to_sentence_bbcode_tags
-    @@to_sentence_bbcode_tags
-  end
-
   def self.to_html(text, escape_html = true, additional_tags = {}, method = :disable, *tags)
     # We cannot convert to HTML if the BBCode is not valid!
     text = text.clone
