@@ -1,6 +1,8 @@
 module BBCode
   module Tags
     # tagname => tag, HTML open tag, HTML close tag, description, example
+    # All of these entrys are represented as @dictionary in the classes (or as the variable tags)
+    # A single item from this file (eg the :b entry) is refered to as a @definition
     @@tags = {
       :b => {
         :html_open => '<strong>', :html_close => '</strong>',

@@ -3,10 +3,10 @@ module RubyBBCode
   class TagCollection
     attr_reader :bbtree, :errors
     
-    def initialize(text_to_parse, tags)
+    def initialize(text_to_parse, dictionary)
       @text = text_to_parse
-      @defined_tags = tags
-      @bbtree = BBTree.new({:nodes => []}, tags)
+      @dictionary = dictionary # the dictionary for all the defined tags in tags.rb
+      @bbtree = BBTree.new({:nodes => []}, dictionary)
       @ti = nil
       @errors = false
     end
@@ -20,9 +20,9 @@ module RubyBBCode
       regex_notes # This method doesn't do anything, I just have a few notes on the regex statement
       regex_string = '((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))'
       @text.scan(/#{regex_string}/ix) do |tag_info|
-        @ti = TagInfo.new(tag_info, @defined_tags)
+        @ti = TagInfo.new(tag_info, @dictionary)
         
-        @ti.handle_unregistered_tags_as_text  # if the tag isn't in the @defined_tags list, then treat it as text
+        @ti.handle_unregistered_tags_as_text  # if the tag isn't in the @dictionary list, then treat it as text
         return if !valid_element?
         
         case @ti.type   # Validation of tag succeeded, add to @bbtree.tags_list and/or bbtree
@@ -85,7 +85,7 @@ module RubyBBCode
         # TODO:  Rename this if statement to #validate_constraints_on_child
         if within_open_tag? and parent_has_constraints_on_children?
           # Check if the found tag is allowed
-          last_tag = @defined_tags[parent_tag]
+          last_tag = @dictionary[parent_tag]
           allowed_tags = last_tag[:only_allow]
           if (!@ti[:is_tag] and last_tag[:require_between] != true and @ti[:text].lstrip != "") or (@ti[:is_tag] and (allowed_tags.include?(@ti[:tag].to_sym) == false))  # TODO: refactor this, it's just too long
             # Last opened tag does not allow tag
@@ -147,7 +147,7 @@ module RubyBBCode
     end
     
     def throw_parent_prohibits_this_child_error
-      allowed_tags = @defined_tags[parent_tag][:only_allow]
+      allowed_tags = @dictionary[parent_tag][:only_allow]
       err = "[#{parent_tag}] can only contain [#{allowed_tags.to_sentence(RubyBBCode.to_sentence_bbcode_tags)}] tags, so "
       err += "[#{@ti[:tag]}]" if @ti[:is_tag]
       err += "\"#{@ti[:text]}\"" unless @ti[:is_tag]

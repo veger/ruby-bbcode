@@ -3,16 +3,10 @@ module RubyBBCode
   # 
   # FIXME:  This files needs to be cleaned up... I skipped it.  
   class TagInfo
-    def initialize(tag_info, tags)
+    def initialize(tag_info, dictionary)
       @tag_data = find_tag_info(tag_info)
-      @tag_dictionary = tags
-      @tag_definition = @tag_dictionary[@tag_data[:tag].to_sym] unless @tag_data[:tag].nil?
-      
-      if @tag_data[:tag].nil?
-        # TODO:  I'm working on this now
-        # If this is a text tag, then we won't know our @tag_definition... though that information would be useful...
-        # For purposes...  It should be possible to ... we're doomed!
-      end
+      @dictionary = dictionary
+      @definition = @dictionary[@tag_data[:tag].to_sym] unless @tag_data[:tag].nil?
     end
     
     def [](key)
@@ -33,11 +27,11 @@ module RubyBBCode
     end
     
     def allowed_outside_parent_tags?
-      @tag_definition[:only_in].nil?
+      @definition[:only_in].nil?
     end
     
     def constrained_to_within_parent_tags?
-      !@tag_definition[:only_in].nil?
+      !@definition[:only_in].nil?
     end
     
     def element_is_tag?
@@ -64,7 +58,7 @@ module RubyBBCode
     end
 
     def tag_missing_from_tag_list?
-      !@tag_dictionary.include?(self[:tag].to_sym)
+      !@dictionary.include?(self[:tag].to_sym)
     end
 
     def find_tag_info(tag_info)
@@ -92,15 +86,15 @@ module RubyBBCode
     end
     
     def definition
-      @tag_definition
+      @definition
     end
     
     def allowed_in(tag_symbol)
-      @tag_definition[:only_in].include?(tag_symbol)
+      @definition[:only_in].include?(tag_symbol)
     end
     
     def can_have_params?
-      @tag_definition[:allow_tag_param]
+      @definition[:allow_tag_param]
     end
     
     def has_params?
@@ -108,7 +102,7 @@ module RubyBBCode
     end
     
     def invalid_param?
-      @tag_data[:params][:tag_param].match(@tag_definition[:tag_param]).nil?
+      @tag_data[:params][:tag_param].match(@definition[:tag_param]).nil?
     end
     
     # This represents the text value of the element (if it's not a tag element)
