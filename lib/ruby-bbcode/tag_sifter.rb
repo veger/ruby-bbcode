@@ -1,5 +1,6 @@
 module RubyBBCode
-  # TODO:  Rename to something cooler, like TagDetector or maybe TextTransmutor.  Or TagSifter
+  # Tag sifter is in charge of building up the BBTree with nodes as it parses through the
+  # supplied text such as "[b]hello world[/b]"
   class TagSifter
     attr_reader :bbtree, :errors
     
