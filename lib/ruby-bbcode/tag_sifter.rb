@@ -1,6 +1,6 @@
 module RubyBBCode
   # TODO:  Rename to something cooler, like TagDetector or maybe TextTransmutor.  Or TagSifter
-  class TagCollection
+  class TagSifter
     attr_reader :bbtree, :errors
     
     def initialize(text_to_parse, dictionary)

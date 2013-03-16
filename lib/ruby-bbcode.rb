@@ -3,7 +3,7 @@ require 'pry'
 require 'tags/tags'
 require 'ruby-bbcode/debugging'
 require 'ruby-bbcode/tag_info'
-require 'ruby-bbcode/tag_collection'
+require 'ruby-bbcode/tag_sifter'
 require 'ruby-bbcode/tag_node'
 require 'ruby-bbcode/bbtree'
 
@@ -32,7 +32,7 @@ module RubyBBCode
     valid = parse(text, use_tags)
     raise valid.join(', ') if valid != true
 
-    bbtree_to_html(@tag_collection.bbtree[:nodes], use_tags)
+    bbtree_to_html(@tag_sifter.bbtree[:nodes], use_tags)
   end
 
   def self.is_valid?(text, additional_tags = {})
@@ -47,12 +47,12 @@ module RubyBBCode
   def self.parse(text, tags = {})
     tags = @@tags if tags == {}
     
-    @tag_collection = TagCollection.new(text, tags)
+    @tag_sifter = TagSifter.new(text, tags)
     
-    @tag_collection.process_text
+    @tag_sifter.process_text
     
-    if @tag_collection.invalid?
-      @tag_collection.errors 
+    if @tag_sifter.invalid?
+      @tag_sifter.errors 
     else
       true
     end
