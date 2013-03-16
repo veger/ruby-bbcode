@@ -1,4 +1,6 @@
 module RubyBBCode
+  # tag info is basically what the regex scan get's converted into during the tag_collection#process_text method
+  # 
   class TagInfo
     def initialize(tag_info, tags)
       @tag_data = find_tag_info(tag_info)
