@@ -104,7 +104,8 @@ module RubyBBCode
           @errors = ["Closing tag [/#{@ti[:tag]}] does match [#{parent_tag}]"] 
           return false
         end
-        if tag[:require_between] == true and @bbtree.current_node[:between].blank?
+        
+        if tag[:require_between] == true and @bbtree.current_node[:between].nil?
           @errors = ["No text between [#{@ti[:tag]}] and [/#{@ti[:tag]}] tags."]
           return false
         end
