@@ -28,6 +28,11 @@ module RubyBBCode
       @element[key] = value
     end
     
+    def type
+      return :tag if @element[:is_tag]
+      return :text if !@element[:is_tag]
+    end
+    
     # Checks to see if the parameter for the TagNode has been set.  
     def param_not_set?
       (@element[:params].nil? or @element[:params][:tag_param].nil?)
@@ -42,6 +47,10 @@ module RubyBBCode
     # the parameter supplied
     def tag_param=(param)
       @element[:params] = {:tag_param => param}
+    end
+    
+    def to_s
+      @element.to_s + "\n"
     end
   end
 end

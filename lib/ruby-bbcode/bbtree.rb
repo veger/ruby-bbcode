@@ -82,11 +82,17 @@ module RubyBBCode
     # Pattern goes hash[:nodes].first[:nodes].first[:nodes]
     def cycle_through_nodes(hash = @bbtree[:nodes], i = 0)
       
-      return 1 if hash.nil?
-      
-      hash.each.with_index do |el, j|
-        i += 1 if !hash[j].nil? and !hash[j][:nodes].nil?
-        i += count_child_nodes(hash[j][:nodes]) if !hash[j].nil?
+      hash.each.with_index do |node, j|
+        
+        case node.type
+        when :text           # hash[j][:nodes].nil?
+          i += 1             # should inc i and NOT run the count_child_nodes method on it since it don't got no :nodes
+        when :tag            # aka !hash[j].nil? and !hash[j][:nodes].nil?
+          i += 1
+          RubyBBCode.log hash[j]
+          i += count_child_nodes(hash[j][:nodes]) if !hash[j].nil?
+        end
+        
       end
       
       return i
