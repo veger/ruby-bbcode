@@ -6,7 +6,5 @@ source "http://rubygems.org"
 gemspec
 
 # Could be removed if the use of blank?, starts_with? and to_sentence are removed...
-gem "rails"
-
+#gem "rails"
 gem "tzinfo"
-gem 'pry'
