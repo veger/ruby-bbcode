@@ -2,7 +2,7 @@ module RubyBBCode
   # Tag sifter is in charge of building up the BBTree with nodes as it parses through the
   # supplied text such as "[b]hello world[/b]"
   class TagSifter
-    attr_reader :bbtree, :errors
+    attr_reader :bbtree, :errors, :manifestation
     
     def initialize(text_to_parse, dictionary)
       @text = text_to_parse
@@ -10,6 +10,7 @@ module RubyBBCode
       @bbtree = BBTree.new({:nodes => []}, dictionary)
       @ti = nil
       @errors = false
+      @manifestation = []
     end
     
     def invalid?
@@ -31,6 +32,7 @@ module RubyBBCode
           element = {:is_tag => true, :tag => @ti[:tag].to_sym, :definition => @ti.definition, :nodes => [] }
           element[:params] = {:tag_param => @ti[:params][:tag_param]} if @ti.can_have_params? and @ti.has_params?
           @bbtree.current_node[:nodes] << TagNode.new(element)
+          @manifestation << TagNode.new(element)
           @bbtree.escalate_bbtree(element)
         when :text
           element = {:is_tag => false, :text => @ti.text }
@@ -45,11 +47,16 @@ module RubyBBCode
             end
           end
           @bbtree.current_node[:nodes] << TagNode.new(element)
+          @manifestation << TagNode.new(element)
         when :closing_tag
           @bbtree.retrogress_bbtree
         end
         
+        
       end # end of scan loop
+      
+      #binding.pry
+      #::RubyBBCode.log @bbtree[:nodes]
       
       validate_all_tags_closed_off
     end

@@ -8,7 +8,7 @@ module RubyBBCode
   # Node 4)  A text node         representing "ITALLICS"
   #
   # The closing of the nodes seems to be implied which is fine by me --less to keep track of.  
-  #  
+  # 
   class BBTree
     attr_accessor :current_node, :tags_list
     
@@ -51,7 +51,8 @@ module RubyBBCode
     
     # Step down the bbtree a notch because we've reached a closing tag
     def retrogress_bbtree
-      @tags_list.pop     # remove latest tag in tags_list since it's closed now... where's the manifestation of the parsed data go???
+      @tags_list.pop     # remove latest tag in tags_list since it's closed now... 
+      # The parsed data manifests in @bbtree.current_node[:nodes] << TagNode.new(element) which I think is more confusing than needed
 
       # Since we just stepped down we should set the current node to be the @bbtree...
       # This works because the @bbtree includes everything except for the currently open node (which is being worked on)
@@ -66,5 +67,29 @@ module RubyBBCode
       end
     end
     
+    # TODO:  I'm working on graphing the @bbtree.current_node[:nodes] / @bbtree[:nodes]
+    # So I can understand how it works...
+    def present_nodes
+      @bbtree[:nodes]
+    end
+    
+    def count_child_nodes(hash = @bbtree[:nodes])
+      #count = cycle_through_nodes(hash)
+      #count += 1
+      cycle_through_nodes(hash)
+    end
+    
+    # Pattern goes hash[:nodes].first[:nodes].first[:nodes]
+    def cycle_through_nodes(hash = @bbtree[:nodes], i = 0)
+      
+      return 1 if hash.nil?
+      
+      hash.each.with_index do |el, j|
+        i += 1 if !hash[j].nil? and !hash[j][:nodes].nil?
+        i += count_child_nodes(hash[j][:nodes]) if !hash[j].nil?
+      end
+      
+      return i
+    end
   end
 end
