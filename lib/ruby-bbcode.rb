@@ -135,6 +135,7 @@ String.class_eval do
 end
 
 
+# make sure we're not overwriting AcitveSupport's implementation which is obviously better to have in production environments
 unless Array.method_defined?(:to_sentence)
   Array.class_eval do
   
