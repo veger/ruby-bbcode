@@ -1,4 +1,5 @@
 require 'pry'
+require 'active_support/core_ext/array/conversions'
 
 require 'tags/tags'
 require 'ruby-bbcode/debugging'
@@ -135,38 +136,4 @@ String.class_eval do
 end
 
 
-# make sure we're not overwriting AcitveSupport's implementation which is obviously better to have in production environments
-unless Array.method_defined?(:to_sentence)
-  Array.class_eval do
-  
-    # File activesupport/lib/active_support/core_ext/array/conversions.rb, line 11
-    def to_sentence(options = {})
-      if defined?(I18n)
-        default_words_connector     = I18n.translate(:'support.array.words_connector',     :locale => options[:locale])
-        default_two_words_connector = I18n.translate(:'support.array.two_words_connector', :locale => options[:locale])
-        default_last_word_connector = I18n.translate(:'support.array.last_word_connector', :locale => options[:locale])
-      else
-        default_words_connector     = ", "
-        default_two_words_connector = " and "
-        default_last_word_connector = ", and "
-      end
-      
-      # I don't know what this stuff is but it works when you comment it out, lol...
-      #options.assert_valid_keys(:words_connector, :two_words_connector, :last_word_connector, :locale)
-      #options.reverse_merge! :words_connector => default_words_connector, :two_words_connector => default_two_words_connector, :last_word_connector => default_last_word_connector
-  
-      case length
-        when 0
-          ""
-        when 1
-          self[0].to_s.dup
-        when 2
-          "#{self[0]}#{options[:two_words_connector]}#{self[1]}"
-        else
-          "#{self[0...-1].join(options[:words_connector])}#{options[:last_word_connector]}#{self[-1]}"
-      end
-    end
-  
-  end
-end
 
