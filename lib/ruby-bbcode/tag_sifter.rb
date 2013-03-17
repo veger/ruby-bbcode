@@ -168,6 +168,7 @@ module RubyBBCode
       @errors = ["[#{@bbtree.tags_list.to_sentence(to_sentence_bbcode_tags)}] not closed"]
     end
     
+    
     def to_sentence_bbcode_tags
       {:words_connector => "], [", 
         :two_words_connector => "] and [", 
