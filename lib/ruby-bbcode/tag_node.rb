@@ -28,6 +28,7 @@ module RubyBBCode
       @element[key] = value
     end
     
+    # Debugging/ visualization purposes
     def type
       return :tag if @element[:is_tag]
       return :text if !@element[:is_tag]
@@ -49,8 +50,10 @@ module RubyBBCode
       @element[:params] = {:tag_param => param}
     end
     
+    # Debugging/ visualization purposes
     def to_s
-      @element.to_s + "\n"
+      filtered = @element.reject {|el| el == :definition}
+      filtered.to_s + "\n"
     end
   end
 end
