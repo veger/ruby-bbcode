@@ -8,3 +8,4 @@ gemspec
 # Could be removed if the use of blank?, starts_with? and to_sentence are removed...
 #gem "rails"
 gem "tzinfo"
+#gem "ruby-debug19", :require => "ruby-debug"

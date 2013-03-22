@@ -16,8 +16,8 @@ Gem::Specification.new do |s|
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.textile"]
   s.test_files = Dir["test/**/*"]
   
-  #s.add_development_dependency 'rails'
+  s.add_dependency 'activesupport'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'pry'
-  s.add_dependency 'activesupport'
+  #s.add_development_dependency 'ruby-debug19'
 end

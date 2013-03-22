@@ -9,6 +9,7 @@ begin
 rescue LoadError
   require 'rdoc/rdoc'
   require 'rake/rdoctask'
+	require 'rdoc/task'
   RDoc::Task = Rake::RDocTask
 end
 

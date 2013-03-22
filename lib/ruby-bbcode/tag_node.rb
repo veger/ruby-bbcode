@@ -51,9 +51,10 @@ module RubyBBCode
     end
     
     # Debugging/ visualization purposes
-    def to_s
+    def to_v
       filtered = @element.reject {|el| el == :definition}
-      filtered.to_s + "\n"
+      filtered = filtered.reject {|el| el == :nodes}
+      (filtered.pretty_inspect + "")
     end
   end
 end

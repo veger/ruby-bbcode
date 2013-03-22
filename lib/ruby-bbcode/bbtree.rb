@@ -10,6 +10,7 @@ module RubyBBCode
   # The closing of the nodes seems to be implied which is fine by me --less to keep track of.  
   # 
   class BBTree
+    include RubyBBCode::DebugBBTree   # this is for debugging the class.  Check lib/debugging.rb
     attr_accessor :current_node, :tags_list
     
     def initialize(hash = {}, dictionary)
@@ -73,28 +74,7 @@ module RubyBBCode
       @bbtree[:nodes]
     end
     
-    def count_child_nodes(hash = @bbtree[:nodes])
-      #count = cycle_through_nodes(hash)
-      #count += 1
-      cycle_through_nodes(hash)
-    end
     
-    # Pattern goes hash[:nodes].first[:nodes].first[:nodes]
-    def cycle_through_nodes(hash = @bbtree[:nodes], i = 0)
-      
-      hash.each.with_index do |node, j|
-        i += 1
-        case node.type
-        when :text           # hash[j][:nodes].nil?
-          next               # should NOT run the count_child_nodes method on it since it don't got no :nodes
-        when :tag            # aka !hash[j].nil? and !hash[j][:nodes].nil?
-          RubyBBCode.log hash[j]
-          i += count_child_nodes(hash[j][:nodes]) if !hash[j].nil?
-        end
-        
-      end
-      
-      return i
-    end
+    
   end
 end

@@ -1,6 +1,8 @@
 require 'pry'
 require 'active_support/core_ext/array/conversions'
 
+$LOAD_PATH << File.join(File.dirname(__FILE__), 'ruby-bbcode')   # include the lib folder in the LOAD_PATH so i don't need to specify the name... is that good?  No, because then all your requires look like you're requiring of the standard library or misc gems
+
 require 'tags/tags'
 require 'ruby-bbcode/debugging'
 require 'ruby-bbcode/tag_info'

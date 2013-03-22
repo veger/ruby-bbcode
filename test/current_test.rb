@@ -11,14 +11,16 @@ class RubyBbcodeTest < Test::Unit::TestCase
   #end
   
   def test_recursion
-    text = "[ol][li]item 1[/li][li]item 2[/li][/ol]"
+    text = "[ol][li][b][/b][b][/b][b][/b][b][/b]item 1[/li][li]item 2[/li][/ol]"
     tags = RubyBBCode.tag_list
     
     @tag_sifter = RubyBBCode::TagSifter.new(text, tags)
     
     @tag_sifter.process_text
     
-    assert_equal 5, @tag_sifter.bbtree.count_child_nodes
+    assert_equal 9, @tag_sifter.bbtree.count_child_nodes
+    
+    
   end
   
   
