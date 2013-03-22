@@ -9,3 +9,4 @@ gemspec
 gem "rails"
 
 gem "tzinfo"
+gem 'pry'

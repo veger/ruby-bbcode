@@ -123,6 +123,9 @@ class RubyBbcodeTest < Test::Unit::TestCase
       # Link within same domain must start with a / and a link to another domain with http://, https:// or ftp://
       '[url=www.google.com]Google[/url]'.bbcode_to_html
     end
+    assert_raise RuntimeError do
+      '[url]htfp://www.google.com[/url]'.bbcode_to_html
+    end
   end
   
   def test_image
@@ -135,6 +138,32 @@ class RubyBbcodeTest < Test::Unit::TestCase
   def test_youtube
     assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>' ,
                    '[youtube]E4Fbk52Mk1w[/youtube]'.bbcode_to_html
+  end
+  
+  def test_youtube_parser
+    url1 = "http://www.youtube.com/watch?v=E4Fbk52Mk1w"
+    just_an_id = 'E4Fbk52Mk1w'
+    url_without_http = "www.youtube.com/watch?v=E4Fbk52Mk1w"
+    url_without_www = "youtube.com/watch?v=E4Fbk52Mk1w"
+    url_with_feature = "http://www.youtube.com/watch?feature=player_embedded&v=E4Fbk52Mk1w"
+    
+    expected_output = 'E4Fbk52Mk1w'
+    
+    assert_equal expected_output, 
+                   RubyBBCode.parse_youtube_id(url1)
+    
+    assert_equal expected_output, 
+                   RubyBBCode.parse_youtube_id(just_an_id)
+                   
+    assert_equal expected_output, 
+                   RubyBBCode.parse_youtube_id(url_without_http)
+                   
+    assert_equal expected_output, 
+                   RubyBBCode.parse_youtube_id(url_without_www)
+                   
+    assert_equal expected_output, 
+                   RubyBBCode.parse_youtube_id(url_with_feature)
+    
   end
   
   def test_google_video

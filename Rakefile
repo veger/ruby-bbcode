@@ -33,5 +33,11 @@ Rake::TestTask.new(:test) do |t|
   t.verbose = true
 end
 
+Rake::TestTask.new(:current) do |t|
+  t.libs << 'lib'
+  t.libs << 'test'
+  t.pattern = 'test/**/current_test.rb'
+  t.verbose = true
+end
 
 task :default => :test
