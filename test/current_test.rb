@@ -9,8 +9,8 @@ class RubyBbcodeTest < Test::Unit::TestCase
     #           "[ol] [li]item 1[/li]  [li]item 2[/li] [/ol]".bbcode_to_html
 
   #end
-  
-  def test_recursion
+=begin
+  def test_counting_nodes
     text = "[ol][li][b][/b][b][/b][b][/b][b][/b]item 1[/li][li]item 2[/li][/ol]"
     tags = RubyBBCode.tag_list
     
@@ -19,9 +19,33 @@ class RubyBbcodeTest < Test::Unit::TestCase
     @tag_sifter.process_text
     
     assert_equal 9, @tag_sifter.bbtree.count_child_nodes
-    
-    
   end
+=end
   
+  def test_bbtree_to_v
+    # text = "[ol][li][b]a[/b][b]a[/b][b]a[/b][b]a[/b]item 1[/li][li]item 2[/li][/ol]"
+    text = "[i][b]a[/b][b]a[/b][b]a[/b][b]a[/b]item 1 hey[/i][i]item 2[/i]"
+    
+    visual = <<eos
+i
+  b
+  b
+  b
+  b
+  "item 1"
+i
+  "item 2"
+eos
+    
+    tags = RubyBBCode.tag_list
+    @tag_sifter = RubyBBCode::TagSifter.new(text, tags)
+    
+    @tag_sifter.process_text
+    
+    puts visual
+    puts @tag_sifter.bbtree.to_v
+    
+    assert_equal visual, @tag_sifter.bbtree.to_v
+  end
   
 end

@@ -2,7 +2,6 @@ module RubyBBCode
   def self.log(string, clear_file = true)
     clear_log_file_at_beginning_of_execution clear_file
     
-    
     File.open('/tmp/ruby-bbcode.log', 'a') do |f|
       f.puts string
     end
@@ -20,6 +19,47 @@ module RubyBBCode
   
   
   module DebugBBTree
+    # Debugging/ visualization purposes
+    def to_v
+      manifestation = ''
+      
+      walk_tree(@bbtree[:nodes].first) do |node, depth|
+        indentation = '  ' * depth
+        #binding.pry
+        case node[:is_tag]
+        when true
+          manifestation += "#{indentation.length/2}#{indentation}" + node[:tag].to_s + "\n"
+        when false
+          manifestation += "#{indentation}\"#{node[:text]}\"\n"
+        end
+      end
+      
+      manifestation
+    end
+    
+    def walk_tree(tree, depth = 0, &blk) 
+      return enum_for(:walk_tree) unless blk  # ignore me for now, I'm a convention for being versatile
+      
+      # Perform the block action specified at top level!!!
+      yield tree, depth # unless tree == { nodes: []}
+      
+      # next if we're a text node
+      return if !tree[:is_tag]
+      return if tree[:nodes].empty?
+      # Enter into recursion (including block action) for each child node in this node
+      tree[:nodes].each do |node|
+        children = node[:nodes].nil? ? nil : node[:nodes].count
+        a = [ depth+1, node[:tag], children]
+        # binding.pry
+        walk_tree(node, depth + 1, &blk)
+      end
+    end
+    
+    
+    
+
+    
+    
     def count_child_nodes(hash = @bbtree[:nodes], q = 0)
       #count = cycle_through_nodes(hash)
       #count += 1
@@ -79,6 +119,32 @@ module RubyBBCode
       
       return i
     end
+    
+    def generic_node_cycling(hash = @bbtree[:nodes], &block)
+      i = 0
+      hash.each.with_index do |node, j|
+        i += 1
+        value = node
+        node = block.call(node) if block_given?
+        p value
+        
+        case node.type
+        when :text
+        when :tag
+          if !hash[j].nil?
+            count = generic_node_cycling(hash[j][:nodes], &block)
+            
+            i += count
+          end
+        end
+        
+      end
+      
+      return i
+    end
+    
+    
+    
   end
   
 end
