@@ -23,15 +23,18 @@ class RubyBbcodeTest < Test::Unit::TestCase
 =end
   
   def test_bbtree_to_v
-    # text = "[ol][li][b]a[/b][b]a[/b][b]a[/b][b]a[/b]item 1[/li][li]item 2[/li][/ol]"
-    text = "[i][b]a[/b][b]a[/b][b]a[/b][b]a[/b]item 1 hey[/i][i]item 2[/i]"
+    text = "[i][b]a[/b][b]a[/b][b]a[/b][b]a[/b]item 1[/i][i]item 2[/i]"
     
     visual = <<eos
 i
   b
+    "a"
   b
+    "a"
   b
+    "a"
   b
+    "a"
   "item 1"
 i
   "item 2"

@@ -22,13 +22,13 @@ module RubyBBCode
     # Debugging/ visualization purposes
     def to_v
       manifestation = ''
-      
-      walk_tree(@bbtree[:nodes].first) do |node, depth|
+      #binding.pry
+      walk_tree(@bbtree) do |node, depth|
         indentation = '  ' * depth
         #binding.pry
         case node[:is_tag]
         when true
-          manifestation += "#{indentation.length/2}#{indentation}" + node[:tag].to_s + "\n"
+          manifestation += "#{indentation}" + node[:tag].to_s + "\n"
         when false
           manifestation += "#{indentation}\"#{node[:text]}\"\n"
         end
@@ -37,19 +37,19 @@ module RubyBBCode
       manifestation
     end
     
-    def walk_tree(tree, depth = 0, &blk) 
+    def walk_tree(tree, depth = -1, &blk)
       return enum_for(:walk_tree) unless blk  # ignore me for now, I'm a convention for being versatile
       
       # Perform the block action specified at top level!!!
-      yield tree, depth # unless tree == { nodes: []}
+      yield tree, depth unless depth == -1
       
       # next if we're a text node
-      return if !tree[:is_tag]
-      return if tree[:nodes].empty?
+      #return if !tree[:is_tag]
+      return if tree[:nodes].nil? or tree[:nodes].empty?
       # Enter into recursion (including block action) for each child node in this node
       tree[:nodes].each do |node|
         children = node[:nodes].nil? ? nil : node[:nodes].count
-        a = [ depth+1, node[:tag], children]
+        # a = [ depth+1, node[:tag], children]
         # binding.pry
         walk_tree(node, depth + 1, &blk)
       end
