@@ -21,9 +21,10 @@ module RubyBBCode
   module DebugBBTree
     # Debugging/ visualization purposes
     def to_v
+      tree ||= @bbtree.nil? ? @element : @bbtree # this function works for both BBTree and also TagNodes
       manifestation = ''
       
-      walk_tree(@bbtree) do |node, depth|
+      walk_tree(tree) do |node, depth|
         indentation = '  ' * depth
         case node[:is_tag]
         when true

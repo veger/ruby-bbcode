@@ -10,6 +10,7 @@ module RubyBBCode
   # They specify either opening tag elements or text elements...  TagInfo elements are essentially converted into these nodes which are
   # later converted into html output in the bbtree_to_html method
   class TagNode
+    include RubyBBCode::DebugBBTree   # this is for debugging the class.  Check lib/debugging.rb
     attr_accessor :element #, :manifestation
     def initialize(element, nodes = [])
       @element = element    # { :is_tag=>false, :text=>"ITALLICS" } ||   { :is_tag=>true, :tag=>:i, :nodes => [] }
@@ -51,11 +52,11 @@ module RubyBBCode
     end
     
     # Debugging/ visualization purposes
-    def to_v
-      filtered = @element.reject {|el| el == :definition}
-      filtered = filtered.reject {|el| el == :nodes}
-      (filtered.pretty_inspect + "")
-    end
+    #def to_v
+    #  filtered = @element.reject {|el| el == :definition}
+    #  filtered = filtered.reject {|el| el == :nodes}
+    #  (filtered.pretty_inspect + "")
+    #end
     
     # uncomment this to prevent the tags from smearing up the debug console like a crash dump
 =begin
