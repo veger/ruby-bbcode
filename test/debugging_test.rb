@@ -25,6 +25,16 @@ eos
     
     assert_equal visual, @tag_sifter.bbtree.to_v
   end
+  
+  def test_bbtree_counting_nodes
+    text = "[ol][li][b][/b][b][/b][b][/b][b][/b]item 1[/li][li]item 2[/li][/ol]"
+    tags = RubyBBCode.tag_list
     
+    @tag_sifter = RubyBBCode::TagSifter.new(text, tags)
+    
+    @tag_sifter.process_text
+    
+    assert_equal 9, @tag_sifter.bbtree.count_child_nodes
+  end
   
 end

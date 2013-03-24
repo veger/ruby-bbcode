@@ -9,18 +9,8 @@ class RubyBbcodeTest < Test::Unit::TestCase
     #           "[ol] [li]item 1[/li]  [li]item 2[/li] [/ol]".bbcode_to_html
 
   #end
-=begin
-  def test_counting_nodes
-    text = "[ol][li][b][/b][b][/b][b][/b][b][/b]item 1[/li][li]item 2[/li][/ol]"
-    tags = RubyBBCode.tag_list
-    
-    @tag_sifter = RubyBBCode::TagSifter.new(text, tags)
-    
-    @tag_sifter.process_text
-    
-    assert_equal 9, @tag_sifter.bbtree.count_child_nodes
-  end
-=end
+  
+  
   
 
 end
