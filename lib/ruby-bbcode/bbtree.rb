@@ -63,17 +63,10 @@ module RubyBBCode
       if within_open_tag?
         # Set the current node to be the node we've just parsed over which is infact within another node??...
         @current_node = TagNode.new(@current_node[:nodes].last)
-      else # if we're still at the root of the BBTree or have returned to the root via encountring closing tags...
+      else # If we're still at the root of the BBTree or have returned back to the root via encountring closing tags...
         @current_node = TagNode.new(@bbtree)
       end
     end
-    
-    # TODO:  I'm working on graphing the @bbtree.current_node[:nodes] / @bbtree[:nodes]
-    # So I can understand how it works...
-    def present_nodes
-      @bbtree[:nodes]
-    end
-    
     
     
   end
