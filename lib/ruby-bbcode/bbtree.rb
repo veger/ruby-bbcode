@@ -11,13 +11,17 @@ module RubyBBCode
   # 
   class BBTree
     include RubyBBCode::DebugBBTree   # this is for debugging the class.  Check lib/debugging.rb
-    attr_accessor :current_node, :tags_list
+    attr_accessor :current_node, :tags_list, :manifestation
     
-    def initialize(hash = {}, dictionary)
+    def initialize(hash = { :nodes => [] }, dictionary)
       @bbtree = hash
       @current_node = TagNode.new(@bbtree)
       @tags_list = []
       @dictionary = dictionary
+      
+      #@manifestation = TagNode.new({ :nodes => [] })
+      #binding.pry
+      @manifestation = TagNode.new({ :nodes => [] })
     end
     
     def [](key)
@@ -58,16 +62,23 @@ module RubyBBCode
       # Since we just stepped down we should set the current node to be the @bbtree...
       # This works because the @bbtree includes everything except for the currently open node (which is being worked on)
       # ...But where does the node get stored...  
-      @current_node = TagNode.new(@bbtree) # Set current_node to be the whole @bbtree
+      #@current_node = TagNode.new(@bbtree) # Set current_node to be the whole @bbtree
       
       if within_open_tag?
         # Set the current node to be the node we've just parsed over which is infact within another node??...
-        @current_node = TagNode.new(@current_node[:nodes].last)
+        @current_node = TagNode.new(@bbtree[:nodes].last)
       else # If we're still at the root of the BBTree or have returned back to the root via encountring closing tags...
         @current_node = TagNode.new(@bbtree)
       end
     end
     
+    def build_up_new_tag(element)
+      # @bbtree.current_node[:nodes] << TagNode.new(element)
+      #binding.pry
+      @current_node[:nodes] << TagNode.new(element)
+      @manifestation << TagNode.new(element)    # Marshal.load Marshal.dump element
+      #@manifestation << TagNode.new(Marshal.load Marshal.dump element)
+    end
     
   end
 end
