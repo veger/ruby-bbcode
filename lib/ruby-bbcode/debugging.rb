@@ -50,25 +50,21 @@ module RubyBBCode
       count
     end
 
-#=begin
     def to_s
       object_identifier = "#<#{self.class.to_s}:0x#{'%x' % (self.object_id << 1)}\n"
       close_object = ">\n"
       
       case self
       when RubyBBCode::BBTree
-        object_identifier + self.to_v + close_object
-      when RubyBBCode::TagNode
+        object_identifier + "Children: #{count_child_nodes}\n" + self.to_v + close_object
+      when RubyBBCode::TagNode   # when inspecting TagNodes, it's better not to show the tree display
         if self[:is_tag]
-          child_nodes = "#{self[:nodes]}"
-          #return "#{self[:tag].to_s}, #{child_nodes}"
-          return object_identifier + "Tag:  #{self[:tag].to_s}, Children: #{self[:nodes].count}\n" + close_object
+          object_identifier + "Tag:  #{self[:tag].to_s}, Children: #{count_child_nodes}\n" + close_object
         else
-          return '"' + self[:text].to_s + '"'
+          object_identifier + '"' + self[:text].to_s + "\"\n" + close_object
         end
       end
     end
-#=end
     
     private
     
