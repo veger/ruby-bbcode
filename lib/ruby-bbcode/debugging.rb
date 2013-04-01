@@ -18,8 +18,10 @@ module RubyBBCode
   end
   
   
+  # This module can be included in the BBTree and TagNode to give them debugging features
   module DebugBBTree
-    # Debugging/ visualization purposes
+    # For Debugging/ visualization purposes.
+    # This can be used to render the [:nodes] array in a pretty manor, showing the hirarchy.  
     def to_v
       tree ||= @bbtree.nil? ? @element : @bbtree # this function works for both BBTree and also TagNodes
       manifestation = ''
@@ -37,6 +39,41 @@ module RubyBBCode
       manifestation
     end
     
+    
+    # this blocky method counts how many children are
+    # in the TagNode[:nodes], recursively walking the tree
+    def count_child_nodes(hash = self[:nodes])
+      count = 0
+      walk_tree(hash) do
+        count += 1
+      end
+      count
+    end
+
+#=begin
+    def to_s
+      object_identifier = "#<#{self.class.to_s}:0x#{'%x' % (self.object_id << 1)}\n"
+      close_object = ">\n"
+      
+      case self
+      when RubyBBCode::BBTree
+        object_identifier + self.to_v + close_object
+      when RubyBBCode::TagNode
+        if self[:is_tag]
+          child_nodes = "#{self[:nodes]}"
+          #return "#{self[:tag].to_s}, #{child_nodes}"
+          return object_identifier + "Tag:  #{self[:tag].to_s}, Children: #{self[:nodes].count}\n" + close_object
+        else
+          return '"' + self[:text].to_s + '"'
+        end
+      end
+    end
+#=end
+    
+    private
+    
+    # This function is used by to_v and anything else that needs to iterate through the 
+    # @bbtree
     def walk_tree(tree, depth = -1, &blk)
       return enum_for(:walk_tree) unless blk  # ignore me for now, I'm a convention for being versatile
       
@@ -44,42 +81,18 @@ module RubyBBCode
       yield tree, depth unless depth == -1
       
       # next if we're a text node
-      return if tree[:nodes].nil? or tree[:nodes].empty?
+      begin
+        return if tree[:nodes].nil? or tree[:nodes].empty?
+        nodes = tree[:nodes]
+      rescue
+        nodes = tree    # this rescue got hacked in to extend the walk_tree method to work for counting children...
+      end
       
       # Enter into recursion (including block action) for each child node in this node
-      tree[:nodes].each do |node|
+      nodes.each do |node|
         children = node[:nodes].nil? ? nil : node[:nodes].count
         walk_tree(node, depth + 1, &blk)
       end
-    end
-    
-    
-    
-
-    
-    
-    def count_child_nodes(hash = @bbtree[:nodes])
-      cycle_through_nodes(hash)
-    end
-    
-    def cycle_through_nodes(hash = @bbtree[:nodes])
-      i = 0
-      hash.each.with_index do |node, j|
-        i += 1
-        
-        case node.type
-        when :text
-          #next
-        when :tag
-          if !hash[j].nil?
-            count = cycle_through_nodes(hash[j][:nodes])
-            i += count
-          end
-        end
-        
-      end
-      
-      return i
     end
     
   end
