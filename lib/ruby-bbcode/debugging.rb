@@ -50,6 +50,9 @@ module RubyBBCode
       count
     end
 
+    # For BBTree, teh to_s method shows the count of the children plus a graphical
+    # depiction of the tree, and the relation of the nodes.  
+    # For TagNodes, the root-most tag is displayed, and the children are counted.  
     def to_s
       object_identifier = "#<#{self.class.to_s}:0x#{'%x' % (self.object_id << 1)}\n"
       close_object = ">\n"
