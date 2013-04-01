@@ -140,6 +140,13 @@ class RubyBbcodeTest < Test::Unit::TestCase
                    '[youtube]E4Fbk52Mk1w[/youtube]'.bbcode_to_html
   end
   
+  def test_youtube_with_full_url
+    full_url = "http://www.youtube.com/watch?feature=player_embedded&v=E4Fbk52Mk1w"
+    assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>' ,
+                   "[youtube]#{full_url}[/youtube]".bbcode_to_html
+  end
+  
+  
   def test_youtube_parser
     url1 = "http://www.youtube.com/watch?v=E4Fbk52Mk1w"
     just_an_id = 'E4Fbk52Mk1w'
@@ -163,8 +170,8 @@ class RubyBbcodeTest < Test::Unit::TestCase
                    
     assert_equal expected_output, 
                    RubyBBCode.parse_youtube_id(url_with_feature)
-    
   end
+  
   
   def test_google_video
     assert_equal '<embed id="VideoPlayback" src="http://video.google.com/googleplayer.swf?docid=397259729324681206&hl=en" style="width:400px; height:325px;" type="application/x-shockwave-flash"></embed>',

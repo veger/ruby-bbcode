@@ -30,44 +30,56 @@ module RubyBBCode
         case @ti.type   # Validation of tag succeeded, add to @bbtree.tags_list and/or bbtree
         when :opening_tag
           element = {:is_tag => true, :tag => @ti[:tag].to_sym, :definition => @ti.definition, :nodes => [] }
-          element[:params] = {:tag_param => @ti[:params][:tag_param]} if @ti.can_have_params? and @ti.has_params?
-          #binding.pry
-          @bbtree.current_node[:nodes] << TagNode.new(element)
-          #binding.pry
-          @manifestation << TagNode.new(element)
+          element[:params] = {:tag_param => get_formatted_element_params} if @ti.can_have_params? and @ti.has_params?
+          @bbtree.build_up_new_tag(element) # @bbtree.current_node[:nodes] << TagNode.new(element)
+          
           @bbtree.escalate_bbtree(element)
         when :text
           element = {:is_tag => false, :text => @ti.text }
           if within_open_tag?
             tag = @bbtree.current_node.definition
             if tag[:require_between]
-              @bbtree.current_node[:between] = @ti[:text]
+              @bbtree.current_node[:between] = get_formatted_element_params
               if candidate_for_using_between_as_param?
                 use_between_as_tag_param    # Did not specify tag_param, so use between text.
               end
               next  # don't add this node to @bbtree.current_node[:nodes] if we're within an open tag that requires_between (to be a param), and the between couldn't be used as a param... Yet it passed validation so the param must have been specified within the opening tag???
             end
           end
-          #binding.pry
-          @bbtree.current_node[:nodes] << TagNode.new(element)
-          #binding.pry
-          #::RubyBBCode.log @bbtree.to_v + "\n\n"
-          @manifestation << TagNode.new(element)
+          @bbtree.build_up_new_tag(element) #@bbtree.current_node[:nodes] << TagNode.new(element)
         when :closing_tag
           @bbtree.retrogress_bbtree
         end
         
-        #binding.pry
-        
       end # end of scan loop
-      
-      
       
       validate_all_tags_closed_off
     end
     
     
     protected
+    
+    # This method allows us to format params if needed...  
+    # Maybe this kind of thing *could* be handled in the bbtree_to_html where the %between% is
+    # sorted out and the html is generated, but...  That code has yet to be refactored and we can.
+    # refactor this code easily to happen over there if necessary...  Yes, I think it's more logical 
+    # to be put over there, but that method needs to be cleaned up before we introduce the formatting overthere... and knowing the parent node is helpful!    
+    def get_formatted_element_params
+      if @ti[:is_tag]
+        param = @ti[:params][:tag_param]
+        if @ti.can_have_params? and @ti.has_params?
+          # perform special formatting for cenrtain tags
+          param = RubyBBCode.parse_youtube_id(param) if @ti[:tag].to_sym == :youtube  # note:  this line isn't ever used because @@tags don't allow it
+        end
+        return param
+      else  # must be text... @ti[:is_tag] == false
+        param = @ti[:text]
+        # perform special formatting for cenrtain tags
+        param = RubyBBCode.parse_youtube_id(param) if @bbtree.current_node[:tag] == :youtube
+        return param
+      end
+    end
+    
     
     # Validates the element
     def valid_element?
@@ -186,7 +198,8 @@ module RubyBBCode
     end
     
     def use_between_as_tag_param
-      @bbtree.current_node.tag_param = @ti[:text]      # @bbtree.current_node[:params] = {:tag_param => @ti[:text]}
+      param = get_formatted_element_params
+      @bbtree.current_node.tag_param = param      # @bbtree.current_node[:params] = {:tag_param => @ti[:text]}
     end
     
     def candidate_for_using_between_as_param?
