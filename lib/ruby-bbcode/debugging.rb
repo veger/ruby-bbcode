@@ -42,7 +42,7 @@ module RubyBBCode
     
     # this blocky method counts how many children are
     # in the TagNode[:nodes], recursively walking the tree
-    def count_child_nodes(hash = self[:nodes])
+    def count_child_nodes(hash = self)
       count = 0
       walk_tree(hash) do
         count += 1
@@ -77,15 +77,10 @@ module RubyBBCode
       yield tree, depth unless depth == -1
       
       # next if we're a text node
-      begin
-        return if tree[:nodes].nil? or tree[:nodes].empty?
-        nodes = tree[:nodes]
-      rescue
-        nodes = tree    # this rescue got hacked in to extend the walk_tree method to work for counting children...
-      end
+      return if tree[:nodes].nil? or tree[:nodes].empty?
       
       # Enter into recursion (including block action) for each child node in this node
-      nodes.each do |node|
+      tree[:nodes].each do |node|
         children = node[:nodes].nil? ? nil : node[:nodes].count
         walk_tree(node, depth + 1, &blk)
       end
