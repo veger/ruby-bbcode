@@ -23,6 +23,9 @@ eos
     @tag_sifter = RubyBBCode::TagSifter.new(text, tags)
     @tag_sifter.process_text
     
+    # manually include the debugging methods if they've been disabled for cleanliness purposes
+    @tag_sifter.bbtree.extend(::RubyBBCode::DebugBBTree) unless @tag_sifter.bbtree.respond_to? :to_v
+    
     assert_equal visual, @tag_sifter.bbtree.to_v
   end
   
@@ -33,6 +36,9 @@ eos
     @tag_sifter = RubyBBCode::TagSifter.new(text, tags)
     
     @tag_sifter.process_text
+    
+    # manually include debugging methods if needed.  
+    @tag_sifter.bbtree.extend(::RubyBBCode::DebugBBTree) unless @tag_sifter.bbtree.respond_to? :count_child_nodes
     
     assert_equal 9, @tag_sifter.bbtree.count_child_nodes
   end
