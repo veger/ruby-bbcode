@@ -69,14 +69,30 @@ module RubyBBCode
         param = @ti[:params][:tag_param]
         if @ti.can_have_params? and @ti.has_params?
           # perform special formatting for cenrtain tags
-          param = RubyBBCode.parse_youtube_id(param) if @ti[:tag].to_sym == :youtube  # note:  this line isn't ever used because @@tags don't allow it
+          param = parse_youtube_id(param) if @ti[:tag].to_sym == :youtube  # note:  this line isn't ever used because @@tags don't allow it
         end
         return param
       else  # must be text... @ti[:is_tag] == false
         param = @ti[:text]
         # perform special formatting for cenrtain tags
-        param = RubyBBCode.parse_youtube_id(param) if @bbtree.current_node[:tag] == :youtube
+        param = parse_youtube_id(param) if @bbtree.current_node[:tag] == :youtube
         return param
+      end
+    end
+    
+    # Parses a youtube video url and extracts the ID  
+    def parse_youtube_id(url)
+      url =~ /[vV]=([^&]*)/
+      id = $1
+      
+      if id.nil?
+        # when there is no match for v=blah, then maybe they just 
+        # provided us with the ID the way the system used to work... 
+        # just "E4Fbk52Mk1w"
+        return url  
+      else
+        # else we got a match for an id and we can return that ID...
+        return id
       end
     end
     

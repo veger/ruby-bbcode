@@ -99,22 +99,6 @@ module RubyBBCode
     text
   end
   
-  # Parses a youtube video url and extracts the ID  
-  def self.parse_youtube_id(url)
-    url =~ /[vV]=([^&]*)/
-    id = $1
-    
-    if id.nil?
-      # when there is no match for v=blah, then maybe they just 
-      # provided us with the ID the way the system used to work... 
-      # just "E4Fbk52Mk1w"
-      return url  
-    else
-      # else we got a match for an id and we can return that ID...
-      return id
-    end
-  end
-  
 end
 
 String.class_eval do

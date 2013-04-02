@@ -156,6 +156,8 @@ class RubyBbcodeTest < Test::Unit::TestCase
     
     expected_output = 'E4Fbk52Mk1w'
     
+    require 'pry'
+    binding.pry
     assert_equal expected_output, 
                    RubyBBCode.parse_youtube_id(url1)
     
