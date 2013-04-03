@@ -39,7 +39,7 @@ module RubyBBCode
     parse(text, @@tags.merge(additional_tags));
   end
   
-  # FIXME:  This could be removed, it's not used within the library.  I don't think external users will need it
+  # FIXME:  This could be removed, it's not used within the library.  I don't think external users will need it, but maybe they will
   def self.tag_list
     @@tags
   end
@@ -60,7 +60,7 @@ module RubyBBCode
     
   end
 
-
+  # TODO:  Move this into BBTree.rb
   def self.bbtree_to_html(node_list, tags = {})
     tags = @@tags if tags == {}
     
