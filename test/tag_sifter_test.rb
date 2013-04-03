@@ -10,11 +10,8 @@ class TagSifterTest < Test::Unit::TestCase
     
     expected_output = 'E4Fbk52Mk1w'
     
-    require 'pry'
-    
     ::RubyBBCode::TagSifter.publicize_methods do
       ts = ::RubyBBCode::TagSifter.new "[quote]hi[/quote]", ""
-      binding.pry
       assert_equal expected_output, 
                      ts.parse_youtube_id(url1)
       
