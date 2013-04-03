@@ -38,7 +38,8 @@ module RubyBBCode
   def self.is_valid?(text, additional_tags = {})
     parse(text, @@tags.merge(additional_tags));
   end
-
+  
+  # FIXME:  This could be removed, it's not used within the library.  I don't think external users will need it
   def self.tag_list
     @@tags
   end
