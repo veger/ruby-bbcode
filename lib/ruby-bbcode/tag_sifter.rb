@@ -57,7 +57,7 @@ module RubyBBCode
     end
     
     
-    protected
+    private
     
     # This method allows us to format params if needed...  
     # Maybe this kind of thing *could* be handled in the bbtree_to_html where the %between% is
