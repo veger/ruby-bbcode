@@ -111,7 +111,7 @@ module RubyBBCode
         if tag_info[4][0] == ?=
           ti[:params][:tag_param] = tag_info[4][1..-1]
         elsif tag_info[4][0] == ?\s
-          #TODO: Find params
+          #FIXME: Find params... Delete this or write a test to cover this and implement it
         end
       else
         # Plain text
