@@ -38,6 +38,10 @@ module RubyBBCode
       @element[:nodes].length > 0
     end
     
+    def allow_tag_param? 
+      definition[:allow_tag_param]
+    end
+    
     # shows the tag definition for this TagNode as defined in tags.rb
     def definition
       @element[:definition]

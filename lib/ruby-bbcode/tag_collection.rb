@@ -6,15 +6,13 @@ module RubyBBCode
       html_string = ""
       self.each do |node|
         if node.type == :tag
-          @tag_definition = tags[node[:tag]]
-          
-          t = HtmlTemplate.new @tag_definition, node
+          t = HtmlTemplate.new node
           
           t.inlay_between_text!
           
-          if @tag_definition[:allow_tag_param] and node.param_set?
+          if node.allow_tag_param? and node.param_set?
             t.inlay_inline_params!
-          elsif @tag_definition[:allow_tag_param] and node.param_not_set?
+          elsif node.allow_tag_param? and node.param_not_set?
             t.remove_unused_tokens!
           end
           
@@ -47,11 +45,11 @@ module RubyBBCode
     class HtmlTemplate
       attr_accessor :opening_html, :closing_html
       
-      def initialize(tag_definition, node)
-        @tag_definition = tag_definition
-        @opening_html = tag_definition[:html_open].dup
-        @closing_html = tag_definition[:html_close].dup
+      def initialize(node)
         @node = node
+        @tag_definition = node.definition # tag_definition
+        @opening_html = node.definition[:html_open].dup
+        @closing_html = node.definition[:html_close].dup
       end
       
       def inlay_between_text!
