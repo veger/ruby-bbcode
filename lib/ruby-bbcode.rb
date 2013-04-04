@@ -22,15 +22,26 @@ module RubyBBCode
       text.gsub!('<', '&lt;')
       text.gsub!('>', '&gt;')
     end
-
-    valid = parse(text, use_tags)
-    raise valid.join(', ') if valid != true   # We cannot convert to HTML if the BBCode is not valid!
     
-    @tag_sifter.bbtree.to_html(use_tags)
+    @tag_sifter = TagSifter.new(text, use_tags)
+    
+    @tag_sifter.process_text
+    
+    if @tag_sifter.invalid?
+      raise @tag_sifter.errors.join(', ')   # We cannot convert to HTML if the BBCode is not valid!
+    else
+      @tag_sifter.bbtree.to_html(use_tags)
+    end
+    
   end
-
-  def self.is_valid?(text, additional_tags = {})
-    parse(text, @@tags.merge(additional_tags));  
+  
+  # Returns true when valid, else returns array with error(s)
+  def self.validity_check(text, additional_tags = {})
+    @tag_sifter = TagSifter.new(text, @@tags.merge(additional_tags))
+    
+    @tag_sifter.process_text
+    return @tag_sifter.errors if @tag_sifter.invalid?
+    true
   end
   
   
@@ -76,7 +87,17 @@ String.class_eval do
   end
 
   # Check if string contains valid BBCode. Returns true when valid, else returns array with error(s)
+  # FIXME:  It's the convention in Ruby that all functions ending in a '?' return either true or false.  
+  # Same with the functions starting with the word 'is' in other languages.  
+  # Since this is a part of the public API, this method should be depricated in favor of check_bbcode_validity (or something)
+  # and is_valid_bbcode? should eventually be phased out
   def is_valid_bbcode?
-    RubyBBCode.is_valid?(self)
+    # TODO:  add a puts "Warning:  This method has been depricated, please use check_bbcode_validity which does the same thing but is more syntactical." or something
+    check_bbcode_validity
+  end
+  
+  # Check if string contains valid BBCode. Returns true when valid, else returns array with error(s)
+  def check_bbcode_validity
+    RubyBBCode.validity_check(self)
   end
 end
