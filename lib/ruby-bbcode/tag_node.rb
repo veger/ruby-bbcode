@@ -19,10 +19,6 @@ module RubyBBCode
       @element[key] = value
     end
     
-    def <<(element)
-      @element[:nodes] << element
-    end
-    
     # Debugging/ visualization purposes
     def type
       return :tag if @element[:is_tag]

@@ -1,7 +1,6 @@
 module RubyBBCode
   # This class builds objects that hold TagNodes.  It's really just a simple array, with the addition of the #to_html method
   class TagCollection < Array
-    #attr_accessor :nodes
     
     def to_html(tags = {})
       tags = @dictionary if tags == {}
