@@ -11,7 +11,7 @@ require 'ruby-bbcode/bbtree'
 module RubyBBCode
   include ::RubyBBCode::Tags
 
-  # FIXME:  This needs documentation
+  # FIXME:  The params need documentation
   def self.to_html(text, escape_html = true, additional_tags = {}, method = :disable, *tags)
     text = text.clone
     
