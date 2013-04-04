@@ -59,7 +59,7 @@ module RubyBBCode
     private
     
     # This method allows us to format params if needed...  
-    # Maybe this kind of thing *could* be handled in the bbtree_to_html where the %between% is
+    # TODO:  Maybe this kind of thing *could* be handled in the bbtree_to_html where the %between% is
     # sorted out and the html is generated, but...  That code has yet to be refactored and we can.
     # refactor this code easily to happen over there if necessary...  Yes, I think it's more logical 
     # to be put over there, but that method needs to be cleaned up before we introduce the formatting overthere... and knowing the parent node is helpful!    
@@ -106,31 +106,40 @@ module RubyBBCode
     
     def valid_text_or_opening_element?
       if @ti.element_is_text? or @ti.element_is_opening_tag?
-        # TODO:  rename this if statement to #validate_opening_tag
-        if @ti.element_is_opening_tag?
-          unless @ti.allowed_outside_parent_tags? or (within_open_tag? and @ti.allowed_in(parent_tag.to_sym))
-            # Tag doesn't belong in the last opened tag
-            throw_child_requires_specific_parent_error; return false
-          end
-  
-          # Originally:  tag[:allow_tag_param] and ti[:params][:tag_param] != nil
-          if @ti.can_have_params? and @ti.has_params?
-            # Test if matches
-            if @ti.invalid_param?
-              throw_invalid_param_error; return false
-            end
+        return false if validate_opening_tag == false
+        return false if validate_constraints_on_child == false
+      end
+      true
+    end
+    
+    def validate_opening_tag
+      # TODO:  rename this if statement to #validate_opening_tag
+      if @ti.element_is_opening_tag?
+        unless @ti.allowed_outside_parent_tags? or (within_open_tag? and @ti.allowed_in(parent_tag.to_sym))
+          # Tag doesn't belong in the last opened tag
+          throw_child_requires_specific_parent_error; return false
+        end
+
+        # Originally:  tag[:allow_tag_param] and ti[:params][:tag_param] != nil
+        if @ti.can_have_params? and @ti.has_params?
+          # Test if matches
+          if @ti.invalid_param?
+            throw_invalid_param_error; return false
           end
         end
-        
-        # TODO:  Rename this if statement to #validate_constraints_on_child
-        if within_open_tag? and parent_has_constraints_on_children?
-          # Check if the found tag is allowed
-          last_tag = @dictionary[parent_tag]
-          allowed_tags = last_tag[:only_allow]
-          if (!@ti[:is_tag] and last_tag[:require_between] != true and @ti[:text].lstrip != "") or (@ti[:is_tag] and (allowed_tags.include?(@ti[:tag].to_sym) == false))  # TODO: refactor this, it's just too long
-            # Last opened tag does not allow tag
-            throw_parent_prohibits_this_child_error; return false
-          end
+      end
+      true
+    end
+    
+    def validate_constraints_on_child
+      # TODO:  Rename this if statement to #validate_constraints_on_child
+      if within_open_tag? and parent_has_constraints_on_children?
+        # Check if the found tag is allowed
+        last_tag = @dictionary[parent_tag]
+        allowed_tags = last_tag[:only_allow]
+        if (!@ti[:is_tag] and last_tag[:require_between] != true and @ti[:text].lstrip != "") or (@ti[:is_tag] and (allowed_tags.include?(@ti[:tag].to_sym) == false))  # TODO: refactor this, it's just too long
+          # Last opened tag does not allow tag
+          throw_parent_prohibits_this_child_error; return false
         end
       end
       true
@@ -212,6 +221,10 @@ module RubyBBCode
       @bbtree.expecting_a_closing_tag?
     end
     
+    def within_open_tag?
+      @bbtree.within_open_tag?
+    end
+    
     def use_between_as_tag_param
       param = get_formatted_element_params
       @bbtree.current_node.tag_param = param      # @bbtree.current_node[:params] = {:tag_param => @ti[:text]}
@@ -225,30 +238,6 @@ module RubyBBCode
       # then the :between is assumed to be the param...  that is, a tag that should respond 'true' to tag.requires_param?  
       tag = @bbtree.current_node.definition
       tag[:allow_tag_param_between] and @bbtree.current_node.param_not_set?
-    end
-    
-    
-    
-    # This function is essentially a duplication of 'expecting_a_closing_tag?'
-    # I'm not exactly sure what to do... they use two different methods of lookup...
-    # I wonder if the @bbtree_depth variable is entirely redundant...  After checking, it
-    # is a possible candidate for becoming a new object class...
-    # Responsibilities:  
-    #   #escalate_bbtree
-    #   #retrogress_bbtree
-    #   #use_between_as_tag_param
-    #   
-    #
-    #   #depth
-    #   #[](key)  aka @bbtree aka the_hash_data...
-    #   #within_open_tag? ..???
-    #   #parent_has_constraints_on_children?
-    #   #candidate_for_using_between_as_param?
-    #
-    #  ... the @bbtree should have a container for many TagNodes... Fuck... this is so complicated rightnow...
-    #   FIXME:  Consider the merits of the above proposal when you're not so sleepy
-    def within_open_tag?
-      @bbtree.within_open_tag?
     end
     
     def parent_tag
