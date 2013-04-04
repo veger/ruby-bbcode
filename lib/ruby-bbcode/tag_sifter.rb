@@ -7,7 +7,7 @@ module RubyBBCode
     def initialize(text_to_parse, dictionary)
       @text = text_to_parse
       @dictionary = dictionary # the dictionary for all the defined tags in tags.rb
-      @bbtree = BBTree.new({:nodes => []}, dictionary)
+      @bbtree = BBTree.new({:nodes => TagCollection.new}, dictionary)
       @ti = nil
       @errors = false
       @manifestation = []
@@ -29,7 +29,7 @@ module RubyBBCode
         
         case @ti.type   # Validation of tag succeeded, add to @bbtree.tags_list and/or bbtree
         when :opening_tag
-          element = {:is_tag => true, :tag => @ti[:tag].to_sym, :definition => @ti.definition, :nodes => [] }
+          element = {:is_tag => true, :tag => @ti[:tag].to_sym, :definition => @ti.definition, :nodes => TagCollection.new }
           element[:params] = {:tag_param => get_formatted_element_params} if @ti.can_have_params? and @ti.has_params?
           @bbtree.build_up_new_tag(element) # @bbtree.current_node[:nodes] << TagNode.new(element)
           

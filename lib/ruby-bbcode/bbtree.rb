@@ -12,7 +12,7 @@ module RubyBBCode
   class BBTree
     attr_accessor :current_node, :tags_list
     
-    def initialize(hash = { :nodes => [] }, dictionary)
+    def initialize(hash = { :nodes => TagCollection.new }, dictionary)
       @bbtree = hash
       @current_node = TagNode.new(@bbtree)
       @tags_list = []
@@ -66,6 +66,10 @@ module RubyBBCode
     
     def build_up_new_tag(element)
       @current_node[:nodes] << TagNode.new(element)
+    end
+    
+    def to_html(tags = {})
+      @bbtree[:nodes].to_html(tags)
     end
     
   end
