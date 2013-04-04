@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class RubyBbcodeTest < Test::Unit::TestCase
-  include BBCode::Tags
+  include ::RubyBBCode::Tags
   
   def test_bbtree_to_v
     text = "[i][b]a[/b][b]a[/b][b]a[/b][b]a[/b]item 1[/i][i]item 2[/i]"

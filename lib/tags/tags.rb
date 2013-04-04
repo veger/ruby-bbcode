@@ -1,4 +1,4 @@
-module BBCode
+module RubyBBCode
   module Tags
     # tagname => tag, HTML open tag, HTML close tag, description, example
     # All of these entrys are represented as @dictionary in the classes (or as the variable tags)
@@ -93,5 +93,10 @@ module BBCode
         :only_allow => [],
         :require_between => true},
     }
+    
+    # FIXME:  This could be removed, it's not used within the library.  I don't think external users will need it, but maybe they will...
+    def self.tag_list
+      @@tags
+    end
   end
 end

@@ -8,9 +8,8 @@ require 'ruby-bbcode/tag_node'
 require 'ruby-bbcode/tag_collection'
 require 'ruby-bbcode/bbtree'
 
-
 module RubyBBCode
-  include BBCode::Tags
+  include ::RubyBBCode::Tags
 
   def self.to_html(text, escape_html = true, additional_tags = {}, method = :disable, *tags)
     # We cannot convert to HTML if the BBCode is not valid!
@@ -40,11 +39,7 @@ module RubyBBCode
     parse(text, @@tags.merge(additional_tags));
   end
   
-  # FIXME:  This could be removed, it's not used within the library.  I don't think external users will need it, but maybe they will
-  def self.tag_list
-    @@tags
-  end
-
+  
   protected
   def self.parse(text, tags = {})
     tags = @@tags if tags == {}
