@@ -1,18 +1,13 @@
 module RubyBBCode
-  # Tag nodes are nodes that are stored up in the BBTree's @current_node[:nodes] array I think... which is a bit misleading... 
-  # hey, maybe that can be factored out into it's own instance variable 
-  # They specify either opening tag elements or text elements...  But that's what TagInfos do... It's just that TagInfo elements... are just discarded...
+  # TagNodes are nodes that are stored up in the BBTree's @current_node.children array I think... which is a bit misleading... 
   #
-  # Pass in a hash...  It acts as a hash... but has a single cool method...
+  # TagNodes specify either opening tag elements or text elements...  TagInfo elements are essentially converted into these nodes which are
+  # later converted into html output in the bbtree_to_html method
   class TagNode
-    attr_accessor :manifestation
+    attr_accessor :element
+    
     def initialize(element, nodes = [])
       @element = element    # { :is_tag=>false, :text=>"ITALLICS" } ||   { :is_tag=>true, :tag=>:i, :nodes => [] }
-      @manifestation = nodes
-      #@nodes = []  # TagNodes can contain other TagNodes as they rest in the BBTree
-      # @current_node...  TagNodes shouldn't have @current_nodes... That's something only the BBTree has.  But
-      # sometimes TagNodes get set directly to the BBTree I fear... this behavior must be changed before this 
-      # class can be implemented.  TODO...
     end
     
     def [](key)
@@ -20,21 +15,48 @@ module RubyBBCode
     end
     
     def []=(key, value)
-      #binding.pry
       @element[key] = value
     end
     
-    # ... this is incomplete.....
+    # Debugging/ visualization purposes
+    def type
+      return :tag if @element[:is_tag]
+      return :text if !@element[:is_tag]
+    end
+    
+    # Checks to see if the parameter for the TagNode has been set.  
     def param_not_set?
       (@element[:params].nil? or @element[:params][:tag_param].nil?)
     end
     
+    # check if the parameter for the TagNode is set
+    def param_set?
+      !param_not_set?
+    end
+    
+    def has_children?
+      return false if type == :text or children.length == 0  # text nodes return false too
+      return true if children.length > 0
+    end
+    
+    def allow_tag_param? 
+      definition[:allow_tag_param]
+    end
+    
+    # shows the tag definition for this TagNode as defined in tags.rb
     def definition
       @element[:definition]
     end
     
+    def children
+      @element[:nodes]
+    end
+    
+    # Easy way to set the tag_param value of the hash, which represents 
+    # the parameter supplied
     def tag_param=(param)
       @element[:params] = {:tag_param => param}
     end
+    
   end
 end

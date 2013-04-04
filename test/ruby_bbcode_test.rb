@@ -140,31 +140,15 @@ class RubyBbcodeTest < Test::Unit::TestCase
                    '[youtube]E4Fbk52Mk1w[/youtube]'.bbcode_to_html
   end
   
-  def test_youtube_parser
-    url1 = "http://www.youtube.com/watch?v=E4Fbk52Mk1w"
-    just_an_id = 'E4Fbk52Mk1w'
-    url_without_http = "www.youtube.com/watch?v=E4Fbk52Mk1w"
-    url_without_www = "youtube.com/watch?v=E4Fbk52Mk1w"
-    url_with_feature = "http://www.youtube.com/watch?feature=player_embedded&v=E4Fbk52Mk1w"
-    
-    expected_output = 'E4Fbk52Mk1w'
-    
-    assert_equal expected_output, 
-                   RubyBBCode.parse_youtube_id(url1)
-    
-    assert_equal expected_output, 
-                   RubyBBCode.parse_youtube_id(just_an_id)
-                   
-    assert_equal expected_output, 
-                   RubyBBCode.parse_youtube_id(url_without_http)
-                   
-    assert_equal expected_output, 
-                   RubyBBCode.parse_youtube_id(url_without_www)
-                   
-    assert_equal expected_output, 
-                   RubyBBCode.parse_youtube_id(url_with_feature)
-    
+  def test_youtube_with_full_url
+    full_url = "http://www.youtube.com/watch?feature=player_embedded&v=E4Fbk52Mk1w"
+    assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>' ,
+                   "[youtube]#{full_url}[/youtube]".bbcode_to_html
   end
+  
+  
+
+  
   
   def test_google_video
     assert_equal '<embed id="VideoPlayback" src="http://video.google.com/googleplayer.swf?docid=397259729324681206&hl=en" style="width:400px; height:325px;" type="application/x-shockwave-flash"></embed>',
@@ -199,7 +183,7 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
 
   def test_self_tag_list
-    assert_equal 15, RubyBBCode.tag_list.size
+    assert_equal 15, RubyBBCode::Tags.tag_list.size
   end
   
   def test_addition_of_tags
