@@ -8,7 +8,6 @@ module RubyBBCode
     
     def initialize(element, nodes = [])
       @element = element    # { :is_tag=>false, :text=>"ITALLICS" } ||   { :is_tag=>true, :tag=>:i, :nodes => [] }
-      @manifestation = nodes
     end
     
     def [](key)

@@ -24,19 +24,19 @@ module RubyBBCode
     # This can be used to render the [:nodes] array in a pretty manor, showing the hirarchy.  
     def to_v
       tree ||= @bbtree.nil? ? @element : @bbtree # this function works for both BBTree and also TagNodes
-      manifestation = ''
+      visual_string = ''
       
       walk_tree(tree) do |node, depth|
         indentation = '  ' * depth
         case node[:is_tag]
         when true
-          manifestation += "#{indentation}" + node[:tag].to_s + "\n"
+          visual_string += "#{indentation}" + node[:tag].to_s + "\n"
         when false
-          manifestation += "#{indentation}\"#{node[:text]}\"\n"
+          visual_string += "#{indentation}\"#{node[:text]}\"\n"
         end
       end
       
-      manifestation
+      visual_string
     end
     
     

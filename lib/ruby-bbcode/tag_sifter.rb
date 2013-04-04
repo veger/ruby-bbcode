@@ -2,7 +2,7 @@ module RubyBBCode
   # Tag sifter is in charge of building up the BBTree with nodes as it parses through the
   # supplied text such as "[b]hello world[/b]"
   class TagSifter
-    attr_reader :bbtree, :errors, :manifestation
+    attr_reader :bbtree, :errors
     
     def initialize(text_to_parse, dictionary)
       @text = text_to_parse
@@ -10,7 +10,6 @@ module RubyBBCode
       @bbtree = BBTree.new({:nodes => TagCollection.new}, dictionary)
       @ti = nil
       @errors = false
-      @manifestation = []
     end
     
     def invalid?
