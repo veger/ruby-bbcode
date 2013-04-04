@@ -29,6 +29,15 @@ module RubyBBCode
       (@element[:params].nil? or @element[:params][:tag_param].nil?)
     end
     
+    # check if the parameter for the TagNode is set
+    def param_set?
+      !param_not_set?
+    end
+    
+    def has_children?
+      @element[:nodes].length > 0
+    end
+    
     # shows the tag definition for this TagNode as defined in tags.rb
     def definition
       @element[:definition]
