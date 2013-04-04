@@ -21,9 +21,9 @@ module RubyBBCode
   # This module can be included in the BBTree and TagNode to give them debugging features
   module DebugBBTree
     # For Debugging/ visualization purposes.
-    # This can be used to render the [:nodes] array in a pretty manor, showing the hirarchy.  
+    # This can be used to render the #nodes array in a pretty manor, showing the hirarchy.  
     def to_v
-      tree ||= @bbtree.nil? ? @element : @bbtree # this function works for both BBTree and also TagNodes
+      tree = self
       visual_string = ''
       
       walk_tree(tree) do |node, depth|
@@ -41,7 +41,7 @@ module RubyBBCode
     
     
     # this blocky method counts how many children are
-    # in the TagNode[:nodes], recursively walking the tree
+    # in the TagNode.children, recursively walking the tree
     def count_child_nodes(hash = self)
       count = 0
       walk_tree(hash) do
@@ -80,11 +80,10 @@ module RubyBBCode
       yield tree, depth unless depth == -1
       
       # next if we're a text node
-      return if tree[:nodes].nil? or tree[:nodes].empty?
+      return if tree.type == :text
       
       # Enter into recursion (including block action) for each child node in this node
-      tree[:nodes].each do |node|
-        children = node[:nodes].nil? ? nil : node[:nodes].count
+      tree.children.each do |node|
         walk_tree(node, depth + 1, &blk)
       end
     end

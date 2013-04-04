@@ -27,6 +27,15 @@ module RubyBBCode
       @bbtree[key] = value
     end
     
+    def nodes
+      @bbtree[:nodes]
+    end
+    alias :children :nodes   # needed due to the similarities between BBTree[:nodes] and TagNode[:nodes]... they're walked through in debugging.rb right now
+    
+    def type
+      :bbtree
+    end
+    
     def within_open_tag?
       @tags_list.length > 0
     end
@@ -50,13 +59,13 @@ module RubyBBCode
     # Step down the bbtree a notch because we've reached a closing tag
     def retrogress_bbtree
       @tags_list.pop     # remove latest tag in tags_list since it's closed now... 
-      # The parsed data manifests in @bbtree.current_node[:nodes] << TagNode.new(element) which I think is more confusing than needed
+      # The parsed data manifests in @bbtree.current_node.children << TagNode.new(element) which I think is more confusing than needed
 
       if within_open_tag?
         # Set the current node to be the node we've just parsed over which is infact within another node??...
-        @current_node = TagNode.new(@bbtree[:nodes].last)
+        @current_node = TagNode.new(self.nodes.last)
       else # If we're still at the root of the BBTree or have returned back to the root via encountring closing tags...
-        @current_node = TagNode.new(@bbtree)
+        @current_node = TagNode.new({:nodes => self.nodes})  # Note:  just passing in self works too...
       end
       
       # OKOKOK!  
@@ -65,11 +74,11 @@ module RubyBBCode
     end
     
     def build_up_new_tag(element)
-      @current_node[:nodes] << TagNode.new(element)
+      @current_node.children << TagNode.new(element)
     end
     
     def to_html(tags = {})
-      @bbtree[:nodes].to_html(tags)
+      self.nodes.to_html(tags)
     end
     
   end

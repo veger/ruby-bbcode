@@ -30,7 +30,7 @@ module RubyBBCode
         when :opening_tag
           element = {:is_tag => true, :tag => @ti[:tag].to_sym, :definition => @ti.definition, :nodes => TagCollection.new }
           element[:params] = {:tag_param => get_formatted_element_params} if @ti.can_have_params? and @ti.has_params?
-          @bbtree.build_up_new_tag(element) # @bbtree.current_node[:nodes] << TagNode.new(element)
+          @bbtree.build_up_new_tag(element) # @bbtree.current_node.children << TagNode.new(element)
           
           @bbtree.escalate_bbtree(element)
         when :text
@@ -42,10 +42,10 @@ module RubyBBCode
               if candidate_for_using_between_as_param?
                 use_between_as_tag_param    # Did not specify tag_param, so use between text.
               end
-              next  # don't add this node to @bbtree.current_node[:nodes] if we're within an open tag that requires_between (to be a param), and the between couldn't be used as a param... Yet it passed validation so the param must have been specified within the opening tag???
+              next  # don't add this node to @bbtree.current_node.children if we're within an open tag that requires_between (to be a param), and the between couldn't be used as a param... Yet it passed validation so the param must have been specified within the opening tag???
             end
           end
-          @bbtree.build_up_new_tag(element) #@bbtree.current_node[:nodes] << TagNode.new(element)
+          @bbtree.build_up_new_tag(element) #@bbtree.current_node.children << TagNode.new(element)
         when :closing_tag
           @bbtree.retrogress_bbtree
         end

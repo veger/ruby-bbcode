@@ -19,7 +19,7 @@ module RubyBBCode
           html_string += t.opening_html
           
           # invoke "recursive" call if this node contains child nodes
-          html_string += node[:nodes].to_html(tags) if node.has_children?
+          html_string += node.children.to_html(tags) if node.has_children?
           
           t.inlay_closing_html!
           

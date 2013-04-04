@@ -1,5 +1,5 @@
 module RubyBBCode
-  # TagNodes are nodes that are stored up in the BBTree's @current_node[:nodes] array I think... which is a bit misleading... 
+  # TagNodes are nodes that are stored up in the BBTree's @current_node.children array I think... which is a bit misleading... 
   #
   # TagNodes specify either opening tag elements or text elements...  TagInfo elements are essentially converted into these nodes which are
   # later converted into html output in the bbtree_to_html method
@@ -35,7 +35,8 @@ module RubyBBCode
     end
     
     def has_children?
-      @element[:nodes].length > 0
+      return false if type == :text or children.length == 0  # text nodes return false too
+      return true if children.length > 0
     end
     
     def allow_tag_param? 
@@ -45,6 +46,10 @@ module RubyBBCode
     # shows the tag definition for this TagNode as defined in tags.rb
     def definition
       @element[:definition]
+    end
+    
+    def children
+      @element[:nodes]
     end
     
     # Easy way to set the tag_param value of the hash, which represents 
