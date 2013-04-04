@@ -17,13 +17,7 @@ module RubyBBCode
     
     use_tags = determine_applicable_tags(additional_tags, method, *tags)
     
-    # TODO:  Move this inside tag_sifter as an optional parameter upon initialization maybe?
-    if escape_html
-      text.gsub!('<', '&lt;')
-      text.gsub!('>', '&gt;')
-    end
-    
-    @tag_sifter = TagSifter.new(text, use_tags)
+    @tag_sifter = TagSifter.new(text, use_tags, escape_html)
     
     @tag_sifter.process_text
     
@@ -86,6 +80,7 @@ String.class_eval do
     self.replace(RubyBBCode.to_html(self, escape_html, additional_tags, method, *tags))
   end
 
+  # Depricated!  Please use check_bbcode_validity
   # Check if string contains valid BBCode. Returns true when valid, else returns array with error(s)
   # FIXME:  It's the convention in Ruby that all functions ending in a '?' return either true or false.  
   # Same with the functions starting with the word 'is' in other languages.  

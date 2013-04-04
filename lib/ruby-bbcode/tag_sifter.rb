@@ -4,8 +4,9 @@ module RubyBBCode
   class TagSifter
     attr_reader :bbtree, :errors
     
-    def initialize(text_to_parse, dictionary)
-      @text = text_to_parse
+    def initialize(text_to_parse, dictionary, escape_html = true)
+      @text = escape_html ? text_to_parse.gsub('<', '&lt;').gsub('>', '&gt;') : text_to_parse
+      
       @dictionary = dictionary # the dictionary for all the defined tags in tags.rb
       @bbtree = BBTree.new({:nodes => TagCollection.new}, dictionary)
       @ti = nil
