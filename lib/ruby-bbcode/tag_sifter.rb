@@ -81,7 +81,7 @@ module RubyBBCode
     
     # Parses a youtube video url and extracts the ID  
     def parse_youtube_id(url)
-      url =~ /[vV]=([^&]*)/
+      url =~ /[v]=([^&]*)/
       id = $1
       
       if id.nil?
