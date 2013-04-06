@@ -19,3 +19,9 @@ class Class
     self.class_eval { private(*saved_private_instance_methods) }
   end
 end
+
+
+# This is for measuring memory usage...
+def get_current_memory_usage
+  `ps -o rss= -p #{Process.pid}`.to_i
+end
