@@ -8,11 +8,11 @@ module RubyBBCode
   # Node 4)  A text node         representing "ITALLICS"
   #
   # The closing of the nodes seems to be implied which is fine by me --less to keep track of.  
-  #  
+  # 
   class BBTree
     attr_accessor :current_node, :tags_list
     
-    def initialize(hash = {}, dictionary)
+    def initialize(hash = { :nodes => TagCollection.new }, dictionary)
       @bbtree = hash
       @current_node = TagNode.new(@bbtree)
       @tags_list = []
@@ -25,6 +25,15 @@ module RubyBBCode
     
     def []=(key, value)
       @bbtree[key] = value
+    end
+    
+    def nodes
+      @bbtree[:nodes]
+    end
+    alias :children :nodes   # needed due to the similarities between BBTree[:nodes] and TagNode[:nodes]... they're walked through in debugging.rb right now
+    
+    def type
+      :bbtree
     end
     
     def within_open_tag?
@@ -41,8 +50,6 @@ module RubyBBCode
       @dictionary[parent_tag][:only_allow] != nil
     end
     
-    
-    
     # Advance to next level (the node we just added)
     def escalate_bbtree(element)
       @tags_list.push element[:tag]
@@ -51,19 +58,27 @@ module RubyBBCode
     
     # Step down the bbtree a notch because we've reached a closing tag
     def retrogress_bbtree
-      @tags_list.pop     # remove latest tag in tags_list since it's closed now... where's the manifestation of the parsed data go???
+      @tags_list.pop     # remove latest tag in tags_list since it's closed now... 
+      # The parsed data manifests in @bbtree.current_node.children << TagNode.new(element) which I think is more confusing than needed
 
-      # Since we just stepped down we should set the current node to be the @bbtree...
-      # This works because the @bbtree includes everything except for the currently open node (which is being worked on)
-      # ...But where does the node get stored...  
-      @current_node = TagNode.new(@bbtree) # Set current_node to be the whole @bbtree
-      
       if within_open_tag?
         # Set the current node to be the node we've just parsed over which is infact within another node??...
-        @current_node = TagNode.new(@current_node[:nodes].last)
-      else # if we're still at the root of the BBTree or have returned to the root via encountring closing tags...
-        @current_node = TagNode.new(@bbtree)
+        @current_node = TagNode.new(self.nodes.last)
+      else # If we're still at the root of the BBTree or have returned back to the root via encountring closing tags...
+        @current_node = TagNode.new({:nodes => self.nodes})  # Note:  just passing in self works too...
       end
+      
+      # OKOKOK!  
+      # Since @bbtree = @current_node, if we ever set @current_node to something, we're actually changing @bbtree...
+      # therefore... my brain is now numb
+    end
+    
+    def build_up_new_tag(element)
+      @current_node.children << TagNode.new(element)
+    end
+    
+    def to_html(tags = {})
+      self.nodes.to_html(tags)
     end
     
   end
