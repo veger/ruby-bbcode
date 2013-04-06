@@ -6,17 +6,17 @@ class RubyBbcodeTest < Test::Unit::TestCase
     assert_equal "line1<br />\nline2", "line1\nline2".bbcode_to_html
     assert_equal "line1<br />\nline2", "line1\r\nline2".bbcode_to_html
   end
-  
+
   def test_strong
     assert_equal '<strong>simple</strong>', '[b]simple[/b]'.bbcode_to_html
     assert_equal "<strong>line 1<br />\nline 2</strong>", "[b]line 1\nline 2[/b]".bbcode_to_html
   end
-  
+
   def test_em
     assert_equal '<em>simple</em>', '[i]simple[/i]'.bbcode_to_html
     assert_equal "<em>line 1<br />\nline 2</em>", "[i]line 1\nline 2[/i]".bbcode_to_html
   end
-  
+
   def test_u
     assert_equal '<u>simple</u>', '[u]simple[/u]'.bbcode_to_html
     assert_equal "<u>line 1<br />\nline 2</u>", "[u]line 1\nline 2[/u]".bbcode_to_html
@@ -26,11 +26,11 @@ class RubyBbcodeTest < Test::Unit::TestCase
     assert_equal '<span style="text-decoration:line-through;">simple</span>', '[s]simple[/s]'.bbcode_to_html
     assert_equal "<span style=\"text-decoration:line-through;\">line 1<br />\nline 2</span>", "[s]line 1\nline 2[/s]".bbcode_to_html
   end
-  
+
   def test_size
     assert_equal '<span style="font-size: 32px;">32px Text</span>', '[size=32]32px Text[/size]'.bbcode_to_html
   end
-  
+
   def test_color
     assert_equal '<span style="color: red;">Red Text</span>', '[color=red]Red Text[/color]'.bbcode_to_html
     assert_equal '<span style="color: #ff0023;">Hex Color Text</span>', '[color=#ff0023]Hex Color Text[/color]'.bbcode_to_html
@@ -39,7 +39,7 @@ class RubyBbcodeTest < Test::Unit::TestCase
   def test_center
     assert_equal '<div style="text-align:center;">centered</div>', '[center]centered[/center]'.bbcode_to_html
   end
-  
+
   def test_ordered_list
     assert_equal '<ol><li>item 1</li><li>item 2</li></ol>', '[ol][li]item 1[/li][li]item 2[/li][/ol]'.bbcode_to_html
   end
@@ -47,16 +47,16 @@ class RubyBbcodeTest < Test::Unit::TestCase
   def test_unordered_list
     assert_equal '<ul><li>item 1</li><li>item 2</li></ul>', '[ul][li]item 1[/li][li]item 2[/li][/ul]'.bbcode_to_html
   end
- 
+
   def test_two_lists
     assert_equal '<ul><li>item1</li><li>item2</li></ul><ul><li>item1</li><li>item2</li></ul>',
                    '[ul][li]item1[/li][li]item2[/li][/ul][ul][li]item1[/li][li]item2[/li][/ul]'.bbcode_to_html
   end
 
   def test_whitespace_in_only_allowed_tags
-    assert_equal "<ol><br />\n<li>item 1</li><br />\n<li>item 2</li><br />\n</ol>", 
+    assert_equal "<ol><br />\n<li>item 1</li><br />\n<li>item 2</li><br />\n</ol>",
                    "[ol]\n[li]item 1[/li]\n[li]item 2[/li]\n[/ol]".bbcode_to_html
-        assert_equal "<ol> <li>item 1</li>  <li>item 2</li>	</ol>", 
+        assert_equal "<ol> <li>item 1</li>  <li>item 2</li>	</ol>",
                    "[ol] [li]item 1[/li]  [li]item 2[/li]	[/ol]".bbcode_to_html
 
   end
@@ -70,7 +70,7 @@ class RubyBbcodeTest < Test::Unit::TestCase
     assert_raise RuntimeError do
       '[b][li]Illegal item[/li][/b]'.bbcode_to_html
     end
-    
+
     assert_equal ['[li] can only be used in [ul] and [ol], so using it in a [b] tag is not allowed'],
                    '[b][li]Illegal item[/li][/b]'.is_valid_bbcode?
   end
@@ -100,7 +100,7 @@ class RubyBbcodeTest < Test::Unit::TestCase
     assert_equal ['[ul] can only contain [li] tags, so "Illegal text" is not allowed'],
                    '[ul][li]item[/li]Illegal text[li]item[/li][/ul]'.is_valid_bbcode?
   end
-  
+
   def test_quote
     assert_equal '<div class="quote">quoting</div>',  '[quote]quoting[/quote]'.bbcode_to_html
     assert_equal '<div class="quote"><strong>someone wrote:</strong>quoting</div>', '[quote=someone]quoting[/quote]'.bbcode_to_html
@@ -127,29 +127,26 @@ class RubyBbcodeTest < Test::Unit::TestCase
       '[url]htfp://www.google.com[/url]'.bbcode_to_html
     end
   end
-  
+
   def test_image
     assert_equal '<img src="http://www.ruby-lang.org/images/logo.gif" alt="" />',
                    '[img]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_to_html
-    assert_equal '<img src="http://www.ruby-lang.org/images/logo.gif" width="95" height="96" alt="" />', 
+    assert_equal '<img src="http://www.ruby-lang.org/images/logo.gif" width="95" height="96" alt="" />',
                    '[img=95x96]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_to_html
   end
-  
+
   def test_youtube
     assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>' ,
                    '[youtube]E4Fbk52Mk1w[/youtube]'.bbcode_to_html
   end
-  
+
   def test_youtube_with_full_url
     full_url = "http://www.youtube.com/watch?feature=player_embedded&v=E4Fbk52Mk1w"
     assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>' ,
                    "[youtube]#{full_url}[/youtube]".bbcode_to_html
   end
-  
-  
 
-  
-  
+
   def test_google_video
     assert_equal '<embed id="VideoPlayback" src="http://video.google.com/googleplayer.swf?docid=397259729324681206&hl=en" style="width:400px; height:325px;" type="application/x-shockwave-flash"></embed>',
                    '[gvideo]397259729324681206[/gvideo]'.bbcode_to_html
@@ -185,7 +182,7 @@ class RubyBbcodeTest < Test::Unit::TestCase
   def test_self_tag_list
     assert_equal 15, RubyBBCode::Tags.tag_list.size
   end
-  
+
   def test_addition_of_tags
     mydef = {
       :test => {
@@ -204,7 +201,7 @@ class RubyBbcodeTest < Test::Unit::TestCase
 
   def test_no_ending_tag
     assert_raise RuntimeError do
-      "this [b]should not be bold".bbcode_to_html 
+      "this [b]should not be bold".bbcode_to_html
     end
   end
 
