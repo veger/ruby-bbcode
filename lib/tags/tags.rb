@@ -46,8 +46,8 @@ module RubyBBCode
         :only_allow => [],
         :require_between => true,
         :allow_tag_param => true, :allow_tag_param_between => false,
-        :tag_param => /^(\d*)x(\d*)$/, 
-        :tag_param_tokens => [{:token => :width, :prefix => 'width="', :postfix => '" ' }, 
+        :tag_param => /^(\d*)x(\d*)$/,
+        :tag_param_tokens => [{:token => :width, :prefix => 'width="', :postfix => '" ' },
                               { :token => :height,  :prefix => 'height="', :postfix => '" ' } ],
         :tag_param_description => 'The image parameters \'%param%\' are incorrect, <width>x<height> excepted'},
       :url => {
@@ -64,21 +64,21 @@ module RubyBBCode
         :description => 'Quote another person',
         :example => '[quote]BBCode is great[/quote]',
         :allow_tag_param => true, :allow_tag_param_between => false,
-        :tag_param => /(.*)/, 
+        :tag_param => /(.*)/,
         :tag_param_tokens => [{:token => :author, :prefix => '<strong>', :postfix => ' wrote:</strong>'}]},
       :size => {
         :html_open => '<span style="font-size: %size%px;">', :html_close => '</span>',
         :description => 'Change the size of the text',
         :example => '[size=32]This is 32px[/size]',
         :allow_tag_param => true, :allow_tag_param_between => false,
-        :tag_param => /(\d*)/, 
+        :tag_param => /(\d*)/,
         :tag_param_tokens => [{:token => :size}]},
       :color => {
         :html_open => '<span style="color: %color%;">', :html_close => '</span>',
         :description => 'Change the color of the text',
         :example => '[color=red]This is red[/color]',
         :allow_tag_param => true, :allow_tag_param_between => false,
-        :tag_param => /(([a-z]+)|(#[0-9a-f]{6}))/i, 
+        :tag_param => /(([a-z]+)|(#[0-9a-f]{6}))/i,
         :tag_param_tokens => [{:token => :color}]},
       :youtube => {
         :html_open => '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/%between%"></param><embed src="http://www.youtube.com/v/%between%" type="application/x-shockwave-flash" width="400" height="325"></embed></object>', :html_close => '',
@@ -93,8 +93,8 @@ module RubyBBCode
         :only_allow => [],
         :require_between => true},
     }
-    
-    # FIXME:  This could be removed, it's not used within the library.  I don't think external users will need it, but maybe they will...
+
+    # Return the default tags list, can be used to directly modify this default list, instead of providing custom tags each time when the to the to_html method is used
     def self.tag_list
       @@tags
     end
