@@ -8,6 +8,7 @@ require 'ruby-bbcode/tag_node'
 require 'ruby-bbcode/tag_collection'
 require 'ruby-bbcode/bbtree'
 
+
 module RubyBBCode
   include ::RubyBBCode::Tags
 

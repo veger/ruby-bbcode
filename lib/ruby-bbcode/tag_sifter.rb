@@ -30,7 +30,7 @@ module RubyBBCode
         when :opening_tag
           element = {:is_tag => true, :tag => @ti[:tag].to_sym, :definition => @ti.definition, :nodes => TagCollection.new }
           element[:params] = {:tag_param => get_formatted_element_params} if @ti.can_have_params? and @ti.has_params?
-          @bbtree.build_up_new_tag(element) # @bbtree.current_node.children << TagNode.new(element)
+          @bbtree.build_up_new_tag(element)
           
           @bbtree.escalate_bbtree(element)
         when :text
@@ -45,7 +45,7 @@ module RubyBBCode
               next  # don't add this node to @bbtree.current_node.children if we're within an open tag that requires_between (to be a param), and the between couldn't be used as a param... Yet it passed validation so the param must have been specified within the opening tag???
             end
           end
-          @bbtree.build_up_new_tag(element) #@bbtree.current_node.children << TagNode.new(element)
+          @bbtree.build_up_new_tag(element)
         when :closing_tag
           @bbtree.retrogress_bbtree
         end
@@ -53,6 +53,7 @@ module RubyBBCode
       end # end of scan loop
       
       validate_all_tags_closed_off
+      validate_stack_level_too_deep_potential
     end
     
     
@@ -186,6 +187,12 @@ module RubyBBCode
       throw_unexpected_end_of_string_error if expecting_a_closing_tag?
     end
     
+    def validate_stack_level_too_deep_potential
+      if @bbtree.nodes.count > 2200
+        throw_stack_level_will_be_too_deep_error
+      end
+    end
+    
     def throw_child_requires_specific_parent_error
       err = "[#{@ti[:tag]}] can only be used in [#{@ti.definition[:only_in].to_sentence(to_sentence_bbcode_tags)}]"
       err += ", so using it in a [#{parent_tag}] tag is not allowed" if expecting_a_closing_tag?
@@ -207,6 +214,10 @@ module RubyBBCode
     
     def throw_unexpected_end_of_string_error
       @errors = ["[#{@bbtree.tags_list.to_sentence(to_sentence_bbcode_tags)}] not closed"]
+    end
+    
+    def throw_stack_level_will_be_too_deep_error
+      @errors = ["Stack level would go too deep.  You must be trying to process a text containing thousands of BBTree nodes at once.  (limit around 2300 tags containing 2,300 strings).  Check RubyBBCode::TagCollection#to_html to see why this validation is needed."]
     end
     
     

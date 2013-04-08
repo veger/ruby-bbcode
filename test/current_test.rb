@@ -5,17 +5,16 @@ require 'benchmark'
 
 class RubyBbcodeTest < Test::Unit::TestCase
 
-=begin
   # TODO:  This stack level problem should be validated during the validations
   def test_stack_level_too_deep
-    num = 1000
-    openers = "[s]hi i'm [s]" * num
-    closers = "[/s][/s]" * num
-    
-    #assert_equal "", (openers+closers).bbcode_to_html
+    num = 2300  # increase this number if the test starts failing.  It's very near the tipping point
+    openers = "[s]hi i'm" * num
+    closers = "[/s]" * num
+    #assert_raise( SystemStackError ) do
+      (openers+closers).bbcode_to_html
+    #end
     
   end
-=end
   
 =begin
   def test_speed
