@@ -32,16 +32,16 @@ class TagSifterTest < Test::Unit::TestCase
 
 	# I think the answer to this is creating a new tag named [youtube]
 	# but that captures specifically the .be or .com and treats them differently...
-	def test_youtubes_of_other_districts
-		url_from_different_isp_district = "http://youtu.be/gYGioWinQQE"
+	def test_youtubes_via_there_url_shortener
+		url_from_shortener = "http://youtu.be/E4Fbk52Mk1w"
     expected_output = 'E4Fbk52Mk1w'
 
-
+    
     RubyBBCode::TagSifter.publicize_methods do
       ts = RubyBBCode::TagSifter.new "", ""
 
 			assert_equal expected_output, 
-				             ts.parse_youtube_id(url_from_different_isp_district)
+				             ts.parse_youtube_id(url_from_shortener)
 		end
 	end
 end

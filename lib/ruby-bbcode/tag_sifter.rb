@@ -85,7 +85,9 @@ module RubyBBCode
       url =~ /[v]=([^&]*)/
       id = $1
       
-      if id.nil?
+      if id.nil? and url =~ /youtu.be\/([^&]*)/   # if they used youtube's url shortener  youtube.be/ID...  
+        return $1
+      elsif id.nil?
         # when there is no match for v=blah, then maybe they just 
         # provided us with the ID the way the system used to work... 
         # just "E4Fbk52Mk1w"

@@ -94,7 +94,6 @@ module RubyBBCode
         :require_between => true},
     }
 
-    # Return the default tags list, can be used to directly modify this default list, instead of providing custom tags each time when the to the to_html method is used
     def self.tag_list
       @@tags
     end
