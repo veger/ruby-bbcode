@@ -6,4 +6,3 @@ source "http://rubygems.org"
 gemspec
 
 gem "tzinfo"
-#gem "ruby-debug19", :require => "ruby-debug"
