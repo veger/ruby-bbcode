@@ -218,7 +218,6 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
   
   def test_no_xss_hax
-    require 'pry';binding.pry
     expected = "<a href=\"http://www.google.com&quot; onclick=\&quot;javascript:alert\">google</a>"
     assert_equal expected, '[url=http://www.google.com" onclick="javascript:alert]google[/url]'.bbcode_to_html
   end
