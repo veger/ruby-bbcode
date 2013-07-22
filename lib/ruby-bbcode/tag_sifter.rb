@@ -28,9 +28,14 @@ module RubyBBCode
         
         case @ti.type   # Validation of tag succeeded, add to @bbtree.tags_list and/or bbtree
         when :opening_tag
+          require 'pry'
+          #binding.pry
+          @ti = match_multi_tag(@ti) if @ti.definition[:multi_tag] == true
           element = {:is_tag => true, :tag => @ti[:tag].to_sym, :definition => @ti.definition, :nodes => TagCollection.new }
+          #element = handle_multitag(element) if element[:definition][:multi_tag] == true
           element[:params] = {:tag_param => get_formatted_element_params} if @ti.can_have_params? and @ti.has_params?
           @bbtree.build_up_new_tag(element)
+          
           
           @bbtree.escalate_bbtree(element)
         when :text
@@ -56,6 +61,15 @@ module RubyBBCode
       validate_stack_level_too_deep_potential
     end
     
+    def match_multi_tag(ti)
+      require 'pry'; binding.pry
+      # riddle through all the matches to see if you can link this tag to what it belongs to.  
+      ti.definition = ti.dictionary[:youtube]
+      ti.tag_data[:tag] = "youtube"
+      #ti.tag_data[:complete_match] = "youtube"
+      
+      return ti
+    end
     
     private
     

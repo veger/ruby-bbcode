@@ -92,6 +92,14 @@ module RubyBBCode
         :example => '[gvideo]397259729324681206[/gvideo]',
         :only_allow => [],
         :require_between => true},
+        
+      :media => {
+        :multi_tag => true,
+        :support_youtube => {
+          :match => /youtube.com/i,
+          :substitute => :youtube
+        }
+      }
     }
 
     def self.tag_list
