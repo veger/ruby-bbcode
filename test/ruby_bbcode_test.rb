@@ -221,5 +221,16 @@ class RubyBbcodeTest < Test::Unit::TestCase
     expected = "<a href=\"http://www.google.com&quot; onclick=\&quot;javascript:alert\">google</a>"
     assert_equal expected, '[url=http://www.google.com" onclick="javascript:alert]google[/url]'.bbcode_to_html
   end
+  
+    # TODO:  This stack level problem should be validated during the validations
+  def test_stack_level_too_deep
+    num = 2300  # increase this number if the test starts failing.  It's very near the tipping point
+    openers = "[s]hi i'm" * num
+    closers = "[/s]" * num
+    assert_raise( SystemStackError ) do
+      (openers+closers).bbcode_to_html
+    end
+    
+  end
 
 end
