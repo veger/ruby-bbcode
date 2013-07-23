@@ -147,11 +147,6 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
 
 
-  def test_google_video
-    assert_equal '<embed id="VideoPlayback" src="http://video.google.com/googleplayer.swf?docid=397259729324681206&hl=en" style="width:400px; height:325px;" type="application/x-shockwave-flash"></embed>',
-                   '[gvideo]397259729324681206[/gvideo]'.bbcode_to_html
-  end
-
   def test_html_escaping
     assert_equal '<strong>&lt;i&gt;foobar&lt;/i&gt;</strong>', '[b]<i>foobar</i>[/b]'.bbcode_to_html
     assert_equal '<strong><i>foobar</i></strong>', '[b]<i>foobar</i>[/b]'.bbcode_to_html(false)
@@ -180,7 +175,7 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
 
   def test_self_tag_list
-    assert_equal 17, RubyBBCode::Tags.tag_list.size
+    assert_equal 16, RubyBBCode::Tags.tag_list.size
   end
 
   def test_addition_of_tags

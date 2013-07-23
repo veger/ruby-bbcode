@@ -85,14 +85,8 @@ module RubyBBCode
         :description => 'Youtube video',
         :example => '[youtube]E4Fbk52Mk1w[/youtube]',
         :only_allow => [],
-        :url_varients => ["youtube.com", "youtu.be", "y2u.be"],
+        :url_varients => ["youtube.com", "youtu.be", "y2u.be"], # NOT USED
         :url_matches => [/youtube\.com.*[v]=([^&]*)/, /youtu\.be\/([^&]*)/, /y2u\.be\/([^&]*)/],
-        :require_between => true},
-      :gvideo => {
-        :html_open => '<embed id="VideoPlayback" src="http://video.google.com/googleplayer.swf?docid=%between%&hl=en" style="width:400px; height:325px;" type="application/x-shockwave-flash"></embed>', :html_close => '',
-        :description => 'Google video',
-        :example => '[gvideo]397259729324681206[/gvideo]',
-        :only_allow => [],
         :require_between => true},
       :vimeo => {
         :html_open => '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>', 
