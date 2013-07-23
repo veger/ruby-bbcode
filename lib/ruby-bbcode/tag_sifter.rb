@@ -72,8 +72,6 @@ module RubyBBCode
     end
     
     def get_proper_tag
-      ti = @bbtree.current_node[:definition][:supported_tags]
-      
       supported_tags = @bbtree.current_node[:definition][:supported_tags]
 
       supported_tags.each do |tag|
@@ -115,7 +113,8 @@ module RubyBBCode
       end
     end
     
-    # Parses a youtube video url and extracts the ID  
+    # Parses a youtube video url and extracts the ID
+    # or returns the ID if that's all there was supplied...
     def parse_youtube_id(url)
       url =~ /youtube.com.*[v]=([^&]*)/ # /[v]=([^&]*)/
       id = $1
@@ -135,20 +134,16 @@ module RubyBBCode
     end
     
     def conduct_special_formatting(url, regex_matches = nil)
-      if regex_matches.nil?
-        regex_matches = @bbtree.current_node.definition[:url_matches]
-      else # we are testing...
-        #@bbtree.current_node
-      end
+      regex_matches = @bbtree.current_node.definition[:url_matches] if regex_matches.nil?   # for testing purposes we can force in regex_matches
       
-      #binding.pry
       regex_matches.each do |regex|
         if url =~ regex
           id = $1
           return id
         end
       end
-      return url
+
+      return url # if we couldn't find a match, then just return the url, hopefully it's a valid youtube ID...
     end
     
     
