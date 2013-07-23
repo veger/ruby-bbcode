@@ -145,6 +145,12 @@ class RubyBbcodeTest < Test::Unit::TestCase
     assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>' ,
                    "[youtube]#{full_url}[/youtube]".bbcode_to_html
   end
+  
+  def test_youtube_with_url_shortener
+    full_url = "http://www.youtu.be/cSohjlYQI2A"
+    assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/cSohjlYQI2A"></param><embed src="http://www.youtube.com/v/cSohjlYQI2A" type="application/x-shockwave-flash" width="400" height="325"></embed></object>' ,
+                   "[youtube]#{full_url}[/youtube]".bbcode_to_html
+  end
 
 
   def test_html_escaping
@@ -245,6 +251,12 @@ class RubyBbcodeTest < Test::Unit::TestCase
     
     assert_equal output, input.bbcode_to_html
     assert_equal output, input2.bbcode_to_html
+  end
+  
+  def test_failing_multi_tag
+    input1 = "[media]http://www.youtoob.com/watch?v=cSohjlYQI2A[/media]"
+    
+    assert_equal input1, input1.bbcode_to_html
   end
 
 end
