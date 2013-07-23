@@ -43,7 +43,7 @@ module RubyBBCode
           element = {:is_tag => false, :text => @ti.text }
           if within_open_tag?
             tag = @bbtree.current_node.definition
-
+            #binding.pry
             if tag[:require_between]
               @bbtree.current_node[:between] = get_formatted_element_params
               if candidate_for_using_between_as_param?
@@ -74,15 +74,14 @@ module RubyBBCode
     def get_proper_tag
       ti = @bbtree.current_node[:definition][:supported_tags]
       
-      regex_list = @bbtree.current_node[:definition][:supported_tags].each_value.to_a[0]
+      regex_list = @bbtree.current_node[:definition][:supported_tags].each_value.to_a[0]    # FIXME:  this is a hardcoding hack...  needs logic...
       regex_list.each do |regex|
       
         @dictionary.each do |key, val|   # I need to add some fields to the youtube tag to get this to work...
           val[:domains] && val[:domains].each do |domain|
+            binding.pry
             if regex =~ domain
               return key
-              #@ti.definition = @ti.dictionary[key]
-              #@ti.tag_data[:tag] = key.to_s
             end
           end
         end
@@ -104,21 +103,26 @@ module RubyBBCode
         param = @ti[:params][:tag_param]
         if @ti.can_have_params? and @ti.has_params?
           # perform special formatting for cenrtain tags
-          param = parse_youtube_id(param) if @ti[:tag].to_sym == :youtube  # note:  this line isn't ever used because @@tags don't allow it
+          binding.pry if @ti[:tag].to_sym == :youtube
+          param = parse_youtube_id(param) if @ti[:tag].to_sym == :youtube  # note:  this line isn't ever used because @@tags don't allow it... I think if we have tags without the same kind of :require_between restriction, we'll need to pay close attention to this case
+          
         end
         return param
       else  # must be text... @ti[:is_tag] == false
         param = @ti[:text]
         # perform special formatting for cenrtain tags
-        param = parse_youtube_id(param) if @bbtree.current_node[:tag] == :youtube
+        #param = parse_youtube_id(param) if @bbtree.current_node[:tag] == :youtube  # this is the old primitive way of doing multi_url format matching
+        param = conduct_special_formatting(param) if @bbtree.current_node.definition[:url_matches]
+        
         return param
       end
     end
     
     # Parses a youtube video url and extracts the ID  
     def parse_youtube_id(url)
-      url =~ /[v]=([^&]*)/
+      url =~ /youtube.com.*[v]=([^&]*)/ # /[v]=([^&]*)/
       id = $1
+      binding.pry
       
       if id.nil? and url =~ /youtu.be\/([^&]*)/   # if they used youtube's url shortener  youtube.be/ID...  
         return $1
@@ -131,6 +135,23 @@ module RubyBBCode
         # else we got a match for an id and we can return that ID...
         return id
       end
+    end
+    
+    def conduct_special_formatting(url, regex_matches = nil)
+      if regex_matches.nil?
+        regex_matches = @bbtree.current_node.definition[:url_matches]
+      else # we are testing...
+        #@bbtree.current_node
+      end
+      
+      #binding.pry
+      regex_matches.each do |regex|
+        if url =~ regex
+          id = $1
+          return id
+        end
+      end
+      return url
     end
     
     
