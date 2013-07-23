@@ -216,5 +216,10 @@ class RubyBbcodeTest < Test::Unit::TestCase
       "this [b]should not do formatting[/i]".bbcode_to_html
     end
   end
+  
+  def test_no_xss_hax
+    expected = "<a href=\"http://www.google.com&quot; onclick=\&quot;javascript:alert\">google</a>"
+    assert_equal expected, '[url=http://www.google.com" onclick="javascript:alert]google[/url]'.bbcode_to_html
+  end
 
 end
