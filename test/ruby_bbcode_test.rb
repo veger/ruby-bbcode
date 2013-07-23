@@ -180,7 +180,7 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
 
   def test_self_tag_list
-    assert_equal 16, RubyBBCode::Tags.tag_list.size
+    assert_equal 17, RubyBBCode::Tags.tag_list.size
   end
 
   def test_addition_of_tags
