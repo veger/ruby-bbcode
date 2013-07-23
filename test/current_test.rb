@@ -12,6 +12,17 @@ class RubyBbcodeTest < Test::Unit::TestCase
                    "[youtube]#{full_url}[/youtube]".bbcode_to_html
   end
   
+  def test_google_video_with_full_url
+    assert_equal '<embed id="VideoPlayback" src="http://video.google.com/googleplayer.swf?docid=397259729324681206&hl=en" style="width:400px; height:325px;" type="application/x-shockwave-flash"></embed>',
+                   '[gvideo]397259729324681206[/gvideo]'.bbcode_to_html  #FIXME: insert proper full URL here...
+  end
+  
+  def test_vimeo_tag
+    input = "[vimeo]http://vimeo.com/46141955[/vimeo]"
+    output = '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe> <p><a href="http://vimeo.com/46141955">FEAR OF FLYING</a> from <a href="http://vimeo.com/conorfinnegan">conorfinnegan</a> on <a href="https://vimeo.com">Vimeo</a>.</p>'
+    
+    assert_equal output, input.bbcode_to_html
+  end
   
   def test_mulit_tag
     input1 = "[media]http://www.youtube.com/watch?v=cSohjlYQI2A[/media]"
