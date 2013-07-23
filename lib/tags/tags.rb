@@ -105,9 +105,9 @@ module RubyBBCode
         
       :media => {
         :multi_tag => true,
-        :supported_tags => {
-          :youtube => [/youtube.com/i]
-        }
+        :supported_tags => [
+          :youtube
+        ]
       }
     }
 

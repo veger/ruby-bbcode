@@ -74,16 +74,13 @@ module RubyBBCode
     def get_proper_tag
       ti = @bbtree.current_node[:definition][:supported_tags]
       
-      regex_list = @bbtree.current_node[:definition][:supported_tags].each_value.to_a[0]    # FIXME:  this is a hardcoding hack...  needs logic...
-      regex_list.each do |regex|
-      
-        @dictionary.each do |key, val|   # I need to add some fields to the youtube tag to get this to work...
-          val[:domains] && val[:domains].each do |domain|
-            binding.pry
-            if regex =~ domain
-              return key
-            end
-          end
+      supported_tags = @bbtree.current_node[:definition][:supported_tags]
+
+      supported_tags.each do |tag|
+        regex_list = @dictionary[tag][:url_matches]
+        
+        regex_list.each do |regex|
+          return tag if regex =~ @ti.tag_data[:text]
         end
       end
       
