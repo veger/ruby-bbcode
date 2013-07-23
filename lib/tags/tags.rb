@@ -100,7 +100,8 @@ module RubyBBCode
       :media => {
         :multi_tag => true,
         :supported_tags => [
-          :youtube
+          :youtube,
+          :vimeo
         ]
       }
     }

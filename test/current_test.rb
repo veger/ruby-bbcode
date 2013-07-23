@@ -4,21 +4,22 @@ require 'benchmark'
 
 
 class RubyBbcodeTest < Test::Unit::TestCase
-  
-  
 
-  
-
-  def test_vimeo_tag
-    input = "[vimeo]http://vimeo.com/46141999[/vimeo]"
-    input2 = "[vimeo]46141955[/vimeo]"
-    output = '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'
+  def test_failing_multi_tag
+    input1 = "[media]http://www.youtoob.com/watch?v=cSohjlYQI2A[/media]"
     
-    assert_equal output, input.bbcode_to_html
-    assert_equal output, input2.bbcode_to_html
+    assert_equal input1, input1.bbcode_to_html
   end
-
+  
 =begin  
+ 
+   def test_all_text_tag_look_like
+    input = "[creed]hello[/creed]"
+    
+    output = input.bbcode_to_html
+    assert_equal "", output
+  end
+  
   def test_mulit_tag
     input1 = "[media]http://www.youtube.com/watch?v=cSohjlYQI2A[/media]"
     input2 = "[media]http://vimeo.com/46141955[/media]"

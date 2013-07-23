@@ -25,6 +25,7 @@ module RubyBBCode
         @ti = TagInfo.new(tag_info, @dictionary)
         
         @ti.handle_unregistered_tags_as_text  # if the tag isn't in the @dictionary list, then treat it as text
+        handle_closing_tags_that_are_multi_as_text_if_it_doesnt_match_the_latest_opener_tag_on_the_stack
         
         return if !valid_element?
         
@@ -39,11 +40,11 @@ module RubyBBCode
           @bbtree.escalate_bbtree(element)
         when :text
           set_parent_tag_from_multi_tag_to_concrete! if @bbtree.current_node.definition && @bbtree.current_node.definition[:multi_tag] == true
-            
+          
           element = {:is_tag => false, :text => @ti.text }
           if within_open_tag?
             tag = @bbtree.current_node.definition
-            #binding.pry
+            
             if tag[:require_between]
               @bbtree.current_node[:between] = get_formatted_element_params
               if candidate_for_using_between_as_param?
@@ -66,7 +67,18 @@ module RubyBBCode
     end
     
     def set_parent_tag_from_multi_tag_to_concrete!
+      # if the proper tag can't be matched, we need to treat the parent tag as text instead!  Or throw an error message....
+      
       proper_tag = get_proper_tag
+      if proper_tag == :tag_not_found
+        @bbtree.tags_list.pop
+        @bbtree.current_node[:is_tag] = false    # FIXME:  I'm working here.  I need to fully set current_node to look and quack like text nodes...
+        @bbtree.current_node[:closing_tag] = false    # now that I've gone to the parent opening node and set it to a text element... I need a way to set the closing tag as text treatment too...
+        @bbtree.current_node.element[:text] = "[#{@bbtree.current_node[:tag].to_s}]"
+        #binding.pry
+        @bbtree.nodes << TagNode.new(@ti.tag_data)
+        return
+      end
       @bbtree.current_node[:definition] = @dictionary[proper_tag]
       @bbtree.current_node[:tag] = proper_tag
     end
@@ -79,6 +91,18 @@ module RubyBBCode
         
         regex_list.each do |regex|
           return tag if regex =~ @ti.tag_data[:text]
+        end
+      end
+      :tag_not_found
+    end
+    
+    def handle_closing_tags_that_are_multi_as_text_if_it_doesnt_match_the_latest_opener_tag_on_the_stack
+      if @ti.element_is_closing_tag?
+        return if @bbtree.current_node[:definition].nil?
+        if parent_tag != @ti[:tag].to_sym and @bbtree.current_node[:definition][:multi_tag]
+          @ti[:is_tag] = false
+          @ti[:closing_tag] = false
+          @ti[:text] = @ti.tag_data[:complete_match]
         end
       end
       
@@ -98,8 +122,7 @@ module RubyBBCode
         param = @ti[:params][:tag_param]
         if @ti.can_have_params? and @ti.has_params?
           # perform special formatting for cenrtain tags
-          binding.pry if @ti[:tag].to_sym == :youtube
-          param = parse_youtube_id(param) if @ti[:tag].to_sym == :youtube  # note:  this line isn't ever used because @@tags don't allow it... I think if we have tags without the same kind of :require_between restriction, we'll need to pay close attention to this case
+          param = conduct_special_formatting(param) if @ti[:tag].to_sym == :youtube  # note:  this line isn't ever used because @@tags don't allow it... I think if we have tags without the same kind of :require_between restriction, we'll need to pay close attention to this case
           
         end
         return param
@@ -110,26 +133,6 @@ module RubyBBCode
         param = conduct_special_formatting(param) if @bbtree.current_node.definition[:url_matches]
         
         return param
-      end
-    end
-    
-    # Parses a youtube video url and extracts the ID
-    # or returns the ID if that's all there was supplied...
-    def parse_youtube_id(url)
-      url =~ /youtube.com.*[v]=([^&]*)/ # /[v]=([^&]*)/
-      id = $1
-      binding.pry
-      
-      if id.nil? and url =~ /youtu.be\/([^&]*)/   # if they used youtube's url shortener  youtube.be/ID...  
-        return $1
-      elsif id.nil?
-        # when there is no match for v=blah, then maybe they just 
-        # provided us with the ID the way the system used to work... 
-        # just "E4Fbk52Mk1w"
-        return url  
-      else
-        # else we got a match for an id and we can return that ID...
-        return id
       end
     end
     
