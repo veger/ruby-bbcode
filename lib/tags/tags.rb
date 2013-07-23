@@ -85,6 +85,7 @@ module RubyBBCode
         :description => 'Youtube video',
         :example => '[youtube]E4Fbk52Mk1w[/youtube]',
         :only_allow => [],
+        :domains => ["youtube.com", "youtu.be"],
         :require_between => true},
       :gvideo => {
         :html_open => '<embed id="VideoPlayback" src="http://video.google.com/googleplayer.swf?docid=%between%&hl=en" style="width:400px; height:325px;" type="application/x-shockwave-flash"></embed>', :html_close => '',
@@ -95,9 +96,8 @@ module RubyBBCode
         
       :media => {
         :multi_tag => true,
-        :support_youtube => {
-          :match => /youtube.com/i,
-          :substitute => :youtube
+        :supported_tags => {
+          :youtube => [/youtube.com/i]
         }
       }
     }

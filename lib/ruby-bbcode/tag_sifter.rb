@@ -1,3 +1,4 @@
+require 'pry'
 module RubyBBCode
   # Tag sifter is in charge of building up the BBTree with nodes as it parses through the
   # supplied text such as "[b]hello world[/b]"
@@ -24,32 +25,36 @@ module RubyBBCode
         @ti = TagInfo.new(tag_info, @dictionary)
         
         @ti.handle_unregistered_tags_as_text  # if the tag isn't in the @dictionary list, then treat it as text
+        
+        #match_multi_tag_to_proper_type!
+        
         return if !valid_element?
         
         case @ti.type   # Validation of tag succeeded, add to @bbtree.tags_list and/or bbtree
         when :opening_tag
-          require 'pry'
-          #binding.pry
-          @ti = match_multi_tag(@ti) if @ti.definition[:multi_tag] == true
+          #@ti = match_multi_tag(@ti) if @ti.definition[:multi_tag] == true
           element = {:is_tag => true, :tag => @ti[:tag].to_sym, :definition => @ti.definition, :nodes => TagCollection.new }
           #element = handle_multitag(element) if element[:definition][:multi_tag] == true
           element[:params] = {:tag_param => get_formatted_element_params} if @ti.can_have_params? and @ti.has_params?
           @bbtree.build_up_new_tag(element)
           
-          
           @bbtree.escalate_bbtree(element)
         when :text
+          set_parent_tag_from_multi_tag_to_concrete! if @bbtree.current_node.definition && @bbtree.current_node.definition[:multi_tag] == true
+            
           element = {:is_tag => false, :text => @ti.text }
           if within_open_tag?
             tag = @bbtree.current_node.definition
-            if tag[:require_between]
+
+            if tag[:require_between] # FIXME:  this is super sloppy, I should hack in another place I think to get multi-tag working...
               @bbtree.current_node[:between] = get_formatted_element_params
-              if candidate_for_using_between_as_param?
+              if candidate_for_using_between_as_param?    # FIXME:  i'm working here... this function throws validation problem with multi-tag.  delme...
                 use_between_as_tag_param    # Did not specify tag_param, so use between text.
               end
               next  # don't add this node to @bbtree.current_node.children if we're within an open tag that requires_between (to be a param), and the between couldn't be used as a param... Yet it passed validation so the param must have been specified within the opening tag???
             end
           end
+          
           @bbtree.build_up_new_tag(element)
         when :closing_tag
           @bbtree.retrogress_bbtree
@@ -57,19 +62,57 @@ module RubyBBCode
         
       end # end of scan loop
       
+      
       validate_all_tags_closed_off
       validate_stack_level_too_deep_potential
     end
     
-    def match_multi_tag(ti)
-      require 'pry'; binding.pry
-      # riddle through all the matches to see if you can link this tag to what it belongs to.  
-      ti.definition = ti.dictionary[:youtube]
-      ti.tag_data[:tag] = "youtube"
-      #ti.tag_data[:complete_match] = "youtube"
-      
-      return ti
+    def set_parent_tag_from_multi_tag_to_concrete!
+      proper_tag = get_proper_tag
+      @bbtree.current_node[:definition] = @dictionary[proper_tag]
+      @bbtree.current_node[:tag] = proper_tag
     end
+    
+    # I think this function needs to "seek_ahead" to the elements :text parameter so it can read it and see if it can get a regex match...
+    def match_multi_tag_to_proper_type!
+      return unless @ti.definition && @ti.definition[:multi_tag] == true  # bail out if this tag is a text tag or not even a :multi_tag
+      
+      regex_list = @ti.definition[:supported_tags].each_value.to_a[0]
+      
+      regex_list.each do |regex|   # /youtube.com/i
+      
+        @ti.dictionary.each do |key, val|   # I need to add some fields to the youtube tag to get this to work...
+          val[:domains] && val[:domains].each do |domain|
+            if regex =~ domain
+              return key
+              #@ti.definition = @ti.dictionary[key]
+              #@ti.tag_data[:tag] = key.to_s
+            end
+          end
+        end
+      end
+      
+    end
+    
+    def get_proper_tag
+      ti = @bbtree.current_node[:definition][:supported_tags]
+      
+      regex_list = @bbtree.current_node[:definition][:supported_tags].each_value.to_a[0]
+      regex_list.each do |regex|   # /youtube.com/i
+      
+        @dictionary.each do |key, val|   # I need to add some fields to the youtube tag to get this to work...
+          val[:domains] && val[:domains].each do |domain|
+            if regex =~ domain
+              return key
+              #@ti.definition = @ti.dictionary[key]
+              #@ti.tag_data[:tag] = key.to_s
+            end
+          end
+        end
+      end
+      
+    end
+    
     
     private
     
@@ -79,6 +122,7 @@ module RubyBBCode
     # refactor this code easily to happen over there if necessary...  Yes, I think it's more logical 
     # to be put over there, but that method needs to be cleaned up before we introduce the formatting overthere... and knowing the parent node is helpful!    
     def get_formatted_element_params
+      
       if @ti[:is_tag]
         param = @ti[:params][:tag_param]
         if @ti.can_have_params? and @ti.has_params?
@@ -163,7 +207,9 @@ module RubyBBCode
     end
     
     def valid_closing_element?
-      tag = @ti.definition
+      
+      
+      tag = @ti.definition    # FIXME:  this is throwing off multi-tags... they need to be overwritten with the proper tag definition...
       
       if @ti.element_is_closing_tag?
         if parent_tag != @ti[:tag].to_sym
