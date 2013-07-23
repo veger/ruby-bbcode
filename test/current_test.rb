@@ -8,12 +8,14 @@ class RubyBbcodeTest < Test::Unit::TestCase
   
 
   
-=begin  
+
   def test_vimeo_tag
     input = "[vimeo]http://vimeo.com/46141999[/vimeo]"
-    output = '<iframe src="http://player.vimeo.com/video/46141999?badge=0" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'
+    input2 = "[vimeo]46141955[/vimeo]"
+    output = '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'
     
     assert_equal output, input.bbcode_to_html
+    assert_equal output, input2.bbcode_to_html
   end
 
 =begin  
