@@ -5,4 +5,5 @@ require 'benchmark'
 
 class RubyBbcodeTest < Test::Unit::TestCase
   
+
 end
