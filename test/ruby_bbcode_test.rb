@@ -240,16 +240,20 @@ class RubyBbcodeTest < Test::Unit::TestCase
     input2 = "[media]http://vimeo.com/46141955[/media]"
     input3 = "[media]http://www.flickr.com/photos/antimega/2397432981[/media]"
     input4 = "[media]http://www.veoh.com/watch/v825695EXrZWRfH[/media]"
+    input5 = "[engage_media]http://www.engagemedia.org/Members/emnews/videos/hak-anda-kuasa-polis/view[/engage_media]"
+    
     output1 = "<object width=\"400\" height=\"325\"><param name=\"movie\" value=\"http://www.youtube.com/v/cSohjlYQI2A\"></param><embed src=\"http://www.youtube.com/v/cSohjlYQI2A\" type=\"application/x-shockwave-flash\" width=\"400\" height=\"325\"></embed></object>"
     output2 = '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'
     output3 = '<object type="application/x-shockwave-flash" width="400" height="300" data="http://www.flickr.com/apps/video/stewart.swf?v=109786" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"> <param name="flashvars" value="intl_lang=en-us&photo_secret=b4d35d51bd&photo_id=2397432981"></param> <param name="movie" value="http://www.flickr.com/apps/video/stewart.swf?v=109786"></param> <param name="bgcolor" value="#000000"></param> <param name="allowFullScreen" value="true"></param><embed type="application/x-shockwave-flash" src="http://www.flickr.com/apps/video/stewart.swf?v=109786" bgcolor="#000000" allowfullscreen="true" flashvars="intl_lang=en-us&photo_secret=b4d35d51bd&photo_id=2397432981" height="300" width="400"></embed></object>'
     output4 = '<object width="410" height="341" id="veohFlashPlayer" name="veohFlashPlayer"><param name="movie" value="http://www.veoh.com/swf/webplayer/WebPlayer.swf?version=AFrontend.5.7.0.1404&permalinkId=v825695EXrZWRfH&player=videodetailsembedded&videoAutoPlay=0&id=anonymous"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.veoh.com/swf/webplayer/WebPlayer.swf?version=AFrontend.5.7.0.1404&permalinkId=v825695EXrZWRfH&player=videodetailsembedded&videoAutoPlay=0&id=anonymous" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="410" height="341" id="veohFlashPlayerEmbed" name="veohFlashPlayerEmbed"></embed></object><br />'
+    output5 = "<iframe src='http://www.engagemedia.org/Members/indocs/videos/hak-anda-kuasa-polis/embed_view' frameborder='0' width='630' height='460'></iframe>"
     
     
     assert_equal output1, input1.bbcode_to_html
     assert_equal output2, input2.bbcode_to_html
     assert_equal output3, input3.bbcode_to_html
     assert_equal output4, input4.bbcode_to_html
+    assert_equal output5, input5.bbcode_to_html
   end
   
   def test_vimeo_tag
@@ -275,10 +279,19 @@ class RubyBbcodeTest < Test::Unit::TestCase
     assert_equal output, input.bbcode_to_html
   end
   
+  def test_engage_media_tags
+    input = "[engage_media]http://www.engagemedia.org/Members/emnews/videos/hak-anda-kuasa-polis/view[/engage_media]"
+    output = "<iframe src='http://www.engagemedia.org/Members/indocs/videos/hak-anda-kuasa-polis/embed_view' frameborder='0' width='630' height='460'></iframe>"
+    
+    assert_equal output, input.bbcode_to_html
+  end
+  
   def test_failing_multi_tag
     input1 = "[media]http://www.youtoob.com/watch?v=cSohjlYQI2A[/media]"
     
     assert_equal input1, input1.bbcode_to_html
   end
+  
+  
 
 end

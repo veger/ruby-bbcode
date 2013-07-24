@@ -112,13 +112,22 @@ module RubyBBCode
         :only_allow => [],
         :url_matches => [/flickr\.com\/photos\/.*\/([^&]*)/],
         :require_between => true},
+      :engage_media => {
+        :html_open => "<iframe src='http://www.engagemedia.org/Members/indocs/videos/%between%/embed_view' frameborder='0' width='630' height='460'></iframe>",
+        :html_close => '',
+        :description => 'Videos about earth and humans and stuff.  They distinctly have no cesorship which is rare.',
+        :example => '[engage_media]http://www.nbcnews.com/id/3032600#52211333[/engage_media]',
+        :only_allow => [],
+        :url_matches => [/engagemedia\.org\/Members\/.*\/videos\/([^&]*)\/view/],
+        :require_between => true},
       :media => {
         :multi_tag => true,
         :supported_tags => [
           :youtube,
           :vimeo,
           :flickr,
-          :veoh
+          :veoh,
+          :engage_media
         ]
       }
     }
