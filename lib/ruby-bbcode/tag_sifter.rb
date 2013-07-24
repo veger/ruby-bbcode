@@ -40,7 +40,7 @@ module RubyBBCode
           @bbtree.escalate_bbtree(element)
         when :text
           set_parent_tag_from_multi_tag_to_concrete! if @bbtree.current_node.definition && @bbtree.current_node.definition[:multi_tag] == true
-          
+
           element = {:is_tag => false, :text => @ti.text }
           if within_open_tag?
             tag = @bbtree.current_node.definition
@@ -71,18 +71,16 @@ module RubyBBCode
       
       proper_tag = get_proper_tag
       if proper_tag == :tag_not_found
-        @bbtree.tags_list.pop
-        @bbtree.current_node[:is_tag] = false    # FIXME:  I'm working here.  I need to fully set current_node to look and quack like text nodes...
-        @bbtree.current_node[:closing_tag] = false    # now that I've gone to the parent opening node and set it to a text element... I need a way to set the closing tag as text treatment too...
-        @bbtree.current_node.element[:text] = "[#{@bbtree.current_node[:tag].to_s}]"
         #binding.pry
-        @bbtree.nodes << TagNode.new(@ti.tag_data)
+        @bbtree.redefine_parent_tag_as_text
+        
+        @bbtree.nodes << TagNode.new(@ti.tag_data)      # escilate the bbtree with this element as though it's regular text data...
         return
       end
       @bbtree.current_node[:definition] = @dictionary[proper_tag]
       @bbtree.current_node[:tag] = proper_tag
     end
-    
+
     def get_proper_tag
       supported_tags = @bbtree.current_node[:definition][:supported_tags]
 
@@ -99,7 +97,7 @@ module RubyBBCode
     def handle_closing_tags_that_are_multi_as_text_if_it_doesnt_match_the_latest_opener_tag_on_the_stack
       if @ti.element_is_closing_tag?
         return if @bbtree.current_node[:definition].nil?
-        if parent_tag != @ti[:tag].to_sym and @bbtree.current_node[:definition][:multi_tag]
+        if parent_tag != @ti[:tag].to_sym and @bbtree.current_node[:definition][:multi_tag]       # if opening tag doesn't match this closing tag... and if the opener was a multi_tag...
           @ti[:is_tag] = false
           @ti[:closing_tag] = false
           @ti[:text] = @ti.tag_data[:complete_match]
