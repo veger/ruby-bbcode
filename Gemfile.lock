@@ -20,7 +20,7 @@ GEM
       slop (~> 3.4)
     rake (10.0.3)
     slop (3.4.3)
-    tzinfo (0.3.31)
+    tzinfo (0.3.37)
 
 PLATFORMS
   ruby
