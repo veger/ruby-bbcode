@@ -1,4 +1,3 @@
-require 'pry'
 module RubyBBCode
   # Tag sifter is in charge of building up the BBTree with nodes as it parses through the
   # supplied text such as "[b]hello world[/b]"
@@ -31,20 +30,16 @@ module RubyBBCode
         
         case @ti.type   # Validation of tag succeeded, add to @bbtree.tags_list and/or bbtree
         when :opening_tag
-          #@ti = match_multi_tag(@ti) if @ti.definition[:multi_tag] == true
           element = {:is_tag => true, :tag => @ti[:tag].to_sym, :definition => @ti.definition, :nodes => TagCollection.new }
-          #element = handle_multitag(element) if element[:definition][:multi_tag] == true
           element[:params] = {:tag_param => get_formatted_element_params} if @ti.can_have_params? and @ti.has_params?
           @bbtree.build_up_new_tag(element)
           
           @bbtree.escalate_bbtree(element)
         when :text
           set_parent_tag_from_multi_tag_to_concrete! if @bbtree.current_node.definition && @bbtree.current_node.definition[:multi_tag] == true
-
           element = {:is_tag => false, :text => @ti.text }
           if within_open_tag?
             tag = @bbtree.current_node.definition
-            
             if tag[:require_between]
               @bbtree.current_node[:between] = get_formatted_element_params
               if candidate_for_using_between_as_param?
@@ -53,7 +48,6 @@ module RubyBBCode
               next  # don't add this node to @bbtree.current_node.children if we're within an open tag that requires_between (to be a param), and the between couldn't be used as a param... Yet it passed validation so the param must have been specified within the opening tag???
             end
           end
-          
           @bbtree.build_up_new_tag(element)
         when :closing_tag
           @bbtree.retrogress_bbtree
@@ -61,8 +55,7 @@ module RubyBBCode
         
       end # end of scan loop
       
-      
-      validate_all_tags_closed_off
+      validate_all_tags_closed_off   # TODO: consider automatically closing off all the tags... I think that's how the HTML 5 parser works too
       validate_stack_level_too_deep_potential
     end
     
@@ -115,21 +108,17 @@ module RubyBBCode
     # refactor this code easily to happen over there if necessary...  Yes, I think it's more logical 
     # to be put over there, but that method needs to be cleaned up before we introduce the formatting overthere... and knowing the parent node is helpful!    
     def get_formatted_element_params
-      
       if @ti[:is_tag]
         param = @ti[:params][:tag_param]
         if @ti.can_have_params? and @ti.has_params?
           # perform special formatting for cenrtain tags
           param = conduct_special_formatting(param) if @ti[:tag].to_sym == :youtube  # note:  this line isn't ever used because @@tags don't allow it... I think if we have tags without the same kind of :require_between restriction, we'll need to pay close attention to this case
-          
         end
         return param
       else  # must be text... @ti[:is_tag] == false
         param = @ti[:text]
         # perform special formatting for cenrtain tags
-        #param = parse_youtube_id(param) if @bbtree.current_node[:tag] == :youtube  # this is the old primitive way of doing multi_url format matching
         param = conduct_special_formatting(param) if @bbtree.current_node.definition[:url_matches]
-        
         return param
       end
     end

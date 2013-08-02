@@ -75,8 +75,8 @@ module RubyBBCode
     
     def redefine_parent_tag_as_text
       @tags_list.pop
-      @current_node[:is_tag] = false    # FIXME:  I'm working here.  I need to fully set current_node to look and quack like text nodes...
-      @current_node[:closing_tag] = false    # now that I've gone to the parent opening node and set it to a text element... I need a way to set the closing tag as text treatment too...
+      @current_node[:is_tag] = false
+      @current_node[:closing_tag] = false
       @current_node.element[:text] = "[#{@current_node[:tag].to_s}]"
     end
     

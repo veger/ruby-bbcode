@@ -22,7 +22,7 @@ module RubyBBCode
           html_string << t.opening_html
           
           # invoke "recursive" call if this node contains child nodes
-          html_string << node.children.to_html(tags) if node.has_children?      # FIXME:  Don't use recursion, it can lead to stack-level-too-deep errors for large volumes.
+          html_string << node.children.to_html(tags) if node.has_children?      # FIXME:  Don't use recursion, it can lead to stack-level-too-deep errors for large volumes?
           
           t.inlay_closing_html!
           
