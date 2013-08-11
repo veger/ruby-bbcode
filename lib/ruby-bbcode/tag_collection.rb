@@ -2,6 +2,9 @@ module RubyBBCode
   # This class holds TagNodes and helps build them into html when the time comes.  It's really just a simple array, with the addition of the #to_html method
   class TagCollection < Array
     
+    # This method is vulnerable to stack-level-too-deep scenarios where >=1,200 tags are being parsed.  
+    # But that scenario can be mitigated by splitting up the tags.  bbtree = { :nodes => [900tags, 1000tags] }, the work
+    # for that bbtree can be split up into two passes, do the each node one at a time.  I'm not coding that though, it's pointless, just a thought though
     def to_html(tags)
       html_string = ""
       self.each do |node|
@@ -16,16 +19,16 @@ module RubyBBCode
             t.remove_unused_tokens!
           end
           
-          html_string += t.opening_html
+          html_string << t.opening_html
           
           # invoke "recursive" call if this node contains child nodes
-          html_string += node.children.to_html(tags) if node.has_children?
+          html_string << node.children.to_html(tags) if node.has_children?      # FIXME:  Don't use recursion, it can lead to stack-level-too-deep errors for large volumes?
           
           t.inlay_closing_html!
           
-          html_string += t.closing_html
+          html_string << t.closing_html
         elsif node.type == :text
-          html_string += node[:text] unless node[:text].nil?
+          html_string << node[:text] unless node[:text].nil?
         end
       end
       

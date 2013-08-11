@@ -85,16 +85,26 @@ module RubyBBCode
         :description => 'Youtube video',
         :example => '[youtube]E4Fbk52Mk1w[/youtube]',
         :only_allow => [],
+        :url_varients => ["youtube.com", "youtu.be", "y2u.be"], # NOT USED
+        :url_matches => [/youtube\.com.*[v]=([^&]*)/, /youtu\.be\/([^&]*)/, /y2u\.be\/([^&]*)/],
         :require_between => true},
-      :gvideo => {
-        :html_open => '<embed id="VideoPlayback" src="http://video.google.com/googleplayer.swf?docid=%between%&hl=en" style="width:400px; height:325px;" type="application/x-shockwave-flash"></embed>', :html_close => '',
-        :description => 'Google video',
-        :example => '[gvideo]397259729324681206[/gvideo]',
+      :vimeo => {
+        :html_open => '<iframe src="http://player.vimeo.com/video/%between%?badge=0" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>', 
+        :html_close => '',
+        :description => 'Vimeo video',
+        :example => '[vimeo]http://vimeo.com/46141955[/vimeo]',
         :only_allow => [],
+        :url_matches => [/vimeo\.com\/([^&]*)/],
         :require_between => true},
+      :media => {
+        :multi_tag => true,
+        :supported_tags => [
+          :youtube,
+          :vimeo
+        ]
+      }
     }
 
-    # Return the default tags list, can be used to directly modify this default list, instead of providing custom tags each time when the to the to_html method is used
     def self.tag_list
       @@tags
     end
