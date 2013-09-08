@@ -73,6 +73,13 @@ module RubyBBCode
       # therefore... my brain is now numb
     end
     
+    def redefine_parent_tag_as_text
+      @tags_list.pop
+      @current_node[:is_tag] = false
+      @current_node[:closing_tag] = false
+      @current_node.element[:text] = "[#{@current_node[:tag].to_s}]"
+    end
+    
     def build_up_new_tag(element)
       @current_node.children << TagNode.new(element)
     end

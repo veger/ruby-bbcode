@@ -24,16 +24,19 @@ module RubyBBCode
         @ti = TagInfo.new(tag_info, @dictionary)
         
         @ti.handle_unregistered_tags_as_text  # if the tag isn't in the @dictionary list, then treat it as text
+        handle_closing_tags_that_are_multi_as_text_if_it_doesnt_match_the_latest_opener_tag_on_the_stack
+        
         return if !valid_element?
         
         case @ti.type   # Validation of tag succeeded, add to @bbtree.tags_list and/or bbtree
         when :opening_tag
           element = {:is_tag => true, :tag => @ti[:tag].to_sym, :definition => @ti.definition, :nodes => TagCollection.new }
           element[:params] = {:tag_param => get_formatted_element_params} if @ti.can_have_params? and @ti.has_params?
-          @bbtree.build_up_new_tag(element) # @bbtree.current_node.children << TagNode.new(element)
+          @bbtree.build_up_new_tag(element)
           
           @bbtree.escalate_bbtree(element)
         when :text
+          set_parent_tag_from_multi_tag_to_concrete! if @bbtree.current_node.definition && @bbtree.current_node.definition[:multi_tag] == true
           element = {:is_tag => false, :text => @ti.text }
           if within_open_tag?
             tag = @bbtree.current_node.definition
@@ -45,14 +48,55 @@ module RubyBBCode
               next  # don't add this node to @bbtree.current_node.children if we're within an open tag that requires_between (to be a param), and the between couldn't be used as a param... Yet it passed validation so the param must have been specified within the opening tag???
             end
           end
-          @bbtree.build_up_new_tag(element) #@bbtree.current_node.children << TagNode.new(element)
+          @bbtree.build_up_new_tag(element)
         when :closing_tag
           @bbtree.retrogress_bbtree
         end
         
       end # end of scan loop
       
-      validate_all_tags_closed_off
+      validate_all_tags_closed_off   # TODO: consider automatically closing off all the tags... I think that's how the HTML 5 parser works too
+      validate_stack_level_too_deep_potential
+    end
+    
+    def set_parent_tag_from_multi_tag_to_concrete!
+      # if the proper tag can't be matched, we need to treat the parent tag as text instead!  Or throw an error message....
+      
+      proper_tag = get_proper_tag
+      if proper_tag == :tag_not_found
+        #binding.pry
+        @bbtree.redefine_parent_tag_as_text
+        
+        @bbtree.nodes << TagNode.new(@ti.tag_data)      # escilate the bbtree with this element as though it's regular text data...
+        return
+      end
+      @bbtree.current_node[:definition] = @dictionary[proper_tag]
+      @bbtree.current_node[:tag] = proper_tag
+    end
+
+    def get_proper_tag
+      supported_tags = @bbtree.current_node[:definition][:supported_tags]
+
+      supported_tags.each do |tag|
+        regex_list = @dictionary[tag][:url_matches]
+        
+        regex_list.each do |regex|
+          return tag if regex =~ @ti.tag_data[:text]
+        end
+      end
+      :tag_not_found
+    end
+    
+    def handle_closing_tags_that_are_multi_as_text_if_it_doesnt_match_the_latest_opener_tag_on_the_stack
+      if @ti.element_is_closing_tag?
+        return if @bbtree.current_node[:definition].nil?
+        if parent_tag != @ti[:tag].to_sym and @bbtree.current_node[:definition][:multi_tag]       # if opening tag doesn't match this closing tag... and if the opener was a multi_tag...
+          @ti[:is_tag] = false
+          @ti[:closing_tag] = false
+          @ti[:text] = @ti.tag_data[:complete_match]
+        end
+      end
+      
     end
     
     
@@ -68,31 +112,28 @@ module RubyBBCode
         param = @ti[:params][:tag_param]
         if @ti.can_have_params? and @ti.has_params?
           # perform special formatting for cenrtain tags
-          param = parse_youtube_id(param) if @ti[:tag].to_sym == :youtube  # note:  this line isn't ever used because @@tags don't allow it
+          param = conduct_special_formatting(param) if @ti[:tag].to_sym == :youtube  # note:  this line isn't ever used because @@tags don't allow it... I think if we have tags without the same kind of :require_between restriction, we'll need to pay close attention to this case
         end
         return param
       else  # must be text... @ti[:is_tag] == false
         param = @ti[:text]
         # perform special formatting for cenrtain tags
-        param = parse_youtube_id(param) if @bbtree.current_node[:tag] == :youtube
+        param = conduct_special_formatting(param) if @bbtree.current_node.definition[:url_matches]
         return param
       end
     end
     
-    # Parses a youtube video url and extracts the ID  
-    def parse_youtube_id(url)
-      url =~ /[v]=([^&]*)/
-      id = $1
+    def conduct_special_formatting(url, regex_matches = nil)
+      regex_matches = @bbtree.current_node.definition[:url_matches] if regex_matches.nil?   # for testing purposes we can force in regex_matches
       
-      if id.nil?
-        # when there is no match for v=blah, then maybe they just 
-        # provided us with the ID the way the system used to work... 
-        # just "E4Fbk52Mk1w"
-        return url  
-      else
-        # else we got a match for an id and we can return that ID...
-        return id
+      regex_matches.each do |regex|
+        if url =~ regex
+          id = $1
+          return id
+        end
       end
+
+      return url # if we couldn't find a match, then just return the url, hopefully it's a valid youtube ID...
     end
     
     
@@ -186,6 +227,12 @@ module RubyBBCode
       throw_unexpected_end_of_string_error if expecting_a_closing_tag?
     end
     
+    def validate_stack_level_too_deep_potential
+      if @bbtree.nodes.count > 2200
+        throw_stack_level_will_be_too_deep_error
+      end
+    end
+    
     def throw_child_requires_specific_parent_error
       err = "[#{@ti[:tag]}] can only be used in [#{@ti.definition[:only_in].to_sentence(to_sentence_bbcode_tags)}]"
       err += ", so using it in a [#{parent_tag}] tag is not allowed" if expecting_a_closing_tag?
@@ -207,6 +254,10 @@ module RubyBBCode
     
     def throw_unexpected_end_of_string_error
       @errors = ["[#{@bbtree.tags_list.to_sentence(to_sentence_bbcode_tags)}] not closed"]
+    end
+    
+    def throw_stack_level_will_be_too_deep_error
+      @errors = ["Stack level would go too deep.  You must be trying to process a text containing thousands of BBTree nodes at once.  (limit around 2300 tags containing 2,300 strings).  Check RubyBBCode::TagCollection#to_html to see why this validation is needed."]
     end
     
     

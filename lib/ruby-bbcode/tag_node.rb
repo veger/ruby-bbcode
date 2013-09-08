@@ -39,7 +39,7 @@ module RubyBBCode
       return true if children.length > 0
     end
     
-    def allow_tag_param? 
+    def allow_tag_param?
       definition[:allow_tag_param]
     end
     

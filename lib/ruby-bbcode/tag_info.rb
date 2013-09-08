@@ -27,6 +27,14 @@ module RubyBBCode
       @definition
     end
     
+    def definition=(val)
+      @definition = val
+    end
+    
+    def dictionary   # need this for reasigning multi_tag elements
+      @dictionary
+    end
+    
     # This represents the text value of the element (if it's not a tag element)
     # Newlines are converted to html <br /> syntax before being returned.  
     def text
