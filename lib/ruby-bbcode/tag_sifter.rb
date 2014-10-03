@@ -6,6 +6,7 @@ module RubyBBCode
     
     def initialize(text_to_parse, dictionary, escape_html = true)
       @text = escape_html ? text_to_parse.gsub('<', '&lt;').gsub('>', '&gt;').gsub('"', "&quot;") : text_to_parse
+      @text.gsub!('[*]', '[li]')
       
       @dictionary = dictionary # the dictionary for all the defined tags in tags.rb
       @bbtree = BBTree.new({:nodes => TagCollection.new}, dictionary)
@@ -153,8 +154,8 @@ module RubyBBCode
     
     def valid_text_or_opening_element?
       if @ti.element_is_text? or @ti.element_is_opening_tag?
-        return false if validate_opening_tag == false
-        return false if validate_constraints_on_child == false
+        return false if !validate_opening_tag
+        return false if !validate_constraints_on_child
       end
       true
     end

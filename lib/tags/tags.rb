@@ -29,6 +29,11 @@ module RubyBBCode
         :description => 'Unordered list',
         :example => '[ul][li]List item[/li][li]Another list item[/li][/ul].',
         :only_allow => [ :li ]},
+      :list => {
+        :html_open => '<ul>', :html_close => '</ul>',
+        :description => 'Unordered list',
+        :example => '[ul][li]List item[/li][li]Another list item[/li][/ul].',
+        :only_allow => [ :li, :* ]},
       :ol => {
         :html_open => '<ol>', :html_close => '</ol>',
         :description => 'Ordered list',
@@ -39,7 +44,13 @@ module RubyBBCode
         :description => 'List item',
         :example => '[ul][li]List item[/li][li]Another list item[/li][/ul].',
         :self_closable => true,
-        :only_in => [ :ul, :ol ]},
+        :only_in => [ :ul, :ol, :list ]},
+      :* => {
+        :html_open => '<li>', :html_close => '</li>',
+        :description => 'List item',
+        :example => '[ul][li]List item[/li][li]Another list item[/li][/ul].',
+        :self_closable => true,
+        :only_in => [ :list ]},
       :img => {
         :html_open => '<img src="%between%" %width%%height%alt="" />', :html_close => '',
         :description => 'Image',
