@@ -17,7 +17,10 @@ module RubyBBCode
       @errors != false
     end
     
-    
+    # BBTree#process_text is responsible for parsing the actual BBCode text and converting it 
+    # into a 'syntax tree' of nodes, each node represeting either a tag type or content for a tag
+    # once this tree is built, the to_html method can be invoked where the tree is finally 
+    # converted into HTML syntax.  
     def process_text
       regex_string = '((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))'
       @text.scan(/#{regex_string}/ix) do |tag_info|
