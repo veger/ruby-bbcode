@@ -32,6 +32,9 @@ module RubyBBCode
         when :opening_tag
           element = {:is_tag => true, :tag => @ti[:tag].to_sym, :definition => @ti.definition, :nodes => TagCollection.new }
           element[:params] = {:tag_param => get_formatted_element_params} if @ti.can_have_params? and @ti.has_params?
+          
+          @bbtree.retrogress_bbtree if self_closing_tag_reached_a_closer?
+          
           @bbtree.build_up_new_tag(element)
           
           @bbtree.escalate_bbtree(element)
@@ -50,6 +53,7 @@ module RubyBBCode
           end
           @bbtree.build_up_new_tag(element)
         when :closing_tag
+          @bbtree.retrogress_bbtree if parent_of_self_closing_tag? and @bbtree.within_open_tag?
           @bbtree.retrogress_bbtree
         end
         
@@ -64,7 +68,6 @@ module RubyBBCode
       
       proper_tag = get_proper_tag
       if proper_tag == :tag_not_found
-        #binding.pry
         @bbtree.redefine_parent_tag_as_text
         
         @bbtree.nodes << TagNode.new(@ti.tag_data)      # escilate the bbtree with this element as though it's regular text data...
@@ -154,9 +157,8 @@ module RubyBBCode
     end
     
     def validate_opening_tag
-      # TODO:  rename this if statement to #validate_opening_tag
       if @ti.element_is_opening_tag?
-        unless @ti.allowed_outside_parent_tags? or (within_open_tag? and @ti.allowed_in(parent_tag.to_sym))
+        unless @ti.allowed_outside_parent_tags? or (within_open_tag? and @ti.allowed_in(parent_tag.to_sym)) or self_closing_tag_reached_a_closer?
           # Tag doesn't belong in the last opened tag
           throw_child_requires_specific_parent_error; return false
         end
@@ -170,6 +172,10 @@ module RubyBBCode
         end
       end
       true
+    end
+    
+    def self_closing_tag_reached_a_closer?
+      @ti.definition[:self_closable] and @bbtree.current_node[:tag] == @ti.tag_data[:tag].to_sym
     end
     
     def validate_constraints_on_child
@@ -190,8 +196,8 @@ module RubyBBCode
       tag = @ti.definition
       
       if @ti.element_is_closing_tag?
-        if parent_tag != @ti[:tag].to_sym
-          @errors = ["Closing tag [/#{@ti[:tag]}] does match [#{parent_tag}]"] 
+        if parent_tag != @ti[:tag].to_sym and !parent_of_self_closing_tag?
+          @errors = ["Closing tag [/#{@ti[:tag]}] doesn't match [#{parent_tag}]"] 
           return false
         end
         
@@ -201,6 +207,20 @@ module RubyBBCode
         end
       end  
       true
+    end
+    
+    def parent_of_self_closing_tag?
+      tag_being_parsed = @ti.definition
+      was_last_tag_self_closable = @bbtree.current_node[:definition][:self_closable] unless @bbtree.current_node[:definition].nil?
+      
+      was_last_tag_self_closable and last_tag_fit_in_this_tag?
+    end
+    
+    def last_tag_fit_in_this_tag?
+      @ti.definition[:only_allow].each do |tag|
+        return true if tag == @bbtree.current_node[:tag]
+      end unless @ti.definition[:only_allow].nil?
+      return false
     end
     
     # This validation is for text elements with between text 

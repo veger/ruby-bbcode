@@ -38,6 +38,7 @@ module RubyBBCode
         :html_open => '<li>', :html_close => '</li>',
         :description => 'List item',
         :example => '[ul][li]List item[/li][li]Another list item[/li][/ul].',
+        :self_closable => true,
         :only_in => [ :ul, :ol ]},
       :img => {
         :html_open => '<img src="%between%" %width%%height%alt="" />', :html_close => '',
