@@ -53,7 +53,7 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
   
   def test_list_common_syntax
-    
+    assert_equal '<ul><li>item 1</li><li>item 2</li></ul>', '[list][*]item 1[*]item 2[/list]'.bbcode_to_html
   end
 
   def test_two_lists
