@@ -10,6 +10,7 @@ module RubyBBCode
   # The closing of the nodes seems to be implied which is fine by me --less to keep track of.  
   # 
   class BBTree
+    # include DebugBBTree # handy for testing
     attr_accessor :current_node, :tags_list
     
     def initialize(hash = { :nodes => TagCollection.new }, dictionary)
