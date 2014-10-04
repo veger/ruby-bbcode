@@ -22,7 +22,7 @@ module RubyBBCode
     # once this tree is built, the to_html method can be invoked where the tree is finally 
     # converted into HTML syntax.  
     def process_text
-      regex_string = '((\[ (\/)? (\w+) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))'
+      regex_string = '((\[ (\/)? ( \* | (\w+)) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))'
       @text.scan(/#{regex_string}/ix) do |tag_info|
         @ti = TagInfo.new(tag_info, @dictionary)
         

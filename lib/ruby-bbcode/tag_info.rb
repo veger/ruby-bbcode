@@ -116,14 +116,14 @@ module RubyBBCode
         ti[:closing_tag] = (tag_info[2] == '/')
         ti[:tag] = tag_info[3]
         ti[:params] = {}
-        if tag_info[4][0] == ?=
-          ti[:params][:tag_param] = tag_info[4][1..-1]
-        elsif tag_info[4][0] == ?\s
+        if tag_info[5][0] == ?=
+          ti[:params][:tag_param] = tag_info[5][1..-1]
+        elsif tag_info[5][0] == ?\s
           #FIXME: Find params... Delete this or write a test to cover this and implement it
         end
       else
         # Plain text
-        ti[:text] = tag_info[8]
+        ti[:text] = tag_info[9]
       end
       ti
     end

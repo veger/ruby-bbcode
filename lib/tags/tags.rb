@@ -40,6 +40,17 @@ module RubyBBCode
         :example => '[ul][li]List item[/li][li]Another list item[/li][/ul].',
         :self_closable => true,
         :only_in => [ :ul, :ol ]},
+      :list => {
+        :html_open => '<ul>', :html_close => '</ul>',
+        :description => 'Unordered list',
+        :example => '[list][*]List item[*]Another list item[/list].',
+        :only_allow => [ "*".to_sym ]},
+      "*".to_sym => {
+        :html_open => '<li>', :html_close => '</li>',
+        :description => 'List item',
+        :example => '[list][*]List item[*]Another list item[/list].',
+        :self_closable => true,
+        :only_in => [ :list ]},
       :img => {
         :html_open => '<img src="%between%" %width%%height%alt="" />', :html_close => '',
         :description => 'Image',
