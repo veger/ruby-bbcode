@@ -38,7 +38,6 @@ module RubyBBCode
         :html_open => '<li>', :html_close => '</li>',
         :description => 'List item',
         :example => '[ul][li]List item[/li][li]Another list item[/li][/ul].',
-        :self_closable => true,
         :only_in => [ :ul, :ol ]},
       :list => {
         :html_open => '<ul>', :html_close => '</ul>',

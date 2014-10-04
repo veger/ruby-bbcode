@@ -49,7 +49,9 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
 
   def test_unordered_list_omit_closing
-    assert_equal '<ul><li>item 1</li><li>item 2</li></ul>', '[ul][li]item 1[li]item 2[/ul]'.bbcode_to_html
+    assert_raise RuntimeError do
+      assert_equal '<ul><li>item 1</li><li>item 2</li></ul>', '[ul][li]item 1[li]item 2[/ul]'.bbcode_to_html
+    end
   end
 
   def test_list_common_syntax
