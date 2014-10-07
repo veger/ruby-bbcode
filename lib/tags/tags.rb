@@ -28,12 +28,12 @@ module RubyBBCode
         :html_open => '<ul>', :html_close => '</ul>',
         :description => 'Unordered list',
         :example => '[ul][li]List item[/li][li]Another list item[/li][/ul].',
-        :only_allow => [ :li ]},
+        :only_allow => [ :li, "*".to_sym ]},
       :ol => {
         :html_open => '<ol>', :html_close => '</ol>',
         :description => 'Ordered list',
         :example => '[ol][li]List item[/li][li]Another list item[/li][/ol].',
-        :only_allow => [ :li ]},
+        :only_allow => [ :li, "*".to_sym ]},
       :li => {
         :html_open => '<li>', :html_close => '</li>',
         :description => 'List item',
@@ -49,7 +49,7 @@ module RubyBBCode
         :description => 'List item',
         :example => '[list][*]List item[*]Another list item[/list].',
         :self_closable => true,
-        :only_in => [ :list ]},
+        :only_in => [ :list, :ul, :ol ]},
       :img => {
         :html_open => '<img src="%between%" %width%%height%alt="" />', :html_close => '',
         :description => 'Image',
