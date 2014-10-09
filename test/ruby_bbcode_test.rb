@@ -22,6 +22,11 @@ class RubyBbcodeTest < Test::Unit::TestCase
     assert_equal "<u>line 1<br />\nline 2</u>", "[u]line 1\nline 2[/u]".bbcode_to_html
   end
 
+  def test_code
+    assert_equal '<pre>simple</pre>', '[code]simple[/code]'.bbcode_to_html
+    assert_equal "<pre>line 1<br />\nline 2</pre>", "[code]line 1\nline 2[/code]".bbcode_to_html
+  end
+
   def test_strikethrough
     assert_equal '<span style="text-decoration:line-through;">simple</span>', '[s]simple[/s]'.bbcode_to_html
     assert_equal "<span style=\"text-decoration:line-through;\">line 1<br />\nline 2</span>", "[s]line 1\nline 2[/s]".bbcode_to_html

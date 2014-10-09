@@ -29,6 +29,10 @@ module RubyBBCode
         :description => 'Unordered list',
         :example => '[ul][li]List item[/li][li]Another list item[/li][/ul].',
         :only_allow => [ :li, "*".to_sym ]},
+      :code => {
+        :html_open => '<pre>', :html_close => '</pre>',
+        :description => 'Code block with mono-spaced text',
+        :example => 'This is [code]mono-spaced code[/code].'},
       :ol => {
         :html_open => '<ol>', :html_close => '</ol>',
         :description => 'Ordered list',
