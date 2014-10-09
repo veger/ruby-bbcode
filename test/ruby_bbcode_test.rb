@@ -93,12 +93,12 @@ class RubyBbcodeTest < Test::Unit::TestCase
     assert_raise RuntimeError do
       '[ul]Illegal list[/ul]'.bbcode_to_html
     end
-    assert_equal ['[ul] can only contain [li] tags, so "Illegal list" is not allowed'],
+    assert_equal ['[ul] can only contain [li] and [*] tags, so "Illegal list" is not allowed'],
                    '[ul]Illegal list[/ul]'.is_valid_bbcode?
     assert_raise RuntimeError do
       '[ul][b]Illegal list[/b][/ul]'.bbcode_to_html
     end
-    assert_equal ['[ul] can only contain [li] tags, so [b] is not allowed'],
+    assert_equal ['[ul] can only contain [li] and [*] tags, so [b] is not allowed'],
                    '[ul][b]Illegal list[/b][/ul][/b]'.is_valid_bbcode?
   end
 
@@ -106,12 +106,12 @@ class RubyBbcodeTest < Test::Unit::TestCase
     assert_raise RuntimeError do
       '[ul][li]item[/li]Illegal list[/ul]'.bbcode_to_html
     end
-    assert_equal ['[ul] can only contain [li] tags, so "Illegal text" is not allowed'],
+    assert_equal ['[ul] can only contain [li] and [*] tags, so "Illegal text" is not allowed'],
                    '[ul][li]item[/li]Illegal text[/ul]'.is_valid_bbcode?
     assert_raise RuntimeError do
       '[ul][li]item[/li]Illegal list[li]item[/li][/ul]'.bbcode_to_html
     end
-    assert_equal ['[ul] can only contain [li] tags, so "Illegal text" is not allowed'],
+    assert_equal ['[ul] can only contain [li] and [*] tags, so "Illegal text" is not allowed'],
                    '[ul][li]item[/li]Illegal text[li]item[/li][/ul]'.is_valid_bbcode?
   end
 
