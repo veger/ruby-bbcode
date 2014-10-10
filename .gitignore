@@ -2,3 +2,4 @@
 *.gem
 .project
 todo
+Gemfile.lock
