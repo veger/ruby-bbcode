@@ -1,6 +1,5 @@
 require 'ruby-bbcode'
 require "test/unit"
-require 'pry'
 
 # This hack allows us to make all the private methods of a class public.  
 class Class
