@@ -1,5 +1,5 @@
 module RubyBBCode
-  # tag info is basically what the regex scan get's converted into 
+  # TagInfo is basically what the regex scan get's converted into 
   # during the tag_sifter#process_text method.
   # This class was made mostly just to keep track of all of the confusing
   # the logic conditions that are checked.  

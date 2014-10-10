@@ -1,16 +1,17 @@
 module RubyBBCode
+  # Tree of nodes containing the parsed BBCode information and the plain texts
+  #
   # As you parse a string of text, say:
-  #     "[b]I'm bold and the next word is [i]ITALLICS[/i][b]"
+  #     "[b]I'm bold and the next word is [i]ITALIC[/i][b]"
   # ...you build up a tree of nodes (@bbtree).  The above string converts to 4 nodes when the parse has completed.
-  # Node 1)  An opening tag node representing "[b]"
-  # Node 2)  A text node         representing "I'm bold and the next word is "
-  # Node 3)  An opening tag node representing "[i]"
-  # Node 4)  A text node         representing "ITALLICS"
+  # * Node 1)  An opening tag node representing "[b]"
+  # * Node 2)  A text node         representing "I'm bold and the next word is "
+  # * Node 3)  An opening tag node representing "[i]"
+  # * Node 4)  A text node         representing "ITALIC"
   #
   # The closing of the nodes seems to be implied which is fine by me --less to keep track of.  
   # 
   class BBTree
-    # include DebugBBTree # handy for testing
     attr_accessor :current_node, :tags_list
     
     def initialize(hash = { :nodes => TagCollection.new }, dictionary)

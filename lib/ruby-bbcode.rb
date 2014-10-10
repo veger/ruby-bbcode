@@ -5,7 +5,9 @@ require 'ruby-bbcode/tag_node'
 require 'ruby-bbcode/tag_collection'
 require 'ruby-bbcode/bbtree'
 
-
+# RubyBBCode adds support for BBCode to Ruby.
+# The BBCode is parsed by a parser before converted to HTML, allowing to convert nested BBCode tags in strings to their correct HTML equivalent.
+# THe used parser also checks whether the BBCode is valid and gives errors for incorrect BBCode texts.
 module RubyBBCode
   include ::RubyBBCode::Tags
 

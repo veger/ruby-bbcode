@@ -1,5 +1,7 @@
 module RubyBBCode
-  # This class holds TagNodes and helps build them into html when the time comes.  It's really just a simple array, with the addition of the #to_html method
+  # This class holds TagNode instances and helps build them into html when the time comes.
+  #
+  # It is really just a simple array, with the addition of the #to_html method
   class TagCollection < Array
     
     # This method is vulnerable to stack-level-too-deep scenarios where >=1,200 tags are being parsed.  

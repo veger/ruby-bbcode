@@ -1,8 +1,9 @@
 require 'active_support/core_ext/array/conversions'
 
 module RubyBBCode
-  # Tag sifter is in charge of building up the BBTree with nodes as it parses through the
-  # supplied text such as "[b]hello world[/b]"
+  # TagSifter is in charge of building up the BBTree with nodes as it parses through the
+  # supplied text such as
+  #    "[b]I'm bold and the next word is [i]ITALIC[/i][b]"
   class TagSifter
     attr_reader :bbtree, :errors
     
@@ -75,7 +76,7 @@ module RubyBBCode
       if proper_tag == :tag_not_found
         @bbtree.redefine_parent_tag_as_text
         
-        @bbtree.nodes << TagNode.new(@ti.tag_data)      # escilate the bbtree with this element as though it's regular text data...
+        @bbtree.nodes << TagNode.new(@ti.tag_data)      # escalate the bbtree with this element as though it's regular text data...
         return
       end
       @bbtree.current_node[:definition] = @dictionary[proper_tag]

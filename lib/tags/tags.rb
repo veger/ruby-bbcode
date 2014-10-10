@@ -1,4 +1,5 @@
 module RubyBBCode
+  # Provides the official/default BBCode tags as stated by http://www.bbcode.org/reference.php
   module Tags
     # tagname => tag, HTML open tag, HTML close tag, description, example
     # All of these entrys are represented as @dictionary in the classes (or as the variable tags)
