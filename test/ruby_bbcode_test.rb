@@ -85,13 +85,13 @@ class RubyBbcodeTest < Test::Unit::TestCase
       '[li]Illegal item[/li]'.bbcode_to_html
     end
     assert_equal ['[li] can only be used in [ul] and [ol]'],
-                   '[li]Illegal item[/li]'.check_bbcode_validity
+                   '[li]Illegal item[/li]'.bbcode_check_validity
     assert_raise RuntimeError do
       '[b][li]Illegal item[/li][/b]'.bbcode_to_html
     end
 
     assert_equal ['[li] can only be used in [ul] and [ol], so using it in a [b] tag is not allowed'],
-                   '[b][li]Illegal item[/li][/b]'.check_bbcode_validity
+                   '[b][li]Illegal item[/li][/b]'.bbcode_check_validity
   end
 
   def test_illegal_list_contents
@@ -99,12 +99,12 @@ class RubyBbcodeTest < Test::Unit::TestCase
       '[ul]Illegal list[/ul]'.bbcode_to_html
     end
     assert_equal ['[ul] can only contain [li] and [*] tags, so "Illegal list" is not allowed'],
-                   '[ul]Illegal list[/ul]'.check_bbcode_validity
+                   '[ul]Illegal list[/ul]'.bbcode_check_validity
     assert_raise RuntimeError do
       '[ul][b]Illegal list[/b][/ul]'.bbcode_to_html
     end
     assert_equal ['[ul] can only contain [li] and [*] tags, so [b] is not allowed'],
-                   '[ul][b]Illegal list[/b][/ul][/b]'.check_bbcode_validity
+                   '[ul][b]Illegal list[/b][/ul][/b]'.bbcode_check_validity
   end
 
   def test_illegal_list_contents_text_between_list_items
@@ -112,12 +112,12 @@ class RubyBbcodeTest < Test::Unit::TestCase
       '[ul][li]item[/li]Illegal list[/ul]'.bbcode_to_html
     end
     assert_equal ['[ul] can only contain [li] and [*] tags, so "Illegal text" is not allowed'],
-                   '[ul][li]item[/li]Illegal text[/ul]'.check_bbcode_validity
+                   '[ul][li]item[/li]Illegal text[/ul]'.bbcode_check_validity
     assert_raise RuntimeError do
       '[ul][li]item[/li]Illegal list[li]item[/li][/ul]'.bbcode_to_html
     end
     assert_equal ['[ul] can only contain [li] and [*] tags, so "Illegal text" is not allowed'],
-                   '[ul][li]item[/li]Illegal text[li]item[/li][/ul]'.check_bbcode_validity
+                   '[ul][li]item[/li]Illegal text[li]item[/li][/ul]'.bbcode_check_validity
   end
 
   def test_quote

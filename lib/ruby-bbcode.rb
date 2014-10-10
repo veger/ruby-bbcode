@@ -84,7 +84,7 @@ String.class_eval do
   end
 
   # Check if string contains valid BBCode. Returns true when valid, else returns array with error(s)
-  def check_bbcode_validity
+  def bbcode_check_validity
     RubyBBCode.validity_check(self)
   end
 end
