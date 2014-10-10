@@ -83,13 +83,6 @@ String.class_eval do
     self.replace(RubyBBCode.to_html(self, escape_html, additional_tags, method, *tags))
   end
 
-  # Deprecated!  Please use check_bbcode_validity (will be removed in version 0.1.0)
-  # Check if string contains valid BBCode. Returns true when valid, else returns array with error(s)
-  def is_valid_bbcode?
-    # TODO:  add a puts "Warning:  This method has been deprecated, please use check_bbcode_validity which does the same thing but is more syntactical." or something
-    check_bbcode_validity
-  end
-
   # Check if string contains valid BBCode. Returns true when valid, else returns array with error(s)
   def check_bbcode_validity
     RubyBBCode.validity_check(self)
