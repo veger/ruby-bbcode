@@ -13,7 +13,7 @@ h2. Example
 
 h2. Installing
 
-Add the folling line to the Gemfile of your application:
+Add the following line to the Gemfile of your application:
 <pre><code>gem 'ruby-bbcode'</code></pre>
 
 Or to use the source code from the repository:
