@@ -6,7 +6,7 @@ require "ruby-bbcode/version"
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
   s.name        = "ruby-bbcode"
-  s.version     = RubyBbcode::VERSION
+  s.version     = RubyBBCode::VERSION
   s.platform    = Gem::Platform::RUBY
   s.author      = "Maarten Bezemer"
   s.email       = "maarten.bezemer@gmail.com"

@@ -1,3 +1,4 @@
-module RubyBbcode
-  VERSION = "0.0.3"
+module RubyBBCode
+  # Semantic Version (http://semver.org/)
+  VERSION = "1.0.0"
 end
