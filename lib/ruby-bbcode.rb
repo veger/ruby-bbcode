@@ -1,7 +1,6 @@
 require 'active_support/core_ext/array/conversions'
 
 require 'tags/tags'
-require 'ruby-bbcode/debugging'
 require 'ruby-bbcode/tag_info'
 require 'ruby-bbcode/tag_sifter'
 require 'ruby-bbcode/tag_node'

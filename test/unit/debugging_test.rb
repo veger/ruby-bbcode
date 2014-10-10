@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'debugging'
 
 class RubyBbcodeTest < Test::Unit::TestCase
   include ::RubyBBCode::Tags
