@@ -1,5 +1,3 @@
-require 'active_support/core_ext/array/conversions'
-
 require 'tags/tags'
 require 'ruby-bbcode/tag_info'
 require 'ruby-bbcode/tag_sifter'

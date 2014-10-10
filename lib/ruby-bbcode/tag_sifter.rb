@@ -1,3 +1,5 @@
+require 'active_support/core_ext/array/conversions'
+
 module RubyBBCode
   # Tag sifter is in charge of building up the BBTree with nodes as it parses through the
   # supplied text such as "[b]hello world[/b]"
