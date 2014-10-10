@@ -18,6 +18,7 @@ RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.title    = 'Ruby BBCode'
   rdoc.options << '--line-numbers'
   rdoc.rdoc_files.include('README.textile')
+  rdoc.rdoc_files.include('CHANGELOG.md')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
 
