@@ -1,3 +1,3 @@
-module RubyBbcode
+module RubyBBCode
   VERSION = "0.0.3"
 end
