@@ -1,3 +1,7 @@
+Version 1.0.1 - 04-Jan-2015
+
+* Allow any version of activesupport since 3.2.3
+
 Version 1.0.0 - 11-Oct-2014
 ---------------------------
 

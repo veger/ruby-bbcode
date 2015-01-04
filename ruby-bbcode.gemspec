@@ -21,6 +21,6 @@ Gem::Specification.new do |s|
   s.rdoc_options << '--title' << 'Ruby BBCode' << '--main' << 'README.md'
   s.extra_rdoc_files = ['README.textile', 'CHANGELOG.md', 'MIT-LICENSE']
 
-  s.add_dependency 'activesupport', '~> 3.2.3'
+  s.add_dependency 'activesupport', '>= 3.2.3'
   s.add_development_dependency 'rake'
 end
