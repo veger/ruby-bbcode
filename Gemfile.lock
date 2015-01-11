@@ -1,0 +1,31 @@
+PATH
+  remote: .
+  specs:
+    ruby-bbcode (1.0.1)
+      activesupport (>= 3.2.3)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    activesupport (4.2.0)
+      i18n (~> 0.7)
+      json (~> 1.7, >= 1.7.7)
+      minitest (~> 5.1)
+      thread_safe (~> 0.3, >= 0.3.4)
+      tzinfo (~> 1.1)
+    i18n (0.7.0)
+    json (1.8.2)
+    minitest (5.5.1)
+    rake (10.4.2)
+    thread_safe (0.3.4)
+    tzinfo (1.2.2)
+      thread_safe (~> 0.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  minitest
+  rake
+  ruby-bbcode!
+  tzinfo
