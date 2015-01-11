@@ -13,11 +13,11 @@ module RubyBBCode
       @dictionary = dictionary # the dictionary for all the defined tags in tags.rb
       @bbtree = BBTree.new({:nodes => TagCollection.new}, dictionary)
       @ti = nil
-      @errors = false
+      @errors = []
     end
 
     def valid?
-      @errors == false
+      @errors.empty?
     end
 
     # BBTree#process_text is responsible for parsing the actual BBCode text and converting it
@@ -203,12 +203,12 @@ module RubyBBCode
 
       if @ti.element_is_closing_tag?
         if parent_tag != @ti[:tag].to_sym and !parent_of_self_closing_tag?
-          @errors = ["Closing tag [/#{@ti[:tag]}] doesn't match [#{parent_tag}]"]
+          @errors << "Closing tag [/#{@ti[:tag]}] doesn't match [#{parent_tag}]"
           return false
         end
 
         if tag[:require_between] == true and @bbtree.current_node[:between].nil?
-          @errors = ["No text between [#{@ti[:tag]}] and [/#{@ti[:tag]}] tags."]
+          @errors << "No text between [#{@ti[:tag]}] and [/#{@ti[:tag]}] tags."
           return false
         end
       end
@@ -241,7 +241,7 @@ module RubyBBCode
 
         # check if valid
         if @ti[:text].match(tag[:tag_param]).nil?
-          @errors = [tag[:tag_param_description].gsub('%param%', @ti[:text])]
+          @errors << tag[:tag_param_description].gsub('%param%', @ti[:text])
           return false
         end
       end
@@ -262,11 +262,11 @@ module RubyBBCode
     def throw_child_requires_specific_parent_error
       err = "[#{@ti[:tag]}] can only be used in [#{@ti.definition[:only_in].to_sentence(to_sentence_bbcode_tags)}]"
       err += ", so using it in a [#{parent_tag}] tag is not allowed" if expecting_a_closing_tag?
-      @errors = [err]
+      @errors << err
     end
 
     def throw_invalid_param_error
-      @errors = [@ti.definition[:tag_param_description].gsub('%param%', @ti[:params][:tag_param])]
+      @errors << @ti.definition[:tag_param_description].gsub('%param%', @ti[:params][:tag_param])
     end
 
     def throw_parent_prohibits_this_child_error
@@ -275,15 +275,15 @@ module RubyBBCode
       err += "[#{@ti[:tag]}]" if @ti[:is_tag]
       err += "\"#{@ti[:text]}\"" unless @ti[:is_tag]
       err += ' is not allowed'
-      @errors = [err]
+      @errors << err
     end
 
     def throw_unexpected_end_of_string_error
-      @errors = ["[#{@bbtree.tags_list.to_sentence(to_sentence_bbcode_tags)}] not closed"]
+      @errors << "[#{@bbtree.tags_list.to_sentence(to_sentence_bbcode_tags)}] not closed"
     end
 
     def throw_stack_level_will_be_too_deep_error
-      @errors = ["Stack level would go too deep.  You must be trying to process a text containing thousands of BBTree nodes at once.  (limit around 2300 tags containing 2,300 strings).  Check RubyBBCode::TagCollection#to_html to see why this validation is needed."]
+      @errors << "Stack level would go too deep.  You must be trying to process a text containing thousands of BBTree nodes at once.  (limit around 2300 tags containing 2,300 strings).  Check RubyBBCode::TagCollection#to_html to see why this validation is needed."
     end
 
 
