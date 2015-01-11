@@ -16,8 +16,8 @@ module RubyBBCode
       @errors = false
     end
 
-    def invalid?
-      @errors != false
+    def valid?
+      @errors == false
     end
 
     # BBTree#process_text is responsible for parsing the actual BBCode text and converting it
