@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class RubyBbcodeTest < Test::Unit::TestCase
+class RubyBbcodeTest < Minitest::Test
 
   def test_multiline
     assert_equal "line1<br />\nline2", "line1\nline2".bbcode_to_html
@@ -54,7 +54,7 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
 
   def test_unordered_list_omit_closing
-    assert_raise RuntimeError do
+    assert_raises RuntimeError do
       assert_equal '<ul><li>item 1</li><li>item 2</li></ul>', '[ul][li]item 1[li]item 2[/ul]'.bbcode_to_html
     end
   end
@@ -81,12 +81,12 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
 
   def test_illegal_items
-    assert_raise RuntimeError do
+    assert_raises RuntimeError do
       '[li]Illegal item[/li]'.bbcode_to_html
     end
     assert_equal ['[li] can only be used in [ul] and [ol]'],
                    '[li]Illegal item[/li]'.bbcode_check_validity
-    assert_raise RuntimeError do
+    assert_raises RuntimeError do
       '[b][li]Illegal item[/li][/b]'.bbcode_to_html
     end
 
@@ -95,12 +95,12 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
 
   def test_illegal_list_contents
-    assert_raise RuntimeError do
+    assert_raises RuntimeError do
       '[ul]Illegal list[/ul]'.bbcode_to_html
     end
     assert_equal ['[ul] can only contain [li] and [*] tags, so "Illegal list" is not allowed'],
                    '[ul]Illegal list[/ul]'.bbcode_check_validity
-    assert_raise RuntimeError do
+    assert_raises RuntimeError do
       '[ul][b]Illegal list[/b][/ul]'.bbcode_to_html
     end
     assert_equal ['[ul] can only contain [li] and [*] tags, so [b] is not allowed'],
@@ -108,12 +108,12 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
 
   def test_illegal_list_contents_text_between_list_items
-    assert_raise RuntimeError do
+    assert_raises RuntimeError do
       '[ul][li]item[/li]Illegal list[/ul]'.bbcode_to_html
     end
     assert_equal ['[ul] can only contain [li] and [*] tags, so "Illegal text" is not allowed'],
                    '[ul][li]item[/li]Illegal text[/ul]'.bbcode_check_validity
-    assert_raise RuntimeError do
+    assert_raises RuntimeError do
       '[ul][li]item[/li]Illegal list[li]item[/li][/ul]'.bbcode_to_html
     end
     assert_equal ['[ul] can only contain [li] and [*] tags, so "Illegal text" is not allowed'],
@@ -134,15 +134,15 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
 
   def test_illegal_link
-    assert_raise RuntimeError do
+    assert_raises RuntimeError do
       # Link within same domain must start with a /
       '[url=index.html]Home[/url]'.bbcode_to_html
     end
-    assert_raise RuntimeError do
+    assert_raises RuntimeError do
       # Link within same domain must start with a / and a link to another domain with http://, https:// or ftp://
       '[url=www.google.com]Google[/url]'.bbcode_to_html
     end
-    assert_raise RuntimeError do
+    assert_raises RuntimeError do
       '[url]htfp://www.google.com[/url]'.bbcode_to_html
     end
   end
@@ -221,19 +221,19 @@ class RubyBbcodeTest < Test::Unit::TestCase
   end
 
   def test_no_ending_tag
-    assert_raise RuntimeError do
+    assert_raises RuntimeError do
       "this [b]should not be bold".bbcode_to_html
     end
   end
 
   def test_no_start_tag
-    assert_raise RuntimeError do
+    assert_raises RuntimeError do
       "this should not be bold[/b]".bbcode_to_html
     end
   end
 
   def test_different_start_and_ending_tags
-    assert_raise RuntimeError do
+    assert_raises RuntimeError do
       "this [b]should not do formatting[/i]".bbcode_to_html
     end
   end

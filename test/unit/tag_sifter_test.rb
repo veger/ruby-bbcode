@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TagSifterTest < Test::Unit::TestCase
+class TagSifterTest < MiniTest::Test
   def test_youtube_parser
     url1 = "http://www.youtube.com/watch?v=E4Fbk52Mk1w"
     just_an_id = 'E4Fbk52Mk1w'

@@ -23,4 +23,5 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'activesupport', '>= 3.2.3'
   s.add_development_dependency 'rake'
+  s.add_development_dependency 'minitest'
 end

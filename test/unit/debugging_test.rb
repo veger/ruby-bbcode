@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'debugging'
 
-class RubyBbcodeTest < Test::Unit::TestCase
+class RubyBbcodeTest < Minitest::Test
   include ::RubyBBCode::Tags
   
   def test_bbtree_to_v
