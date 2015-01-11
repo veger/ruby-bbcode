@@ -32,7 +32,7 @@ module RubyBBCode
         @ti.handle_unregistered_tags_as_text  # if the tag isn't in the @dictionary list, then treat it as text
         handle_closing_tags_that_are_multi_as_text_if_it_doesnt_match_the_latest_opener_tag_on_the_stack
 
-        return if !valid_element?
+        validate_element
 
         case @ti.type   # Validation of tag succeeded, add to @bbtree.tags_list and/or bbtree
         when :opening_tag
@@ -147,22 +147,21 @@ module RubyBBCode
 
 
     # Validates the element
-    def valid_element?
-      return false if !valid_text_or_opening_element?
-      return false if !valid_closing_element?
-      return false if !valid_param_supplied_as_text?
-      true
+    def validate_element
+      return if !valid_text_or_opening_element?
+      return if !valid_closing_element?
+      return if !valid_param_supplied_as_text?
     end
 
     def valid_text_or_opening_element?
       if @ti.element_is_text? or @ti.element_is_opening_tag?
-        return false if validate_opening_tag == false
-        return false if validate_constraints_on_child == false
+        return false if !valid_opening_tag?
+        return false if !valid_constraints_on_child?
       end
       true
     end
 
-    def validate_opening_tag
+    def valid_opening_tag?
       if @ti.element_is_opening_tag?
         unless @ti.allowed_outside_parent_tags? or (within_open_tag? and @ti.allowed_in(parent_tag.to_sym)) or self_closing_tag_reached_a_closer?
           # Tag doesn't belong in the last opened tag
@@ -184,8 +183,7 @@ module RubyBBCode
       @ti.definition[:self_closable] and @bbtree.current_node[:tag] == @ti.tag_data[:tag].to_sym
     end
 
-    def validate_constraints_on_child
-      # TODO:  Rename this if statement to #validate_constraints_on_child
+    def valid_constraints_on_child?
       if within_open_tag? and parent_has_constraints_on_children?
         # Check if the found tag is allowed
         last_tag = @dictionary[parent_tag]

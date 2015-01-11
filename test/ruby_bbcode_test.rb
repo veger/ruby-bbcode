@@ -80,6 +80,14 @@ class RubyBbcodeTest < Minitest::Test
 
   end
 
+  def test_multiple_errors
+    input = "[b]Bold not closed, [li]Illegal list item[/li]"
+    errors = input.bbcode_check_validity
+    assert_equal 2, errors.length
+    assert_includes errors, "[b] not closed"
+    assert_includes errors, "[li] can only be used in [ul] and [ol], so using it in a [b] tag is not allowed"
+  end
+
   def test_illegal_items
     assert_raises RuntimeError do
       '[li]Illegal item[/li]'.bbcode_to_html
@@ -104,7 +112,7 @@ class RubyBbcodeTest < Minitest::Test
       '[ul][b]Illegal list[/b][/ul]'.bbcode_to_html
     end
     assert_equal ['[ul] can only contain [li] and [*] tags, so [b] is not allowed'],
-                   '[ul][b]Illegal list[/b][/ul][/b]'.bbcode_check_validity
+                   '[ul][b]Illegal list[/b][/ul]'.bbcode_check_validity
   end
 
   def test_illegal_list_contents_text_between_list_items

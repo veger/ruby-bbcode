@@ -1,3 +1,8 @@
+Upcoming
+--------
+
+* Support multiple errors within a text
+
 Version 1.0.1 - 04-Jan-2015
 
 * Allow any version of activesupport since 3.2.3
