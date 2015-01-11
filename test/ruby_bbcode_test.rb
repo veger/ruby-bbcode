@@ -75,8 +75,8 @@ class RubyBbcodeTest < Minitest::Test
   def test_whitespace_in_only_allowed_tags
     assert_equal "<ol><br />\n<li>item 1</li><br />\n<li>item 2</li><br />\n</ol>",
                    "[ol]\n[li]item 1[/li]\n[li]item 2[/li]\n[/ol]".bbcode_to_html
-        assert_equal "<ol> <li>item 1</li>  <li>item 2</li>	</ol>",
-                   "[ol] [li]item 1[/li]  [li]item 2[/li]	[/ol]".bbcode_to_html
+    assert_equal "<ol> <li>item 1</li>  <li>item 2</li>\t</ol>",
+                   "[ol] [li]item 1[/li]  [li]item 2[/li]\t[/ol]".bbcode_to_html
 
   end
 
@@ -164,7 +164,7 @@ class RubyBbcodeTest < Minitest::Test
     assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>' ,
                    "[youtube]#{full_url}[/youtube]".bbcode_to_html
   end
-  
+
   def test_youtube_with_url_shortener
     full_url = "http://www.youtu.be/cSohjlYQI2A"
     assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/cSohjlYQI2A"></param><embed src="http://www.youtube.com/v/cSohjlYQI2A" type="application/x-shockwave-flash" width="400" height="325"></embed></object>' ,
@@ -237,12 +237,12 @@ class RubyBbcodeTest < Minitest::Test
       "this [b]should not do formatting[/i]".bbcode_to_html
     end
   end
-  
+
   def test_no_xss_hax
     expected = "<a href=\"http://www.google.com&quot; onclick=\&quot;javascript:alert\">google</a>"
     assert_equal expected, '[url=http://www.google.com" onclick="javascript:alert]google[/url]'.bbcode_to_html
   end
-  
+
     # TODO:  This stack level problem should be validated during the validations
   #def test_stack_level_too_deep
   #  num = 2300  # increase this number if the test starts failing.  It's very near the tipping point
@@ -252,34 +252,34 @@ class RubyBbcodeTest < Minitest::Test
   #    (openers+closers).bbcode_to_html
   #  end
   #end
-  
+
   def test_mulit_tag
     input1 = "[media]http://www.youtube.com/watch?v=cSohjlYQI2A[/media]"
     input2 = "[media]http://vimeo.com/46141955[/media]"
-    
+
     output1 = "<object width=\"400\" height=\"325\"><param name=\"movie\" value=\"http://www.youtube.com/v/cSohjlYQI2A\"></param><embed src=\"http://www.youtube.com/v/cSohjlYQI2A\" type=\"application/x-shockwave-flash\" width=\"400\" height=\"325\"></embed></object>"
     output2 = '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'
-    
-    
+
+
     assert_equal output1, input1.bbcode_to_html
     assert_equal output2, input2.bbcode_to_html
   end
-  
+
   def test_vimeo_tag
     input = "[vimeo]http://vimeo.com/46141955[/vimeo]"
     input2 = "[vimeo]46141955[/vimeo]"
     output = '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'
-    
+
     assert_equal output, input.bbcode_to_html
     assert_equal output, input2.bbcode_to_html
   end
-  
+
   def test_failing_multi_tag
     input1 = "[media]http://www.youtoob.com/watch?v=cSohjlYQI2A[/media]"
-    
+
     assert_equal input1, input1.bbcode_to_html
   end
-  
-  
+
+
 
 end

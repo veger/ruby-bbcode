@@ -105,7 +105,7 @@ module RubyBBCode
         :url_matches => [/youtube\.com.*[v]=([^&]*)/, /youtu\.be\/([^&]*)/, /y2u\.be\/([^&]*)/],
         :require_between => true},
       :vimeo => {
-        :html_open => '<iframe src="http://player.vimeo.com/video/%between%?badge=0" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>', 
+        :html_open => '<iframe src="http://player.vimeo.com/video/%between%?badge=0" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>',
         :html_close => '',
         :description => 'Vimeo video',
         :example => '[vimeo]http://vimeo.com/46141955[/vimeo]',

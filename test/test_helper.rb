@@ -1,7 +1,7 @@
 require 'ruby-bbcode'
 require "minitest/autorun"
 
-# This hack allows us to make all the private methods of a class public.  
+# This hack allows us to make all the private methods of a class public.
 class Class
   def publicize_methods
     saved_private_instance_methods = self.private_instance_methods
