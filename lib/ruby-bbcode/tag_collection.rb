@@ -36,7 +36,7 @@ module RubyBBCode
 
           html_string << t.closing_part
         elsif node.type == :text
-          html_string << node[:text] unless node[:text].nil?
+          html_string << template.convert_text(node[:text])
         end
       end
 

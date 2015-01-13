@@ -36,13 +36,8 @@ module RubyBBCode
     end
 
     # This represents the text value of the element (if it's not a tag element)
-    # Newlines are converted to html <br /> syntax before being returned.
     def text
-      text = @tag_data[:text]
-      # convert_newlines_to_br
-      text.gsub!("\r\n", "\n")
-      text.gsub!("\n", "<br />\n")
-      text
+      @tag_data[:text]
     end
 
     # allows for a very snazy case/ when conditional

@@ -15,6 +15,13 @@ module RubyBBCode::Templates
       @closing_part = node.definition[:html_close].dup
     end
 
+    # Newlines are converted to html <br /> syntax before being returned.
+    def self.convert_text(text)
+      return '' if text.nil?
+      # convert_newlines_to_br
+      text.gsub("\r\n", "\n").gsub("\n", "<br />\n")
+    end
+
     def inlay_between_text!
       @opening_part.gsub!('%between%',@node[:between]) if between_text_goes_into_html_output_as_param?  # set the between text to where it goes if required to do so...
     end
