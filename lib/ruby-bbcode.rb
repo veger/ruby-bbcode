@@ -59,18 +59,6 @@ module RubyBBCode
     use_tags
   end
 
-  def self.parse(text, tags)
-    @tag_sifter = TagSifter.new(text, tags)
-
-    @tag_sifter.process_text
-
-    if @tag_sifter.valid?
-      true
-    else
-      @tag_sifter.errors
-    end
-  end
-
 end
 
 String.class_eval do
