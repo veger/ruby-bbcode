@@ -22,6 +22,16 @@ module RubyBBCode
     @tag_sifter.bbtree.to_html(use_tags)
   end
 
+  # This method converts the given text (with BBCode tags) into a HTML representation
+  # The additional_tags parameter is used to add additional BBCode tags that should be accepted
+  # The method parameter determines whether the tags parameter needs to be used to blacklist (when set to :disable) or whitelist (when not set to :disable) the list of BBCode tags
+  # The method raises an exception when the text could not be parsed due to errors
+  def self.to_bbcode(text, additional_tags = {}, method = :disable, *tags)
+    parse(text, true, additional_tags, method, *tags)
+    use_tags = determine_applicable_tags(additional_tags, method, *tags)
+    @tag_sifter.bbtree.to_bbcode(use_tags)
+  end
+
   # Returns true when valid, else returns array with error(s)
   def self.validity_check(text, additional_tags = {}, method = :disable, *tags)
     use_tags = determine_applicable_tags(additional_tags, method, *tags)
@@ -84,6 +94,12 @@ String.class_eval do
   # The method raises an exception when the text could not be parsed due to errors
   def bbcode_to_html!(escape_html = true, additional_tags = {}, method = :disable, *tags)
     self.replace(RubyBBCode.to_html(self, escape_html, additional_tags, method, *tags))
+  end
+
+  # Convert a string with BBCode markup into its corresponding HTML markup
+  # Note that the returned bbocde, might differ than the original bbcode, as the original gets parsed and molded into something workable. For example, by adding closing tags (when they are optional), or by converting generic tags into specific ones.
+  def bbcode_show_errors(additional_tags = {}, method = :disable, *tags)
+    RubyBBCode.to_bbcode(self, additional_tags, method, *tags)
   end
 
   # Check if string contains valid BBCode. Returns true when valid, else returns array with error(s)

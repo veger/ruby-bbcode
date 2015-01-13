@@ -1,4 +1,5 @@
 require 'ruby-bbcode/templates/html_template'
+require 'ruby-bbcode/templates/bbcode_errors_template'
 
 module RubyBBCode
   # This class holds TagNode instances and helps build them into code (HTML) when the time comes.
@@ -8,6 +9,11 @@ module RubyBBCode
     # Convert nodes to HTML
     def to_html(tags)
       to_code(tags, RubyBBCode::Templates::HtmlTemplate)
+    end
+
+    # Convert nodes to BBCode (with error information)
+    def to_bbcode(tags)
+      to_code(tags, RubyBBCode::Templates::BBCodeErrorsTemplate)
     end
 
     # This method is vulnerable to stack-level-too-deep scenarios where >=1,200 tags are being parsed.

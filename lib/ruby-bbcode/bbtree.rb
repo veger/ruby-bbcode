@@ -90,5 +90,8 @@ module RubyBBCode
       self.nodes.to_html(tags)
     end
 
+    def to_bbcode(tags = {})
+      self.nodes.to_bbcode(tags)
+    end
   end
 end
