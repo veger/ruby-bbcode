@@ -7,29 +7,19 @@ require 'ruby-bbcode/bbtree'
 
 # RubyBBCode adds support for BBCode to Ruby.
 # The BBCode is parsed by a parser before converted to HTML, allowing to convert nested BBCode tags in strings to their correct HTML equivalent.
-# THe used parser also checks whether the BBCode is valid and gives errors for incorrect BBCode texts.
+# The used parser also checks whether the BBCode is valid and gives errors for incorrect BBCode texts.
 module RubyBBCode
   include ::RubyBBCode::Tags
 
   # This method converts the given text (with BBCode tags) into a HTML representation
   # The escape_html parameter (default: true) escapes HTML tags that were present in the given text and therefore blocking (mallicious) HTML in the original text
   # The additional_tags parameter is used to add additional BBCode tags that should be accepted
-  # The method paramter determines whether the tags parameter needs to be used to blacklist (when set to :disable) or whitelist (when not set to :disable) the list of BBCode tags
+  # The method parameter determines whether the tags parameter needs to be used to blacklist (when set to :disable) or whitelist (when not set to :disable) the list of BBCode tags
+  # The method raises an exception when the text could not be parsed due to errors
   def self.to_html(text, escape_html = true, additional_tags = {}, method = :disable, *tags)
-    text = text.clone
-
+    parse(text, escape_html, additional_tags, method, *tags)
     use_tags = determine_applicable_tags(additional_tags, method, *tags)
-
-    @tag_sifter = TagSifter.new(text, use_tags, escape_html)
-
-    @tag_sifter.process_text
-
-    if @tag_sifter.valid?
-      @tag_sifter.bbtree.to_html(use_tags)
-    else
-      raise @tag_sifter.errors.join(', ')   # We cannot convert to HTML if the BBCode is not valid!
-    end
-
+    @tag_sifter.bbtree.to_html(use_tags)
   end
 
   # Returns true when valid, else returns array with error(s)
@@ -59,6 +49,21 @@ module RubyBBCode
     use_tags
   end
 
+  # This method parses the given text (with BBCode tags) into a BBTree representation
+  # The escape_html parameter (default: true) escapes HTML tags that were present in the given text and therefore blocking (mallicious) HTML in the original text
+  # The additional_tags parameter is used to add additional BBCode tags that should be accepted
+  # The method parameter determines whether the tags parameter needs to be used to blacklist (when set to :disable) or whitelist (when not set to :disable) the list of BBCode tags
+  # The method raises an exception when the text could not be parsed due to errors
+  def self.parse(text, escape_html = true, additional_tags = {}, method = :disable, *tags)
+    text = text.clone
+    use_tags = determine_applicable_tags(additional_tags, method, *tags)
+
+    @tag_sifter = TagSifter.new(text, use_tags, escape_html)
+    @tag_sifter.process_text
+
+    # We cannot convert to HTML if the BBCode is not valid!
+    raise @tag_sifter.errors.join(', ') unless @tag_sifter.valid?
+  end
 end
 
 String.class_eval do
