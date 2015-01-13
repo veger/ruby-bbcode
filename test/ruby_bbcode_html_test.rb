@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class RubyBbcodeTest < Minitest::Test
+class RubyBbcodeHtmlTest < Minitest::Test
 
   def test_multiline
     assert_equal "line1<br />\nline2", "line1\nline2".bbcode_to_html
@@ -53,12 +53,6 @@ class RubyBbcodeTest < Minitest::Test
     assert_equal '<ul><li>item 1</li><li>item 2</li></ul>', '[ul][li]item 1[/li][li]item 2[/li][/ul]'.bbcode_to_html
   end
 
-  def test_unordered_list_omit_closing
-    assert_raises RuntimeError do
-      assert_equal '<ul><li>item 1</li><li>item 2</li></ul>', '[ul][li]item 1[li]item 2[/ul]'.bbcode_to_html
-    end
-  end
-
   def test_list_common_syntax
     assert_equal '<ul><li>item 1</li><li>item 2</li></ul>', '[list][*]item 1[*]item 2[/list]'.bbcode_to_html
   end
@@ -77,55 +71,6 @@ class RubyBbcodeTest < Minitest::Test
                    "[ol]\n[li]item 1[/li]\n[li]item 2[/li]\n[/ol]".bbcode_to_html
     assert_equal "<ol> <li>item 1</li>  <li>item 2</li>\t</ol>",
                    "[ol] [li]item 1[/li]  [li]item 2[/li]\t[/ol]".bbcode_to_html
-
-  end
-
-  def test_multiple_errors
-    input = "[b]Bold not closed, [li]Illegal list item[/li]"
-    errors = input.bbcode_check_validity
-    assert_equal 2, errors.length
-    assert_includes errors, "[b] not closed"
-    assert_includes errors, "[li] can only be used in [ul] and [ol], so using it in a [b] tag is not allowed"
-  end
-
-  def test_illegal_items
-    assert_raises RuntimeError do
-      '[li]Illegal item[/li]'.bbcode_to_html
-    end
-    assert_equal ['[li] can only be used in [ul] and [ol]'],
-                   '[li]Illegal item[/li]'.bbcode_check_validity
-    assert_raises RuntimeError do
-      '[b][li]Illegal item[/li][/b]'.bbcode_to_html
-    end
-
-    assert_equal ['[li] can only be used in [ul] and [ol], so using it in a [b] tag is not allowed'],
-                   '[b][li]Illegal item[/li][/b]'.bbcode_check_validity
-  end
-
-  def test_illegal_list_contents
-    assert_raises RuntimeError do
-      '[ul]Illegal list[/ul]'.bbcode_to_html
-    end
-    assert_equal ['[ul] can only contain [li] and [*] tags, so "Illegal list" is not allowed'],
-                   '[ul]Illegal list[/ul]'.bbcode_check_validity
-    assert_raises RuntimeError do
-      '[ul][b]Illegal list[/b][/ul]'.bbcode_to_html
-    end
-    assert_equal ['[ul] can only contain [li] and [*] tags, so [b] is not allowed'],
-                   '[ul][b]Illegal list[/b][/ul]'.bbcode_check_validity
-  end
-
-  def test_illegal_list_contents_text_between_list_items
-    assert_raises RuntimeError do
-      '[ul][li]item[/li]Illegal list[/ul]'.bbcode_to_html
-    end
-    assert_equal ['[ul] can only contain [li] and [*] tags, so "Illegal text" is not allowed'],
-                   '[ul][li]item[/li]Illegal text[/ul]'.bbcode_check_validity
-    assert_raises RuntimeError do
-      '[ul][li]item[/li]Illegal list[li]item[/li][/ul]'.bbcode_to_html
-    end
-    assert_equal ['[ul] can only contain [li] and [*] tags, so "Illegal text" is not allowed'],
-                   '[ul][li]item[/li]Illegal text[li]item[/li][/ul]'.bbcode_check_validity
   end
 
   def test_quote
@@ -139,20 +84,6 @@ class RubyBbcodeTest < Minitest::Test
     assert_equal '<a href="http://www.google.com">http://www.google.com</a>', '[url]http://www.google.com[/url]'.bbcode_to_html
     assert_equal '<a href="http://google.com">Google</a>', '[url=http://google.com]Google[/url]'.bbcode_to_html
     assert_equal '<a href="/index.html">Home</a>', '[url=/index.html]Home[/url]'.bbcode_to_html
-  end
-
-  def test_illegal_link
-    assert_raises RuntimeError do
-      # Link within same domain must start with a /
-      '[url=index.html]Home[/url]'.bbcode_to_html
-    end
-    assert_raises RuntimeError do
-      # Link within same domain must start with a / and a link to another domain with http://, https:// or ftp://
-      '[url=www.google.com]Google[/url]'.bbcode_to_html
-    end
-    assert_raises RuntimeError do
-      '[url]htfp://www.google.com[/url]'.bbcode_to_html
-    end
   end
 
   def test_image
@@ -178,7 +109,6 @@ class RubyBbcodeTest < Minitest::Test
     assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/cSohjlYQI2A"></param><embed src="http://www.youtube.com/v/cSohjlYQI2A" type="application/x-shockwave-flash" width="400" height="325"></embed></object>' ,
                    "[youtube]#{full_url}[/youtube]".bbcode_to_html
   end
-
 
   def test_html_escaping
     assert_equal '<strong>&lt;i&gt;foobar&lt;/i&gt;</strong>', '[b]<i>foobar</i>[/b]'.bbcode_to_html
@@ -207,11 +137,6 @@ class RubyBbcodeTest < Minitest::Test
     assert_equal "<strong>foobar</strong>", foo
   end
 
-  # commented this out, it kinda just gets in the way of development atm
-  #def test_self_tag_list
-  #  assert_equal 16, RubyBBCode::Tags.tag_list.size
-  #end
-
   def test_addition_of_tags
     mydef = {
       :test => {
@@ -228,46 +153,17 @@ class RubyBbcodeTest < Minitest::Test
                    "[b]bold[/b][i]italic[/i][u]underline[/u][quote]quote[/quote][url=https://test.com]link[/url]".bbcode_to_html
   end
 
-  def test_no_ending_tag
-    assert_raises RuntimeError do
-      "this [b]should not be bold".bbcode_to_html
-    end
-  end
-
-  def test_no_start_tag
-    assert_raises RuntimeError do
-      "this should not be bold[/b]".bbcode_to_html
-    end
-  end
-
-  def test_different_start_and_ending_tags
-    assert_raises RuntimeError do
-      "this [b]should not do formatting[/i]".bbcode_to_html
-    end
-  end
-
   def test_no_xss_hax
     expected = "<a href=\"http://www.google.com&quot; onclick=\&quot;javascript:alert\">google</a>"
     assert_equal expected, '[url=http://www.google.com" onclick="javascript:alert]google[/url]'.bbcode_to_html
   end
 
-    # TODO:  This stack level problem should be validated during the validations
-  #def test_stack_level_too_deep
-  #  num = 2300  # increase this number if the test starts failing.  It's very near the tipping point
-  #  openers = "[s]hi i'm" * num
-  #  closers = "[/s]" * num
-  #  assert_raise( SystemStackError ) do
-  #    (openers+closers).bbcode_to_html
-  #  end
-  #end
-
-  def test_mulit_tag
+  def test_media_tag
     input1 = "[media]http://www.youtube.com/watch?v=cSohjlYQI2A[/media]"
     input2 = "[media]http://vimeo.com/46141955[/media]"
 
     output1 = "<object width=\"400\" height=\"325\"><param name=\"movie\" value=\"http://www.youtube.com/v/cSohjlYQI2A\"></param><embed src=\"http://www.youtube.com/v/cSohjlYQI2A\" type=\"application/x-shockwave-flash\" width=\"400\" height=\"325\"></embed></object>"
     output2 = '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'
-
 
     assert_equal output1, input1.bbcode_to_html
     assert_equal output2, input2.bbcode_to_html
@@ -282,12 +178,10 @@ class RubyBbcodeTest < Minitest::Test
     assert_equal output, input2.bbcode_to_html
   end
 
-  def test_failing_multi_tag
+  def test_failing_media_tag
     input1 = "[media]http://www.youtoob.com/watch?v=cSohjlYQI2A[/media]"
 
     assert_equal input1, input1.bbcode_to_html
   end
-
-
 
 end
