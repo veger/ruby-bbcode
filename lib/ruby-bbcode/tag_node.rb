@@ -29,8 +29,7 @@ module RubyBBCode
 
     # Debugging/ visualization purposes
     def type
-      return :tag if @element[:is_tag]
-      return :text if !@element[:is_tag]
+      @element[:is_tag] ? :tag : :text
     end
 
     # Checks to see if the parameter for the TagNode has been set.

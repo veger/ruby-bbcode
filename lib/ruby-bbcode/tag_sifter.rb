@@ -10,7 +10,7 @@ module RubyBBCode
     def initialize(text_to_parse, dictionary, escape_html = true)
       @text = escape_html ? text_to_parse.gsub('<', '&lt;').gsub('>', '&gt;').gsub('"', "&quot;") : text_to_parse
 
-      @dictionary = dictionary # the dictionary for all the defined tags in tags.rb
+      @dictionary = dictionary # dictionary containing all allowed/defined tags
       @bbtree = BBTree.new({:nodes => TagCollection.new}, dictionary)
       @ti = nil
       @errors = []
@@ -29,12 +29,13 @@ module RubyBBCode
       @text.scan(/#{regex_string}/ix) do |tag_info|
         @ti = TagInfo.new(tag_info, @dictionary)
 
-        @ti.handle_unregistered_tags_as_text  # if the tag isn't in the @dictionary list, then treat it as text
+        # if the tag isn't in the @dictionary list, then treat it as text
+        @ti.handle_tag_as_text if @ti.element_is_tag? and @ti.tag_missing_from_tag_dictionary?
         handle_closing_tags_that_are_multi_as_text_if_it_doesnt_match_the_latest_opener_tag_on_the_stack
 
         validate_element
 
-        case @ti.type   # Validation of tag succeeded, add to @bbtree.tags_list and/or bbtree
+        case @ti.type
         when :opening_tag
           element = {:is_tag => true, :tag => @ti[:tag], :definition => @ti.definition, :nodes => TagCollection.new }
           element[:params] = {:tag_param => get_formatted_element_params} if @ti.can_have_params? and @ti.has_params?
@@ -90,7 +91,7 @@ module RubyBBCode
         regex_list = @dictionary[tag][:url_matches]
 
         regex_list.each do |regex|
-          return tag if regex =~ @ti.tag_data[:text]
+          return tag if regex =~ @ti.text
         end
       end
       :tag_not_found
@@ -100,12 +101,9 @@ module RubyBBCode
       if @ti.element_is_closing_tag?
         return if @bbtree.current_node[:definition].nil?
         if parent_tag != @ti[:tag] and @bbtree.current_node[:definition][:multi_tag]       # if opening tag doesn't match this closing tag... and if the opener was a multi_tag...
-          @ti[:is_tag] = false
-          @ti[:closing_tag] = false
-          @ti[:text] = @ti.tag_data[:complete_match]
+          @ti.handle_tag_as_text
         end
       end
-
     end
 
 
