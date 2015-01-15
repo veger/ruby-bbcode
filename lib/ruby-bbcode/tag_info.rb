@@ -69,7 +69,7 @@ module RubyBBCode
       !self[:text].nil?
     end
 
-    def has_params?
+    def has_tag_param?
       self[:params][:tag_param] != nil
     end
 
@@ -89,12 +89,12 @@ module RubyBBCode
       @definition[:only_in].include?(tag_symbol)
     end
 
-    def can_have_params?
+    def can_have_tag_param?
       @definition[:allow_tag_param]
     end
 
     # Checks if the tag param matches the regex pattern defined in tags.rb
-    def invalid_param?
+    def invalid_tag_param?
       self[:params][:tag_param].match(@definition[:tag_param]).nil?
     end
 

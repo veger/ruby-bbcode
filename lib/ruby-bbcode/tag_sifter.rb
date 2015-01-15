@@ -38,7 +38,8 @@ module RubyBBCode
         case @ti.type
         when :opening_tag
           element = {:is_tag => true, :tag => @ti[:tag], :definition => @ti.definition, :nodes => TagCollection.new }
-          element[:params] = {:tag_param => get_formatted_element_params} if @ti.can_have_params? and @ti.has_params?
+          element[:params] = {:tag_param => get_formatted_element_params} if @ti.can_have_tag_param? and @ti.has_tag_param?
+          # TODO Handle non-tag_params, if available
 
           @bbtree.retrogress_bbtree if self_closing_tag_reached_a_closer?
 
@@ -117,7 +118,7 @@ module RubyBBCode
     def get_formatted_element_params
       if @ti[:is_tag]
         param = @ti[:params][:tag_param]
-        if @ti.can_have_params? and @ti.has_params?
+        if @ti.can_have_tag_param? and @ti.has_tag_param?
           # perform special formatting for cenrtain tags
           param = conduct_special_formatting(param) if @ti[:tag] == :youtube  # note:  this line isn't ever used because @@tags don't allow it... I think if we have tags without the same kind of :require_between restriction, we'll need to pay close attention to this case
         end
@@ -167,9 +168,9 @@ module RubyBBCode
         end
 
         # Originally:  tag[:allow_tag_param] and ti[:params][:tag_param] != nil
-        if @ti.can_have_params? and @ti.has_params?
+        if @ti.can_have_tag_param? and @ti.has_tag_param?
           # Test if matches
-          if @ti.invalid_param?
+          if @ti.invalid_tag_param?
             throw_invalid_param_error; return false
           end
         end
