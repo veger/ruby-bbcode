@@ -36,7 +36,7 @@ module RubyBBCode
 
         case @ti.type   # Validation of tag succeeded, add to @bbtree.tags_list and/or bbtree
         when :opening_tag
-          element = {:is_tag => true, :tag => @ti[:tag].to_sym, :definition => @ti.definition, :nodes => TagCollection.new }
+          element = {:is_tag => true, :tag => @ti[:tag], :definition => @ti.definition, :nodes => TagCollection.new }
           element[:params] = {:tag_param => get_formatted_element_params} if @ti.can_have_params? and @ti.has_params?
 
           @bbtree.retrogress_bbtree if self_closing_tag_reached_a_closer?
@@ -99,7 +99,7 @@ module RubyBBCode
     def handle_closing_tags_that_are_multi_as_text_if_it_doesnt_match_the_latest_opener_tag_on_the_stack
       if @ti.element_is_closing_tag?
         return if @bbtree.current_node[:definition].nil?
-        if parent_tag != @ti[:tag].to_sym and @bbtree.current_node[:definition][:multi_tag]       # if opening tag doesn't match this closing tag... and if the opener was a multi_tag...
+        if parent_tag != @ti[:tag] and @bbtree.current_node[:definition][:multi_tag]       # if opening tag doesn't match this closing tag... and if the opener was a multi_tag...
           @ti[:is_tag] = false
           @ti[:closing_tag] = false
           @ti[:text] = @ti.tag_data[:complete_match]
@@ -121,7 +121,7 @@ module RubyBBCode
         param = @ti[:params][:tag_param]
         if @ti.can_have_params? and @ti.has_params?
           # perform special formatting for cenrtain tags
-          param = conduct_special_formatting(param) if @ti[:tag].to_sym == :youtube  # note:  this line isn't ever used because @@tags don't allow it... I think if we have tags without the same kind of :require_between restriction, we'll need to pay close attention to this case
+          param = conduct_special_formatting(param) if @ti[:tag] == :youtube  # note:  this line isn't ever used because @@tags don't allow it... I think if we have tags without the same kind of :require_between restriction, we'll need to pay close attention to this case
         end
         return param
       else  # must be text... @ti[:is_tag] == false
@@ -180,7 +180,7 @@ module RubyBBCode
     end
 
     def self_closing_tag_reached_a_closer?
-      @ti.definition[:self_closable] and @bbtree.current_node[:tag] == @ti.tag_data[:tag].to_sym
+      @ti.definition[:self_closable] and @bbtree.current_node[:tag] == @ti[:tag]
     end
 
     def valid_constraints_on_child?
@@ -188,7 +188,7 @@ module RubyBBCode
         # Check if the found tag is allowed
         last_tag = @dictionary[parent_tag]
         allowed_tags = last_tag[:only_allow]
-        if (!@ti[:is_tag] and last_tag[:require_between] != true and @ti[:text].lstrip != "") or (@ti[:is_tag] and (allowed_tags.include?(@ti[:tag].to_sym) == false))  # TODO: refactor this, it's just too long
+        if (!@ti[:is_tag] and last_tag[:require_between] != true and @ti[:text].lstrip != "") or (@ti[:is_tag] and (allowed_tags.include?(@ti[:tag]) == false))  # TODO: refactor this, it's just too long
           # Last opened tag does not allow tag
           throw_parent_prohibits_this_child_error; return false
         end
@@ -200,7 +200,7 @@ module RubyBBCode
       tag = @ti.definition
 
       if @ti.element_is_closing_tag?
-        if parent_tag != @ti[:tag].to_sym and !parent_of_self_closing_tag?
+        if parent_tag != @ti[:tag] and !parent_of_self_closing_tag?
           @errors << "Closing tag [/#{@ti[:tag]}] doesn't match [#{parent_tag}]"
           return false
         end

@@ -8,7 +8,7 @@ module RubyBBCode
     def initialize(tag_info, dictionary)
       @tag_data = find_tag_info(tag_info)
       @dictionary = dictionary
-      @definition = @dictionary[@tag_data[:tag].to_sym] unless @tag_data[:tag].nil?
+      @definition = @dictionary[@tag_data[:tag]] unless @tag_data[:tag].nil?
     end
 
     def [](key)
@@ -77,7 +77,7 @@ module RubyBBCode
     end
 
     def tag_missing_from_tag_dictionary?
-      !@dictionary.include?(self[:tag].to_sym)
+      !@dictionary.include?(self[:tag])
     end
 
     def allowed_outside_parent_tags?
@@ -109,7 +109,7 @@ module RubyBBCode
       ti[:is_tag] = (tag_info[0].start_with? '[')
       if ti[:is_tag]
         ti[:closing_tag] = (tag_info[2] == '/')
-        ti[:tag] = tag_info[3]
+        ti[:tag] = tag_info[3].to_sym
         ti[:params] = {}
         if tag_info[5][0] == ?=
           ti[:params][:tag_param] = tag_info[5][1..-1]

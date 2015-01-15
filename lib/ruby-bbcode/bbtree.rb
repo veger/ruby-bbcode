@@ -45,7 +45,7 @@ module RubyBBCode
 
     def parent_tag
       return nil if !within_open_tag?
-      @tags_list.last.to_sym
+      @tags_list.last
     end
 
     def parent_has_constraints_on_children?
