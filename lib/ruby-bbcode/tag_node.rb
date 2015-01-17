@@ -32,14 +32,19 @@ module RubyBBCode
       @element[:is_tag] ? :tag : :text
     end
 
-    # Checks to see if the parameter for the TagNode has been set.
-    def param_not_set?
+    # Checks to see if the tag parameter for the TagNode has been set.
+    def tag_param_not_set?
       (@element[:params].nil? or @element[:params][:tag_param].nil?)
     end
 
-    # check if the parameter for the TagNode is set
-    def param_set?
-      !param_not_set?
+    # check if the tag parameter for the TagNode is set
+    def tag_param_set?
+      !tag_param_not_set?
+    end
+
+    # Checks to see if the TagNode has (regular) parameter(s) set.
+    def params_set?
+      !@element[:params].nil? and @element[:params].length > (tag_param_set? ? 1 : 0)
     end
 
     def has_children?

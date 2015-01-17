@@ -38,8 +38,7 @@ module RubyBBCode
         case @ti.type
         when :opening_tag
           element = {:is_tag => true, :tag => @ti[:tag], :definition => @ti.definition, :nodes => TagCollection.new }
-          element[:params] = {:tag_param => get_formatted_element_params} if @ti.can_have_tag_param? and @ti.has_tag_param?
-          # TODO Handle non-tag_params, if available
+          element[:params] = get_formatted_element_params
 
           @bbtree.retrogress_bbtree if self_closing_tag_reached_a_closer?
 
@@ -52,9 +51,10 @@ module RubyBBCode
           if within_open_tag?
             tag = @bbtree.current_node.definition
             if tag[:require_between]
-              @bbtree.current_node[:between] = get_formatted_element_params
+              @bbtree.current_node[:between] = get_formatted_between
               if candidate_for_using_between_as_param?
-                use_between_as_tag_param    # Did not specify tag_param, so use between text.
+                # Did not specify tag_param, so use between text.
+               @bbtree.current_node.tag_param = @bbtree.current_node[:between]
               end
               next  # don't add this node to @bbtree.current_node.children if we're within an open tag that requires_between (to be a param), and the between couldn't be used as a param... Yet it passed validation so the param must have been specified within the opening tag???
             end
@@ -110,25 +110,22 @@ module RubyBBCode
 
     private
 
-    # This method allows us to format params if needed...
-    # TODO:  Maybe this kind of thing *could* be handled in the bbtree_to_html where the %between% is
-    # sorted out and the html is generated, but...  That code has yet to be refactored and we can.
-    # refactor this code easily to happen over there if necessary...  Yes, I think it's more logical
-    # to be put over there, but that method needs to be cleaned up before we introduce the formatting overthere... and knowing the parent node is helpful!
+    # Gets the params, and format them if needed...
     def get_formatted_element_params
-      if @ti[:is_tag]
-        param = @ti[:params][:tag_param]
-        if @ti.can_have_tag_param? and @ti.has_tag_param?
-          # perform special formatting for cenrtain tags
-          param = conduct_special_formatting(param) if @ti[:tag] == :youtube  # note:  this line isn't ever used because @@tags don't allow it... I think if we have tags without the same kind of :require_between restriction, we'll need to pay close attention to this case
-        end
-        return param
-      else  # must be text... @ti[:is_tag] == false
-        param = @ti[:text]
+      params = @ti[:params]
+      if @ti.can_have_tag_param? and @ti.has_tag_param?
         # perform special formatting for cenrtain tags
-        param = conduct_special_formatting(param) if @bbtree.current_node.definition[:url_matches]
-        return param
+        params[:tag_param] = conduct_special_formatting(params[:tag_param]) if @ti[:tag] == :youtube  # note:  this line isn't ever used because @@tags don't allow it... I think if we have tags without the same kind of :require_between restriction, we'll need to pay close attention to this case
       end
+      return params
+    end
+
+    # Get 'between tag' for tag
+    def get_formatted_between
+      between = @ti[:text]
+      # perform special formatting for cenrtain tags
+      between = conduct_special_formatting(between) if @bbtree.current_node.definition[:url_matches]
+      return between
     end
 
     def conduct_special_formatting(url, regex_matches = nil)
@@ -299,11 +296,6 @@ module RubyBBCode
       @bbtree.within_open_tag?
     end
 
-    def use_between_as_tag_param
-      param = get_formatted_element_params
-      @bbtree.current_node.tag_param = param      # @bbtree.current_node[:params] = {:tag_param => @ti[:text]}
-    end
-
     def candidate_for_using_between_as_param?
       # TODO:  the bool values...
       # are unclear and should be worked on.  Additional tag might be tag[:requires_param] such that
@@ -311,7 +303,7 @@ module RubyBBCode
       # as it is now, if a tag (say youtube) has tag[:require_between] == true and tag[:allow_tag_param].nil?
       # then the :between is assumed to be the param...  that is, a tag that should respond 'true' to tag.requires_param?
       tag = @bbtree.current_node.definition
-      tag[:allow_tag_param_between] and @bbtree.current_node.param_not_set?
+      tag[:allow_tag_param_between] and @bbtree.current_node.tag_param_not_set?
     end
 
     def parent_tag

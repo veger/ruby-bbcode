@@ -26,8 +26,8 @@ module RubyBBCode::Templates
       @opening_part.gsub!('%between%',@node[:between]) if between_text_goes_into_html_output_as_param?  # set the between text to where it goes if required to do so...
     end
 
-    def inlay_inline_params!
-      # Get list of paramaters to feed
+    def inlay_tag_param!
+      # Get list of parameters to feed
       match_array = @node[:params][:tag_param].scan(@tag_definition[:tag_param])[0]
 
       # for each parameter to feed
@@ -40,6 +40,13 @@ module RubyBBCode::Templates
                       match +
                       @tag_definition[:tag_param_tokens][i][:postfix].to_s)
         end
+      end
+    end
+
+    def inlay_params!
+      # Iterate over known tokens and fill in their values, if provided
+      @tag_definition[:tag_param_tokens].each do |token|
+        @opening_part.gsub!("%#{token[:token].to_s}%", token[:prefix].to_s + @node[:params][token[:token]] + token[:postfix].to_s) unless @node[:params][token[:token]].nil?
       end
     end
 

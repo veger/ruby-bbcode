@@ -91,6 +91,8 @@ class RubyBbcodeHtmlTest < Minitest::Test
                    '[img]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_to_html
     assert_equal '<img src="http://www.ruby-lang.org/images/logo.gif" width="95" height="96" alt="" />',
                    '[img=95x96]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_to_html
+    assert_equal '<img src="http://www.ruby-lang.org/images/logo.gif" width="123" height="456" alt="" />',
+                   '[img width=123 height=456]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_to_html
   end
 
   def test_youtube
@@ -183,5 +185,4 @@ class RubyBbcodeHtmlTest < Minitest::Test
 
     assert_equal input1, input1.bbcode_to_html
   end
-
 end

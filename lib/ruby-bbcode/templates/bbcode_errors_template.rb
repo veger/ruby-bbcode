@@ -26,13 +26,21 @@ module RubyBBCode::Templates
       @opening_part << @node[:between] if @tag_definition[:require_between]
     end
 
-    def inlay_inline_params!
+    def inlay_tag_param!
       if @tag_definition[:allow_tag_param_between] and @node[:params][:tag_param] == @node[:between]
         # Place tag parameter between the tags, which was the case since tag_param == between
         @opening_part.gsub!('%tag_param%','')
       else
         # Fill in provided tag parameter
         @opening_part.gsub!('%tag_param%',"=#{@node[:params][:tag_param]}")
+      end
+    end
+
+    def inlay_params!
+      # Iterate over known tokens and fill in their values, if provided
+      @tag_definition[:tag_param_tokens].each do |token|
+        # Use %tag_param% to insert the parameters and their values (and re-add %tag_param% 
+        @opening_part.gsub!('%tag_param%', " #{token[:token]}=#{@node[:params][token[:token]]}%tag_param%") unless @node[:params][token[:token]].nil?
       end
     end
 
@@ -43,6 +51,5 @@ module RubyBBCode::Templates
     def remove_unused_tokens!
       @opening_part.gsub!('%tag_param%', '')
     end
-
   end
 end

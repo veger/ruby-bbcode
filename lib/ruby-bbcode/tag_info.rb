@@ -111,7 +111,12 @@ module RubyBBCode
         if tag_info[5][0] == ?=
           ti[:params][:tag_param] = tag_info[5][1..-1]
         elsif tag_info[5][0] == ?\s
-          #FIXME: Find params... Delete this or write a test to cover this and implement it
+          regex_string = '((\w+)=(\w+)) | ((\w+)="([^"]+)") | ((\w+)=\'([^\']+)\')'
+          tag_info[5].scan(/#{regex_string}/ix) do |param_info|
+            param = param_info[1] || param_info[4] || param_info[7]
+            value = param_info[2] || param_info[5] || param_info[8]
+            ti[:params][param.to_sym] = value
+          end
         end
       else
         # Plain text

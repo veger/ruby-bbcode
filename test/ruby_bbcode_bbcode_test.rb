@@ -91,6 +91,8 @@ class RubyBbcodeBbcodeTest < Minitest::Test
                    '[img]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_show_errors
     assert_equal '[img=95x96]http://www.ruby-lang.org/images/logo.gif[/img]',
                    '[img=95x96]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_show_errors
+    assert_equal '[img width=123 height=456]http://www.ruby-lang.org/images/logo.gif[/img]',
+                   '[img width=123 height=456]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_show_errors
   end
 
   def test_youtube
