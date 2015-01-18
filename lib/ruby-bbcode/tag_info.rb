@@ -62,40 +62,37 @@ module RubyBBCode
     end
 
     def element_is_closing_tag?
-      self[:closing_tag]
+      self[:is_tag] and  self[:closing_tag]
     end
 
     def element_is_text?
-      !self[:text].nil?
+      !self[:is_tag]
     end
 
-    def has_tag_param?
-      self[:params][:tag_param] != nil
+    def tag_in_dictionary?
+      @dictionary.include?(self[:tag])
     end
 
-    def tag_missing_from_tag_dictionary?
-      !@dictionary.include?(self[:tag])
-    end
-
-    def allowed_outside_parent_tags?
-      @definition[:only_in].nil?
-    end
-
-    def constrained_to_within_parent_tags?
+    def only_allowed_in_parent_tags?
       !@definition[:only_in].nil?
     end
 
     def allowed_in(tag_symbol)
+      return true unless only_allowed_in_parent_tags?
       @definition[:only_in].include?(tag_symbol)
     end
 
-    def can_have_tag_param?
-      @definition[:allow_tag_param]
+    def can_have_quick_param?
+      @definition[:allow_quick_param]
+    end
+
+    def has_quick_param?
+      self[:params][:quick_param] != nil
     end
 
     # Checks if the tag param matches the regex pattern defined in tags.rb
-    def invalid_tag_param?
-      self[:params][:tag_param].match(@definition[:tag_param]).nil?
+    def invalid_quick_param?
+      self[:params][:quick_param].match(@definition[:quick_param_format]).nil?
     end
 
     protected
@@ -109,7 +106,7 @@ module RubyBBCode
         ti[:tag] = tag_info[3].to_sym
         ti[:params] = {}
         if tag_info[5][0] == ?=
-          ti[:params][:tag_param] = tag_info[5][1..-1]
+          ti[:params][:quick_param] = tag_info[5][1..-1]
         elsif tag_info[5][0] == ?\s
           regex_string = '((\w+)=(\w+)) | ((\w+)="([^"]+)") | ((\w+)=\'([^\']+)\')'
           tag_info[5].scan(/#{regex_string}/ix) do |param_info|

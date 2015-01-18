@@ -79,7 +79,7 @@ module RubyBBCode
       @tags_list.pop
       @current_node[:is_tag] = false
       @current_node[:closing_tag] = false
-      @current_node.element[:text] = "[#{@current_node[:tag].to_s}]"
+      @current_node.element[:text] = "[#{@current_node[:tag]}]"
     end
 
     def build_up_new_tag(element)

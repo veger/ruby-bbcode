@@ -30,7 +30,7 @@ module RubyBBCode
         @ti = TagInfo.new(tag_info, @dictionary)
 
         # if the tag isn't in the @dictionary list, then treat it as text
-        @ti.handle_tag_as_text if @ti.element_is_tag? and @ti.tag_missing_from_tag_dictionary?
+        @ti.handle_tag_as_text if @ti.element_is_tag? and !@ti.tag_in_dictionary?
         handle_closing_tags_that_are_multi_as_text_if_it_doesnt_match_the_latest_opener_tag_on_the_stack
 
         validate_element
@@ -53,39 +53,40 @@ module RubyBBCode
             if tag[:require_between]
               @bbtree.current_node[:between] = get_formatted_between
               if candidate_for_using_between_as_param?
-                # Did not specify tag_param, so use between text.
-               @bbtree.current_node.tag_param = @bbtree.current_node[:between]
+               # Did not specify quick_param, so use between text.
+               @bbtree.current_node.quick_param = @bbtree.current_node[:between]
               end
               next  # don't add this node to @bbtree.current_node.children if we're within an open tag that requires_between (to be a param), and the between couldn't be used as a param... Yet it passed validation so the param must have been specified within the opening tag???
             end
           end
           @bbtree.build_up_new_tag(element)
         when :closing_tag
-          @bbtree.retrogress_bbtree if parent_of_self_closing_tag? and @bbtree.within_open_tag?
+          @bbtree.retrogress_bbtree if parent_of_self_closing_tag? and within_open_tag?
           @bbtree.retrogress_bbtree
         end
 
       end # end of scan loop
 
-      validate_all_tags_closed_off   # TODO: consider automatically closing off all the tags... I think that's how the HTML 5 parser works too
+      validate_all_tags_closed_off
       validate_stack_level_too_deep_potential
     end
 
     def set_parent_tag_from_multi_tag_to_concrete!
       # if the proper tag can't be matched, we need to treat the parent tag as text instead!  Or throw an error message....
 
-      proper_tag = get_proper_tag
-      if proper_tag == :tag_not_found
+      tag = get_actual_tag
+      if tag == :tag_not_found
         @bbtree.redefine_parent_tag_as_text
 
         @bbtree.nodes << TagNode.new(@ti.tag_data)      # escalate the bbtree with this element as though it's regular text data...
         return
       end
-      @bbtree.current_node[:definition] = @dictionary[proper_tag]
-      @bbtree.current_node[:tag] = proper_tag
+      @bbtree.current_node[:definition] = @dictionary[tag]
+      @bbtree.current_node[:tag] = tag
     end
 
-    def get_proper_tag
+    # The media tag support multiple other tags, this method checks the tag url param to find actual tag type (to use)
+    def get_actual_tag
       supported_tags = @bbtree.current_node[:definition][:supported_tags]
 
       supported_tags.each do |tag|
@@ -113,9 +114,9 @@ module RubyBBCode
     # Gets the params, and format them if needed...
     def get_formatted_element_params
       params = @ti[:params]
-      if @ti.can_have_tag_param? and @ti.has_tag_param?
+      if @ti.can_have_quick_param? and @ti.has_quick_param?
         # perform special formatting for cenrtain tags
-        params[:tag_param] = conduct_special_formatting(params[:tag_param]) if @ti[:tag] == :youtube  # note:  this line isn't ever used because @@tags don't allow it... I think if we have tags without the same kind of :require_between restriction, we'll need to pay close attention to this case
+        params[:quick_param] = conduct_special_formatting(params[:quick_param]) if @ti[:tag] == :youtube  # note:  this line isn't ever used because @@tags don't allow it... I think if we have tags without the same kind of :require_between restriction, we'll need to pay close attention to this case
       end
       return params
     end
@@ -159,16 +160,16 @@ module RubyBBCode
 
     def valid_opening_tag?
       if @ti.element_is_opening_tag?
-        unless @ti.allowed_outside_parent_tags? or (within_open_tag? and @ti.allowed_in(parent_tag.to_sym)) or self_closing_tag_reached_a_closer?
+        if @ti.only_allowed_in_parent_tags? and (!within_open_tag? or !@ti.allowed_in(parent_tag)) and !self_closing_tag_reached_a_closer?
           # Tag doesn't belong in the last opened tag
           throw_child_requires_specific_parent_error; return false
         end
 
-        # Originally:  tag[:allow_tag_param] and ti[:params][:tag_param] != nil
-        if @ti.can_have_tag_param? and @ti.has_tag_param?
+        if @ti.can_have_quick_param? and @ti.has_quick_param?
           # Test if matches
-          if @ti.invalid_tag_param?
-            throw_invalid_param_error; return false
+          if @ti.invalid_quick_param?
+            throw_invalid_param_error :quick_param
+            return false
           end
         end
       end
@@ -234,8 +235,8 @@ module RubyBBCode
       if @ti.element_is_text? and within_open_tag? and tag[:require_between] and candidate_for_using_between_as_param?
 
         # check if valid
-        if @ti[:text].match(tag[:tag_param]).nil?
-          @errors << tag[:tag_param_description].gsub('%param%', @ti[:text])
+        if @ti[:text].match(tag[:quick_param_format]).nil?
+          @errors << tag[:quick_param_format_description].gsub('%param%', @ti[:text])
           return false
         end
       end
@@ -259,8 +260,8 @@ module RubyBBCode
       @errors << err
     end
 
-    def throw_invalid_param_error
-      @errors << @ti.definition[:tag_param_description].gsub('%param%', @ti[:params][:tag_param])
+    def throw_invalid_param_error(param)
+      @errors << @ti.definition[:quick_param_format_description].gsub('%param%', @ti[:params][param])
     end
 
     def throw_parent_prohibits_this_child_error
@@ -300,10 +301,10 @@ module RubyBBCode
       # TODO:  the bool values...
       # are unclear and should be worked on.  Additional tag might be tag[:requires_param] such that
       # [img] would have that as true...  and [url] would have that as well...
-      # as it is now, if a tag (say youtube) has tag[:require_between] == true and tag[:allow_tag_param].nil?
+      # as it is now, if a tag (say youtube) has tag[:require_between] == true and tag[:allow_quick_param].nil?
       # then the :between is assumed to be the param...  that is, a tag that should respond 'true' to tag.requires_param?
       tag = @bbtree.current_node.definition
-      tag[:allow_tag_param_between] and @bbtree.current_node.tag_param_not_set?
+      tag[:allow_quick_param_between] and @bbtree.current_node.quick_param_not_set?
     end
 
     def parent_tag

@@ -93,7 +93,7 @@ class RubyBbcodeValidityTest < Minitest::Test
       :test => {
         :description => 'This is a test',
         :example => '[test]Test here[/test]',
-        :tag_param_tokens => [{:token => :param}]
+        :param_tokens => [{:token => :param}]
       }
     }
     # Currently, unknown tags are treated as text and no (missing) parameter values are checked for bbcode_check_validity

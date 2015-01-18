@@ -32,19 +32,23 @@ module RubyBBCode
       @element[:is_tag] ? :tag : :text
     end
 
+    def allow_params?
+      allow_quick_param? or definition[:param_tokens]
+    end
+
     # Checks to see if the tag parameter for the TagNode has been set.
-    def tag_param_not_set?
-      (@element[:params].nil? or @element[:params][:tag_param].nil?)
+    def quick_param_not_set?
+      (@element[:params].nil? or @element[:params][:quick_param].nil?)
     end
 
     # check if the tag parameter for the TagNode is set
-    def tag_param_set?
-      !tag_param_not_set?
+    def quick_param_set?
+      !quick_param_not_set?
     end
 
     # Checks to see if the TagNode has (regular) parameter(s) set.
     def params_set?
-      !@element[:params].nil? and @element[:params].length > (tag_param_set? ? 1 : 0)
+      !@element[:params].nil? and @element[:params].length > (quick_param_set? ? 1 : 0)
     end
 
     def has_children?
@@ -52,8 +56,8 @@ module RubyBBCode
       return true if children.length > 0
     end
 
-    def allow_tag_param?
-      definition[:allow_tag_param]
+    def allow_quick_param?
+      definition[:allow_quick_param]
     end
 
     # shows the tag definition for this TagNode as defined in tags.rb
@@ -65,10 +69,10 @@ module RubyBBCode
       @element[:nodes]
     end
 
-    # Easy way to set the tag_param value of the hash, which represents
+    # Easy way to set the quick_param value of the hash, which represents
     # the parameter supplied
-    def tag_param=(param)
-      @element[:params] = {:tag_param => param}
+    def quick_param=(param)
+      @element[:params][:quick_param] = param
     end
 
   end

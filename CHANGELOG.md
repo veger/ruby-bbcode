@@ -3,7 +3,8 @@ Upcoming
 
 * Support multiple errors within a text
 * Add parameters to #bbcode_check_validity to add/remove tags
-* Support regular tag parameters: [tag param=value][/tag]
+* Support regular tag parameters (`[tag param=value][/tag]`) instead of 'quick parameters' (`[tag=value][/tag]`)
+* Changed tag description symbols (to become descriptive), **breaks existing custom tag additiona!**
 
 Version 1.0.1 - 04-Jan-2015
 

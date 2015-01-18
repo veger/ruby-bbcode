@@ -27,9 +27,9 @@ module RubyBBCode
 
           t.inlay_between_text!
 
-          if node.allow_tag_param?
-            if node.tag_param_set?
-              t.inlay_tag_param!
+          if node.allow_params?
+            if node.quick_param_set?
+              t.inlay_quick_param!
             else node.params_set?
               t.inlay_params!
             end
