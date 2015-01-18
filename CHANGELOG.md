@@ -2,6 +2,7 @@ Upcoming
 --------
 
 * Support multiple errors within a text
+* Add parameters to #bbcode_check_validity to add/remove tags
 
 Version 1.0.1 - 04-Jan-2015
 
