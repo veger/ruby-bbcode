@@ -108,7 +108,7 @@ module RubyBBCode
         if tag_info[5][0] == ?=
           ti[:params][:quick_param] = tag_info[5][1..-1]
         elsif tag_info[5][0] == ?\s
-          regex_string = '((\w+)=(\w+)) | ((\w+)="([^"]+)") | ((\w+)=\'([^\']+)\')'
+          regex_string = '((\w+)=([\w#]+)) | ((\w+)="([^"]+)") | ((\w+)=\'([^\']+)\')'
           tag_info[5].scan(/#{regex_string}/ix) do |param_info|
             param = param_info[1] || param_info[4] || param_info[7]
             value = param_info[2] || param_info[5] || param_info[8]
