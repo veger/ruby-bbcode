@@ -33,12 +33,12 @@ class RubyBbcodeBbcodeTest < Minitest::Test
   end
 
   def test_size
-    assert_equal '[size=32]32px Text[/size]', '[size=32]32px Text[/size]'.bbcode_show_errors
+    assert_equal '[size size=32]32px Text[/size]', '[size=32]32px Text[/size]'.bbcode_show_errors
   end
 
   def test_color
-    assert_equal '[color=red]Red Text[/color]', '[color=red]Red Text[/color]'.bbcode_show_errors
-    assert_equal '[color=#ff0023]Hex Color Text[/color]', '[color=#ff0023]Hex Color Text[/color]'.bbcode_show_errors
+    assert_equal '[color color=red]Red Text[/color]', '[color=red]Red Text[/color]'.bbcode_show_errors
+    assert_equal '[color color=#ff0023]Hex Color Text[/color]', '[color color=#ff0023]Hex Color Text[/color]'.bbcode_show_errors
   end
 
   def test_center
@@ -75,21 +75,21 @@ class RubyBbcodeBbcodeTest < Minitest::Test
 
   def test_quote
     assert_equal '[quote]quoting[/quote]', '[quote]quoting[/quote]'.bbcode_show_errors
-    assert_equal '[quote=someone]quoting[/quote]', '[quote=someone]quoting[/quote]'.bbcode_show_errors
-    assert_equal '[quote=Kitten][quote=creatiu]f1[/quote]f2[/quote]',
-                  '[quote=Kitten][quote=creatiu]f1[/quote]f2[/quote]'.bbcode_show_errors
+    assert_equal '[quote author=someone]quoting[/quote]', '[quote=someone]quoting[/quote]'.bbcode_show_errors
+    assert_equal '[quote author=Kitten][quote author=creatiu]f1[/quote]f2[/quote]',
+                  '[quote author=Kitten][quote=creatiu]f1[/quote]f2[/quote]'.bbcode_show_errors
   end
 
   def test_link
-    assert_equal '[url]http://www.google.com[/url]', '[url]http://www.google.com[/url]'.bbcode_show_errors
-    assert_equal '[url=http://google.com]Google[/url]', '[url=http://google.com]Google[/url]'.bbcode_show_errors
-    assert_equal '[url=/index.html]Home[/url]', '[url=/index.html]Home[/url]'.bbcode_show_errors
+    assert_equal '[url url=http://www.google.com]http://www.google.com[/url]', '[url]http://www.google.com[/url]'.bbcode_show_errors
+    assert_equal '[url url=http://google.com]Google[/url]', '[url=http://google.com]Google[/url]'.bbcode_show_errors
+    assert_equal '[url url=/index.html]Home[/url]', '[url=/index.html]Home[/url]'.bbcode_show_errors
   end
 
   def test_image
     assert_equal '[img]http://www.ruby-lang.org/images/logo.gif[/img]',
                    '[img]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_show_errors
-    assert_equal '[img=95x96]http://www.ruby-lang.org/images/logo.gif[/img]',
+    assert_equal '[img width=95 height=96]http://www.ruby-lang.org/images/logo.gif[/img]',
                    '[img=95x96]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_show_errors
     assert_equal '[img width=123 height=456]http://www.ruby-lang.org/images/logo.gif[/img]',
                    '[img width=123 height=456]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_show_errors
@@ -134,12 +134,12 @@ class RubyBbcodeBbcodeTest < Minitest::Test
   end
 
   def test_multiple_tag_test
-    assert_equal '[b]bold[/b][i]italic[/i][u]underline[/u][quote]quote[/quote][url=https://test.com]link[/url]',
+    assert_equal '[b]bold[/b][i]italic[/i][u]underline[/u][quote]quote[/quote][url url=https://test.com]link[/url]',
                    '[b]bold[/b][i]italic[/i][u]underline[/u][quote]quote[/quote][url=https://test.com]link[/url]'.bbcode_show_errors
   end
 
   def test_no_xss_hax
-    expected = "[url=http://www.google.com' onclick='javascript:alert]google[/url]"
+    expected = "[url url=http://www.google.com' onclick='javascript:alert]google[/url]"
     assert_equal expected, "[url=http://www.google.com' onclick='javascript:alert]google[/url]".bbcode_show_errors
   end
 

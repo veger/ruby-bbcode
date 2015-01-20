@@ -6,9 +6,8 @@ module RubyBBCode
   #
   class TagInfo
     def initialize(tag_info, dictionary)
-      @tag_data = find_tag_info(tag_info)
       @dictionary = dictionary
-      @definition = @dictionary[@tag_data[:tag]] unless @tag_data[:tag].nil?
+      @tag_data = find_tag_info(tag_info)
     end
 
     def [](key)
@@ -86,13 +85,9 @@ module RubyBBCode
       @definition[:allow_quick_param]
     end
 
-    def has_quick_param?
-      self[:params][:quick_param] != nil
-    end
-
-    # Checks if the tag param matches the regex pattern defined in tags.rb
+    # Returns true if the tag param matches the regex pattern defined in tags.rb
     def invalid_quick_param?
-      self[:params][:quick_param].match(@definition[:quick_param_format]).nil?
+      @tag_data[:invalid_quick_param]
     end
 
     protected
@@ -105,8 +100,19 @@ module RubyBBCode
         ti[:closing_tag] = (tag_info[2] == '/')
         ti[:tag] = tag_info[3].to_sym
         ti[:params] = {}
-        if tag_info[5][0] == ?=
-          ti[:params][:quick_param] = tag_info[5][1..-1]
+        @definition = @dictionary[ti[:tag]]
+        if tag_info[5][0] == ?= and can_have_quick_param?
+          quick_param = tag_info[5][1..-1]
+          # Get list of parameter values and add them as (regular) parameters
+          value_array = quick_param.scan(@definition[:quick_param_format])[0]
+          if value_array.nil?
+            ti[:invalid_quick_param] = quick_param
+          else
+            param_tokens = @definition[:param_tokens]
+            value_array[0..param_tokens.length - 1].each.with_index do |value, i|
+              ti[:params][param_tokens[i][:token]] = value
+            end
+          end
         elsif tag_info[5][0] == ?\s
           regex_string = '((\w+)=([\w#]+)) | ((\w+)="([^"]+)") | ((\w+)=\'([^\']+)\')'
           tag_info[5].scan(/#{regex_string}/ix) do |param_info|

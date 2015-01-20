@@ -52,9 +52,9 @@ module RubyBBCode
             tag = @bbtree.current_node.definition
             if tag[:require_between]
               @bbtree.current_node[:between] = get_formatted_between
-              if candidate_for_using_between_as_param?
-               # Did not specify quick_param, so use between text.
-               @bbtree.current_node.quick_param = @bbtree.current_node[:between]
+              if use_text_as_parameter?
+               # Between text should be used as (first) parameter
+               @bbtree.current_node[:params][tag[:param_tokens][0][:token]] = @bbtree.current_node[:between]
               end
               next  # don't add this node to @bbtree.current_node.children if we're within an open tag that requires_between (to be a param), and the between couldn't be used as a param... Yet it passed validation so the param must have been specified within the opening tag???
             end
@@ -114,9 +114,9 @@ module RubyBBCode
     # Gets the params, and format them if needed...
     def get_formatted_element_params
       params = @ti[:params]
-      if @ti.can_have_quick_param? and @ti.has_quick_param?
-        # perform special formatting for cenrtain tags
-        params[:quick_param] = conduct_special_formatting(params[:quick_param]) if @ti[:tag] == :youtube  # note:  this line isn't ever used because @@tags don't allow it... I think if we have tags without the same kind of :require_between restriction, we'll need to pay close attention to this case
+      if @ti.definition[:url_matches]
+        # perform special formatting for certain tags
+        params[:url] = match_url_id(params[:url], @ti.definition[:url_matches])
       end
       return params
     end
@@ -125,13 +125,11 @@ module RubyBBCode
     def get_formatted_between
       between = @ti[:text]
       # perform special formatting for cenrtain tags
-      between = conduct_special_formatting(between) if @bbtree.current_node.definition[:url_matches]
+      between = match_url_id(between, @bbtree.current_node.definition[:url_matches]) if @bbtree.current_node.definition[:url_matches]
       return between
     end
 
-    def conduct_special_formatting(url, regex_matches = nil)
-      regex_matches = @bbtree.current_node.definition[:url_matches] if regex_matches.nil?   # for testing purposes we can force in regex_matches
-
+    def match_url_id(url, regex_matches)
       regex_matches.each do |regex|
         if url =~ regex
           id = $1
@@ -165,12 +163,9 @@ module RubyBBCode
           throw_child_requires_specific_parent_error; return false
         end
 
-        if @ti.can_have_quick_param? and @ti.has_quick_param?
-          # Test if matches
-          if @ti.invalid_quick_param?
-            throw_invalid_param_error :quick_param
-            return false
-          end
+        if @ti.invalid_quick_param?
+          throw_invalid_quick_param_error
+          return false
         end
       end
       true
@@ -232,7 +227,7 @@ module RubyBBCode
       tag = @bbtree.current_node.definition
 
       # this conditional ensures whether the validation is apropriate to this tag type
-      if @ti.element_is_text? and within_open_tag? and tag[:require_between] and candidate_for_using_between_as_param?
+      if @ti.element_is_text? and within_open_tag? and tag[:require_between] and use_text_as_parameter?
 
         # check if valid
         if @ti[:text].match(tag[:quick_param_format]).nil?
@@ -260,8 +255,8 @@ module RubyBBCode
       @errors << err
     end
 
-    def throw_invalid_param_error(param)
-      @errors << @ti.definition[:quick_param_format_description].gsub('%param%', @ti[:params][param])
+    def throw_invalid_quick_param_error
+      @errors << @ti.definition[:quick_param_format_description].gsub('%param%', @ti[:invalid_quick_param])
     end
 
     def throw_parent_prohibits_this_child_error
@@ -297,14 +292,9 @@ module RubyBBCode
       @bbtree.within_open_tag?
     end
 
-    def candidate_for_using_between_as_param?
-      # TODO:  the bool values...
-      # are unclear and should be worked on.  Additional tag might be tag[:requires_param] such that
-      # [img] would have that as true...  and [url] would have that as well...
-      # as it is now, if a tag (say youtube) has tag[:require_between] == true and tag[:allow_quick_param].nil?
-      # then the :between is assumed to be the param...  that is, a tag that should respond 'true' to tag.requires_param?
+    def use_text_as_parameter?
       tag = @bbtree.current_node.definition
-      tag[:allow_quick_param_between] and @bbtree.current_node.quick_param_not_set?
+      tag[:allow_between_as_param] and @bbtree.current_node.params_not_set?
     end
 
     def parent_tag
