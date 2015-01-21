@@ -27,28 +27,29 @@ module RubyBBCode
       @element[key] = value
     end
 
-    # Debugging/ visualization purposes
+    # Returns :tag is the node is a tag node, and :text if the node is a text node
     def type
       @element[:is_tag] ? :tag : :text
     end
 
+    # Returns true if the tag is allowed to have parameters
     def allow_params?
       definition[:param_tokens]
     end
 
-    # Checks to see if the tag does not have its parameter values set.
+    # Returns true if the tag does not have any parameters set.
     def params_not_set?
       @element[:params].length == 0
     end
 
-    # Checks to see if the TagNode has (regular) parameter(s) set.
+    # Returns true if the tag has any parameters set.
     def params_set?
       @element[:params].length > 0
     end
 
+    # Returns true id the node that child nodes
     def has_children?
-      return false if type == :text or children.length == 0  # text nodes return false too
-      return true if children.length > 0
+      type == :tag and children.length > 0
     end
 
     # shows the tag definition for this TagNode as defined in tags.rb
@@ -56,6 +57,7 @@ module RubyBBCode
       @element[:definition]
     end
 
+    # Return an list containing the child nodes of this node.
     def children
       @element[:nodes]
     end

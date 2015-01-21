@@ -108,7 +108,6 @@ module RubyBBCode
       end
     end
 
-
     private
 
     # Gets the params, and format them if needed...
@@ -140,25 +139,24 @@ module RubyBBCode
       return url # if we couldn't find a match, then just return the url, hopefully it's a valid youtube ID...
     end
 
-
     # Validates the element
     def validate_element
-      return if !valid_text_or_opening_element?
-      return if !valid_closing_element?
-      return if !valid_param_supplied_as_text?
+      return unless valid_text_or_opening_element?
+      return unless valid_closing_element?
+      return unless valid_param_supplied_as_text?
     end
 
     def valid_text_or_opening_element?
       if @ti.element_is_text? or @ti.element_is_opening_tag?
-        return false if !valid_opening_tag?
-        return false if !valid_constraints_on_child?
+        return false unless valid_opening_tag?
+        return false unless valid_constraints_on_child?
       end
       true
     end
 
     def valid_opening_tag?
       if @ti.element_is_opening_tag?
-        if @ti.only_allowed_in_parent_tags? and (!within_open_tag? or !@ti.allowed_in(parent_tag)) and !self_closing_tag_reached_a_closer?
+        if @ti.only_allowed_in_parent_tags? and (!within_open_tag? or !@ti.allowed_in? parent_tag) and !self_closing_tag_reached_a_closer?
           # Tag doesn't belong in the last opened tag
           throw_child_requires_specific_parent_error; return false
         end
@@ -182,7 +180,8 @@ module RubyBBCode
         allowed_tags = last_tag[:only_allow]
         if (!@ti[:is_tag] and last_tag[:require_between] != true and @ti[:text].lstrip != "") or (@ti[:is_tag] and (allowed_tags.include?(@ti[:tag]) == false))  # TODO: refactor this, it's just too long
           # Last opened tag does not allow tag
-          throw_parent_prohibits_this_child_error; return false
+          throw_parent_prohibits_this_child_error
+          return false
         end
       end
       true
@@ -276,13 +275,11 @@ module RubyBBCode
       @errors << "Stack level would go too deep.  You must be trying to process a text containing thousands of BBTree nodes at once.  (limit around 2300 tags containing 2,300 strings).  Check RubyBBCode::TagCollection#to_html to see why this validation is needed."
     end
 
-
     def to_sentence_bbcode_tags
       {:words_connector => "], [",
         :two_words_connector => "] and [",
         :last_word_connector => "] and ["}
     end
-
 
     def expecting_a_closing_tag?
       @bbtree.expecting_a_closing_tag?

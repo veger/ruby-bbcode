@@ -2,9 +2,7 @@ require 'ruby-bbcode/templates/html_template'
 require 'ruby-bbcode/templates/bbcode_errors_template'
 
 module RubyBBCode
-  # This class holds TagNode instances and helps build them into code (HTML) when the time comes.
-  #
-  # It is really just a simple array, with the addition of the #to_html method
+  # This class holds TagNode instances and helps converting them into code (using the provided template) when the time comes.
   class TagCollection < Array
     # Convert nodes to HTML
     def to_html(tags)

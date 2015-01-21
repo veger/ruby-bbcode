@@ -3,13 +3,11 @@ module RubyBBCode
   #
   # As you parse a string of text, say:
   #     "[b]I'm bold and the next word is [i]ITALIC[/i][b]"
-  # ...you build up a tree of nodes (@bbtree).  The above string converts to 4 nodes when the parse has completed.
+  # ...you build up a tree of nodes (@bbtree).  The above string is represented by 4 nodes when parsing has completed.
   # * Node 1)  An opening tag node representing "[b]"
   # * Node 2)  A text node         representing "I'm bold and the next word is "
   # * Node 3)  An opening tag node representing "[i]"
   # * Node 4)  A text node         representing "ITALIC"
-  #
-  # The closing of the nodes seems to be implied which is fine by me --less to keep track of.
   #
   class BBTree
     attr_accessor :current_node, :tags_list
@@ -43,11 +41,13 @@ module RubyBBCode
     end
     alias :expecting_a_closing_tag? :within_open_tag?  # just giving this method multiple names for semantical purposes
 
+    # Returns the parent tag, if suitable/available
     def parent_tag
-      return nil if !within_open_tag?
+      return nil unless within_open_tag?
       @tags_list.last
     end
 
+    # Return true if the parent tag only allows certain child tags
     def parent_has_constraints_on_children?
       @dictionary[parent_tag][:only_allow] != nil
     end
@@ -69,12 +69,9 @@ module RubyBBCode
       else # If we're still at the root of the BBTree or have returned back to the root via encountring closing tags...
         @current_node = TagNode.new({:nodes => self.nodes})  # Note:  just passing in self works too...
       end
-
-      # OKOKOK!
-      # Since @bbtree = @current_node, if we ever set @current_node to something, we're actually changing @bbtree...
-      # therefore... my brain is now numb
     end
 
+    # Handle parent tag as regular text (i.e. the tag is probably not recognized)
     def redefine_parent_tag_as_text
       @tags_list.pop
       @current_node[:is_tag] = false
@@ -82,6 +79,7 @@ module RubyBBCode
       @current_node.element[:text] = "[#{@current_node[:tag]}]"
     end
 
+    # Create a new node and adds it to the current node as a child node
     def build_up_new_tag(element)
       @current_node.children << TagNode.new(element)
     end
