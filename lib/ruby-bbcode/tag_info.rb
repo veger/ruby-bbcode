@@ -96,6 +96,7 @@ module RubyBBCode
     # Returns the tag hash
     def find_tag_info(tag_info)
       ti = {}
+      ti[:errors] = []
       ti[:complete_match] = tag_info[0]
       ti[:is_tag] = (tag_info[0].start_with? '[')
       if ti[:is_tag]

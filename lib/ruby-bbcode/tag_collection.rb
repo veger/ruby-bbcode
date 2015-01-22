@@ -41,7 +41,7 @@ module RubyBBCode
 
           html_string << t.closing_part
         elsif node.type == :text
-          html_string << template.convert_text(node[:text])
+          html_string << template.convert_text(node)
         end
       end
 

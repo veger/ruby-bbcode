@@ -13,17 +13,21 @@ module RubyBBCode::Templates
       @node = node
       @tag_definition = node.definition # tag_definition
       @opening_part = "[#{node[:tag]}#{node.allow_params? ? '%param%' : ''}]"
+      unless @node[:errors].empty?
+        @opening_part = "<span class='bbcode_error'>#{@opening_part}</span>"
+      end
       @closing_part = "[/#{node[:tag]}]"
     end
 
-    def self.convert_text(text)
+    def self.convert_text(node)
       # Keep the text as it was
-      text
+      return "<span class='bbcode_error'>#{node[:text]}</span>" unless node[:errors].empty?
+      node[:text]
     end
 
     def inlay_between_text!
       # Set the between text between the tags again, if required to do so...
-      @opening_part << @node[:between] if @tag_definition[:require_between]
+      @opening_part << get_between
     end
 
     def inlay_params!
@@ -35,11 +39,17 @@ module RubyBBCode::Templates
     end
 
     def inlay_closing_part!
-      @closing_part.gsub!('%between%',@node[:between]) if @tag_definition[:require_between]
     end
 
     def remove_unused_tokens!
       @opening_part.gsub!('%param%', '')
     end
+
+    private
+
+      def get_between
+        return @node[:between] if @tag_definition[:require_between] and @node[:between]
+        ''
+      end
   end
 end

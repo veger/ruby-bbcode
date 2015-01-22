@@ -37,7 +37,7 @@ module RubyBBCode
 
         case @ti.type
         when :opening_tag
-          element = {:is_tag => true, :tag => @ti[:tag], :definition => @ti.definition, :nodes => TagCollection.new }
+          element = {:is_tag => true, :tag => @ti[:tag], :definition => @ti.definition, :errors => @ti[:errors], :nodes => TagCollection.new }
           element[:params] = get_formatted_element_params
 
           @bbtree.retrogress_bbtree if self_closing_tag_reached_a_closer?
@@ -47,7 +47,7 @@ module RubyBBCode
           @bbtree.escalate_bbtree(element)
         when :text
           set_parent_tag_from_multi_tag_to_concrete! if @bbtree.current_node.definition && @bbtree.current_node.definition[:multi_tag] == true
-          element = {:is_tag => false, :text => @ti.text }
+          element = {:is_tag => false, :text => @ti.text, :errors => @ti[:errors] }
           if within_open_tag?
             tag = @bbtree.current_node.definition
             if tag[:require_between]
@@ -196,8 +196,8 @@ module RubyBBCode
           return false
         end
 
-        if tag[:require_between] == true and @bbtree.current_node[:between].nil?
-          @errors << "No text between [#{@ti[:tag]}] and [/#{@ti[:tag]}] tags."
+        if tag[:require_between] and @bbtree.current_node[:between].nil?
+          add_tag_error "No text between [#{@ti[:tag]}] and [/#{@ti[:tag]}] tags.", @bbtree.current_node
           return false
         end
       end
@@ -230,7 +230,7 @@ module RubyBBCode
 
         # check if valid
         if @ti[:text].match(tag[:quick_param_format]).nil?
-          @errors << tag[:quick_param_format_description].gsub('%param%', @ti[:text])
+          add_tag_error tag[:quick_param_format_description].gsub('%param%', @ti[:text])
           return false
         end
       end
@@ -239,7 +239,7 @@ module RubyBBCode
 
     def validate_all_tags_closed_off
       # if we're still expecting a closing tag and we've come to the end of the string... throw error
-      throw_unexpected_end_of_string_error if expecting_a_closing_tag?
+      @errors << "[#{@bbtree.tags_list.to_sentence(to_sentence_bbcode_tags)}] not closed" if expecting_a_closing_tag?
     end
 
     def validate_stack_level_too_deep_potential
@@ -251,11 +251,11 @@ module RubyBBCode
     def throw_child_requires_specific_parent_error
       err = "[#{@ti[:tag]}] can only be used in [#{@ti.definition[:only_in].to_sentence(to_sentence_bbcode_tags)}]"
       err += ", so using it in a [#{parent_tag}] tag is not allowed" if expecting_a_closing_tag?
-      @errors << err
+      add_tag_error err
     end
 
     def throw_invalid_quick_param_error
-      @errors << @ti.definition[:quick_param_format_description].gsub('%param%', @ti[:invalid_quick_param])
+      add_tag_error @ti.definition[:quick_param_format_description].gsub('%param%', @ti[:invalid_quick_param])
     end
 
     def throw_parent_prohibits_this_child_error
@@ -264,11 +264,7 @@ module RubyBBCode
       err += "[#{@ti[:tag]}]" if @ti[:is_tag]
       err += "\"#{@ti[:text]}\"" unless @ti[:is_tag]
       err += ' is not allowed'
-      @errors << err
-    end
-
-    def throw_unexpected_end_of_string_error
-      @errors << "[#{@bbtree.tags_list.to_sentence(to_sentence_bbcode_tags)}] not closed"
+      add_tag_error err
     end
 
     def throw_stack_level_will_be_too_deep_error
@@ -300,6 +296,13 @@ module RubyBBCode
 
     def parent_has_constraints_on_children?
       @bbtree.parent_has_constraints_on_children?
+    end
+
+    private
+
+    def add_tag_error(message, tag = @ti)
+      @errors << message
+      tag[:errors] << message
     end
 
   end

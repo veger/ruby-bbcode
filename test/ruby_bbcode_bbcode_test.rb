@@ -161,4 +161,22 @@ class RubyBbcodeBbcodeTest < Minitest::Test
 
     assert_equal input1, input1.bbcode_show_errors
   end
+
+  def test_failing_quick_param
+    assert_equal '<span class=\'bbcode_error\'>[img]</span>image[/img]', '[img=illegal]image[/img]'.bbcode_show_errors
+  end
+
+  def failing_between_texts
+    assert_equal '<span class=\'bbcode_error\'>[img]</span>[/img]', '[img][/img]'.bbcode_show_errors
+    assert_equal '[url url=illegal url]illegal url[/url]', '[url]illegal url[/url]'.bbcode_show_errors
+  end
+
+  def test_missing_parent_tags
+    assert_equal '<span class=\'bbcode_error\'>[li]</span>[/li]', '[li][/li]'.bbcode_show_errors
+  end
+
+  def test_illegal_unallowed_childs
+    assert_equal '[ul]<span class=\'bbcode_error\'>Illegal text</span>[/ul]', '[ul]Illegal text[/ul]'.bbcode_show_errors
+    assert_equal '[ul]<span class=\'bbcode_error\'>[b]</span>Illegal tag[/b][/ul]', '[ul][b]Illegal tag[/b][/ul]'.bbcode_show_errors
+  end
 end

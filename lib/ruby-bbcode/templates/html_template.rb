@@ -16,10 +16,10 @@ module RubyBBCode::Templates
     end
 
     # Newlines are converted to html <br /> syntax before being returned.
-    def self.convert_text(text)
-      return '' if text.nil?
+    def self.convert_text(node)
+      return '' if node[:text].nil?
       # convert_newlines_to_br
-      text.gsub("\r\n", "\n").gsub("\n", "<br />\n")
+      node[:text].gsub("\r\n", "\n").gsub("\n", "<br />\n")
     end
 
     def inlay_between_text!
