@@ -19,6 +19,10 @@ module RubyBBCode
   def self.to_html(text, escape_html = true, additional_tags = {}, method = :disable, *tags)
     parse(text, escape_html, additional_tags, method, *tags)
     use_tags = determine_applicable_tags(additional_tags, method, *tags)
+
+    # We cannot convert to HTML if the BBCode is not valid!
+    raise @tag_sifter.errors.join(', ') unless @tag_sifter.valid?
+
     @tag_sifter.bbtree.to_html(use_tags)
   end
 
@@ -71,9 +75,6 @@ module RubyBBCode
 
     @tag_sifter = TagSifter.new(text, use_tags, escape_html)
     @tag_sifter.process_text
-
-    # We cannot convert to HTML if the BBCode is not valid!
-    raise @tag_sifter.errors.join(', ') unless @tag_sifter.valid?
   end
 end
 
