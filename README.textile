@@ -14,9 +14,9 @@ h2. Example
 <pre><code>'This is [b]bold[/b] and this is [i]italic[/i].'.bbcode_to_html
  => 'This is <strong>bold</strong> and this is <em>italic</em>.'</code></pre>
 
-<code>bbcode_show_errorsl</code> can be used to convert a BBCode to BBCode annotated with errors (assuming the original BBCode did contain errors):
+<code>bbcode_show_errors</code> can be used to convert a BBCode to BBCode annotated with errors (assuming the original BBCode did contain errors):
 
-<pre><code>''[img=no_dimensions_here]image.png[/img]'.bbcode_show_errors
+<pre><code>'[img=no_dimensions_here]image.png[/img]'.bbcode_show_errors
  => '<span class=\'bbcode_error\' data-bbcode-errors=\'["The image parameters \'no_dimensions_here\' are incorrect, \'<width>x<height>\' excepted"]\'>[img]</span>image.png[/img]'</code></pre>
 
 h2. Installing
