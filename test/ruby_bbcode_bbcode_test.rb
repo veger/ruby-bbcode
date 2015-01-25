@@ -166,7 +166,7 @@ class RubyBbcodeBbcodeTest < Minitest::Test
     assert_equal '<span class=\'bbcode_error\'>[img]</span>image[/img]', '[img=illegal]image[/img]'.bbcode_show_errors
   end
 
-  def failing_between_texts
+  def test_failing_between_texts
     assert_equal '<span class=\'bbcode_error\'>[img]</span>[/img]', '[img][/img]'.bbcode_show_errors
     assert_equal '[url url=illegal url]illegal url[/url]', '[url]illegal url[/url]'.bbcode_show_errors
   end
