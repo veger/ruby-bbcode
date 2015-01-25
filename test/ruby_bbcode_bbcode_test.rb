@@ -163,20 +163,20 @@ class RubyBbcodeBbcodeTest < Minitest::Test
   end
 
   def test_failing_quick_param
-    assert_equal '<span class=\'bbcode_error\'>[img]</span>image[/img]', '[img=illegal]image[/img]'.bbcode_show_errors
+    assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["The image parameters \'illegal\' are incorrect, \'<width>x<height>\' excepted"]\'>[img]</span>image[/img]', '[img=illegal]image[/img]'.bbcode_show_errors
   end
 
   def test_failing_between_texts
-    assert_equal '<span class=\'bbcode_error\'>[img]</span>[/img]', '[img][/img]'.bbcode_show_errors
+    assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["No text between [img] and [/img] tags."]\'>[img]</span>[/img]', '[img][/img]'.bbcode_show_errors
     assert_equal '[url url=illegal url]illegal url[/url]', '[url]illegal url[/url]'.bbcode_show_errors
   end
 
   def test_missing_parent_tags
-    assert_equal '<span class=\'bbcode_error\'>[li]</span>[/li]', '[li][/li]'.bbcode_show_errors
+    assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["[li] can only be used in [ul] and [ol]"]\'>[li]</span>[/li]', '[li][/li]'.bbcode_show_errors
   end
 
   def test_illegal_unallowed_childs
-    assert_equal '[ul]<span class=\'bbcode_error\'>Illegal text</span>[/ul]', '[ul]Illegal text[/ul]'.bbcode_show_errors
-    assert_equal '[ul]<span class=\'bbcode_error\'>[b]</span>Illegal tag[/b][/ul]', '[ul][b]Illegal tag[/b][/ul]'.bbcode_show_errors
+    assert_equal '[ul]<span class=\'bbcode_error\' data-bbcode-errors=\'["[ul] can only contain [li] and [*] tags, so \"Illegal text\" is not allowed"]\'>Illegal text</span>[/ul]', '[ul]Illegal text[/ul]'.bbcode_show_errors
+    assert_equal '[ul]<span class=\'bbcode_error\' data-bbcode-errors=\'["[ul] can only contain [li] and [*] tags, so [b] is not allowed"]\'>[b]</span>Illegal tag[/b][/ul]', '[ul][b]Illegal tag[/b][/ul]'.bbcode_show_errors
   end
 end

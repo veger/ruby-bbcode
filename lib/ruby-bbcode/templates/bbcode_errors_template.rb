@@ -1,3 +1,5 @@
+require 'json'
+
 module RubyBBCode::Templates
   # This class is designed to help us build up the (original) BBCode annotated with the error information.
   # It starts out as a template such as...
@@ -14,14 +16,14 @@ module RubyBBCode::Templates
       @tag_definition = node.definition # tag_definition
       @opening_part = "[#{node[:tag]}#{node.allow_params? ? '%param%' : ''}]"
       unless @node[:errors].empty?
-        @opening_part = "<span class='bbcode_error'>#{@opening_part}</span>"
+        @opening_part = "<span class='bbcode_error' #{BBCodeErrorsTemplate.error_attribute(@node[:errors])}>#{@opening_part}</span>"
       end
       @closing_part = "[/#{node[:tag]}]"
     end
 
     def self.convert_text(node)
       # Keep the text as it was
-      return "<span class='bbcode_error'>#{node[:text]}</span>" unless node[:errors].empty?
+      return "<span class='bbcode_error' #{error_attribute(node[:errors])}>#{node[:text]}</span>" unless node[:errors].empty?
       node[:text]
     end
 
@@ -50,6 +52,10 @@ module RubyBBCode::Templates
       def get_between
         return @node[:between] if @tag_definition[:require_between] and @node[:between]
         ''
+      end
+
+      def self.error_attribute(errors)
+        "data-bbcode-errors='#{JSON.fast_generate(errors)}'"
       end
   end
 end
