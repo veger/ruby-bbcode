@@ -65,7 +65,7 @@ module RubyBBCode
         :quick_param_format => /^(\d*)x(\d*)$/,
         :param_tokens => [{:token => :width, :prefix => 'width="', :postfix => '" ' },
                               { :token => :height,  :prefix => 'height="', :postfix => '" ' } ],
-        :quick_param_format_description => 'The image parameters \'%param%\' are incorrect, <width>x<height> excepted'},
+        :quick_param_format_description => 'The image parameters \'%param%\' are incorrect, \'<width>x<height>\' excepted'},
       :url => {
         :html_open => '<a href="%url%">%between%', :html_close => '</a>',
         :description => 'Link to another page',
