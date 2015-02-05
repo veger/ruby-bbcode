@@ -88,6 +88,11 @@ class RubyBbcodeValidityTest < Minitest::Test
     end
   end
 
+  def test_failing_between_texts
+    assert_equal ['No text between [img] and [/img] tags.'], '[img][/img]'.bbcode_check_validity
+    assert_equal ['The URL should start with http:// https://, ftp:// or /, instead of \'illegal url\''], '[url]illegal url[/url]'.bbcode_check_validity
+  end
+
   def test_addition_of_tags
     mydef = {
       :test => {

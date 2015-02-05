@@ -52,6 +52,11 @@ module RubyBBCode
       type == :tag and children.length > 0
     end
 
+    # Returns true when the quick parameter was invalid (i.e. it did not match the required format)
+    def invalid_quick_param?
+      @element.key? :invalid_quick_param
+    end
+
     # shows the tag definition for this TagNode as defined in tags.rb
     def definition
       @element[:definition]

@@ -38,6 +38,7 @@ module RubyBBCode
         case @ti.type
         when :opening_tag
           element = {:is_tag => true, :tag => @ti[:tag], :definition => @ti.definition, :errors => @ti[:errors], :nodes => TagCollection.new }
+          element[:invalid_quick_param] = true if @ti.invalid_quick_param?
           element[:params] = get_formatted_element_params
 
           @bbtree.retrogress_bbtree if self_closing_tag_reached_a_closer?
@@ -53,12 +54,25 @@ module RubyBBCode
           end
 
           if within_open_tag? and tag_def[:require_between]
-            @bbtree.current_node[:between] = get_formatted_between
-            if use_text_as_parameter?
-              # Between text should be used as (first) parameter
-              @bbtree.current_node[:params][tag_def[:param_tokens][0][:token]] = @bbtree.current_node[:between]
+            between = get_formatted_between
+            @bbtree.current_node[:between] = between
+            if use_text_as_parameter? and not tag_def[:quick_param_format].nil?
+              value_array = between.scan(tag_def[:quick_param_format])[0]
+              if value_array.nil?
+                if @ti[:invalid_quick_param].nil?
+                  # Add text element (with error(s))
+                  add_element = true
+
+                  # ...and clear between, as this would result in two 'between' texts
+                  @bbtree.current_node[:between] = ""
+                end
+              else
+                # Between text can be used as (first) parameter
+                @bbtree.current_node[:params][tag_def[:param_tokens][0][:token]] = between
+              end
             end
-            next  # don't add this node to @bbtree.current_node.children if we're within an open tag that requires_between (to be a param), and the between couldn't be used as a param... Yet it passed validation so the param must have been specified within the opening tag???
+            # Don't add this text node, as it is used as between (and might be used as first param)
+            next unless add_element
           end
 
           element = {:is_tag => false, :text => @ti.text, :errors => @ti[:errors] }
@@ -139,7 +153,7 @@ module RubyBBCode
         end
       end
 
-      return url # if we couldn't find a match, then just return the url, hopefully it's a valid youtube ID...
+      return url # if we couldn't find a match, then just return the url, hopefully it's a valid ID...
     end
 
     # Validates the element
@@ -165,7 +179,7 @@ module RubyBBCode
         end
 
         if @ti.invalid_quick_param?
-          throw_invalid_quick_param_error
+          throw_invalid_quick_param_error @ti
           return false
         end
       end
@@ -257,8 +271,8 @@ module RubyBBCode
       add_tag_error err
     end
 
-    def throw_invalid_quick_param_error
-      add_tag_error @ti.definition[:quick_param_format_description].gsub('%param%', @ti[:invalid_quick_param])
+    def throw_invalid_quick_param_error(tag)
+      add_tag_error tag.definition[:quick_param_format_description].gsub('%param%', tag[:invalid_quick_param]), tag
     end
 
     def throw_parent_prohibits_this_child_error
@@ -289,8 +303,8 @@ module RubyBBCode
     end
 
     def use_text_as_parameter?
-      tag_def = @bbtree.current_node.definition
-      tag_def[:allow_between_as_param] and @bbtree.current_node.params_not_set?
+      tag = @bbtree.current_node
+      tag.definition[:allow_between_as_param] and tag.params_not_set? and !tag.invalid_quick_param?
     end
 
     def parent_tag

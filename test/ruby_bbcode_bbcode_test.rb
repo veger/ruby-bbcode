@@ -168,7 +168,7 @@ class RubyBbcodeBbcodeTest < Minitest::Test
 
   def test_failing_between_texts
     assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["No text between [img] and [/img] tags."]\'>[img]</span>[/img]', '[img][/img]'.bbcode_show_errors
-    assert_equal '[url url=illegal url]illegal url[/url]', '[url]illegal url[/url]'.bbcode_show_errors
+    assert_equal '[url]<span class=\'bbcode_error\' data-bbcode-errors=\'["The URL should start with http:// https://, ftp:// or /, instead of \'illegal url\'"]\'>illegal url</span>[/url]', '[url]illegal url[/url]'.bbcode_show_errors
   end
 
   def test_missing_parent_tags
