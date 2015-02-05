@@ -85,7 +85,7 @@ module RubyBBCode
 
     # Returns true if the tag param matches the regex pattern defined in tags.rb
     def invalid_quick_param?
-      @tag_data[:invalid_quick_param]
+      @tag_data.key? :invalid_quick_param
     end
 
     protected
