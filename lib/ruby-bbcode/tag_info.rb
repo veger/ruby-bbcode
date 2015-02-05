@@ -4,8 +4,7 @@ module RubyBBCode
   #
   class TagInfo
     def initialize(tag_info, dictionary)
-      @dictionary = dictionary
-      @tag_data = find_tag_info(tag_info)
+      @tag_data = find_tag_info(tag_info, dictionary)
     end
 
     def [](key)
@@ -66,7 +65,7 @@ module RubyBBCode
 
     # Returns true if this tag element is included in the set of available tags
     def tag_in_dictionary?
-      @dictionary.include?(self[:tag])
+      !@definition.nil?
     end
 
     # Returns true if the tag that is represented by this instance is restricted on where it is allowed, i.e. if it is restricted by certain parent tags.
@@ -94,7 +93,7 @@ module RubyBBCode
     # Convert the result of the TagSifter#process_text regex into a more usable hash, that is used by the rest of the parser.
     # tag_info should a result of the regex of TagSifter#process_text
     # Returns the tag hash
-    def find_tag_info(tag_info)
+    def find_tag_info(tag_info, dictionary)
       ti = {}
       ti[:errors] = []
       ti[:complete_match] = tag_info[0]
@@ -103,7 +102,7 @@ module RubyBBCode
         ti[:closing_tag] = (tag_info[2] == '/')
         ti[:tag] = tag_info[3].to_sym
         ti[:params] = {}
-        @definition = @dictionary[ti[:tag]]
+        @definition = dictionary[ti[:tag]]
         if tag_info[5][0] == ?= and can_have_quick_param?
           quick_param = tag_info[5][1..-1]
           # Get list of parameter values and add them as (regular) parameters
