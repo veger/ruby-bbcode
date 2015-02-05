@@ -46,19 +46,22 @@ module RubyBBCode
 
           @bbtree.escalate_bbtree(element)
         when :text
-          set_parent_tag_from_multi_tag_to_concrete! if @bbtree.current_node.definition && @bbtree.current_node.definition[:multi_tag] == true
-          element = {:is_tag => false, :text => @ti.text, :errors => @ti[:errors] }
-          if within_open_tag?
-            tag = @bbtree.current_node.definition
-            if tag[:require_between]
-              @bbtree.current_node[:between] = get_formatted_between
-              if use_text_as_parameter?
-               # Between text should be used as (first) parameter
-               @bbtree.current_node[:params][tag[:param_tokens][0][:token]] = @bbtree.current_node[:between]
-              end
-              next  # don't add this node to @bbtree.current_node.children if we're within an open tag that requires_between (to be a param), and the between couldn't be used as a param... Yet it passed validation so the param must have been specified within the opening tag???
-            end
+          tag_def = @bbtree.current_node.definition
+          if tag_def and tag_def[:multi_tag] == true
+            set_parent_tag_from_multi_tag_to_concrete!
+            tag_def = @bbtree.current_node.definition
           end
+
+          if within_open_tag? and tag_def[:require_between]
+            @bbtree.current_node[:between] = get_formatted_between
+            if use_text_as_parameter?
+              # Between text should be used as (first) parameter
+              @bbtree.current_node[:params][tag_def[:param_tokens][0][:token]] = @bbtree.current_node[:between]
+            end
+            next  # don't add this node to @bbtree.current_node.children if we're within an open tag that requires_between (to be a param), and the between couldn't be used as a param... Yet it passed validation so the param must have been specified within the opening tag???
+          end
+
+          element = {:is_tag => false, :text => @ti.text, :errors => @ti[:errors] }
           @bbtree.build_up_new_tag(element)
         when :closing_tag
           @bbtree.retrogress_bbtree if parent_of_self_closing_tag? and within_open_tag?
@@ -176,9 +179,9 @@ module RubyBBCode
     def valid_constraints_on_child?
       if within_open_tag? and parent_has_constraints_on_children?
         # Check if the found tag is allowed
-        last_tag = @dictionary[parent_tag]
-        allowed_tags = last_tag[:only_allow]
-        if (!@ti[:is_tag] and last_tag[:require_between] != true and @ti[:text].lstrip != "") or (@ti[:is_tag] and (allowed_tags.include?(@ti[:tag]) == false))  # TODO: refactor this, it's just too long
+        last_tag_def = @dictionary[parent_tag]
+        allowed_tags = last_tag_def[:only_allow]
+        if (!@ti[:is_tag] and last_tag_def[:require_between] != true and @ti[:text].lstrip != "") or (@ti[:is_tag] and (allowed_tags.include?(@ti[:tag]) == false))  # TODO: refactor this, it's just too long
           # Last opened tag does not allow tag
           throw_parent_prohibits_this_child_error
           return false
@@ -188,7 +191,6 @@ module RubyBBCode
     end
 
     def valid_closing_element?
-      tag = @ti.definition
 
       if @ti.element_is_closing_tag?
         if parent_tag != @ti[:tag] and !parent_of_self_closing_tag?
@@ -196,7 +198,8 @@ module RubyBBCode
           return false
         end
 
-        if tag[:require_between] and @bbtree.current_node[:between].nil?
+        tag_def = @bbtree.current_node.definition
+        if tag_def[:require_between] and @bbtree.current_node[:between].nil?
           add_tag_error "No text between [#{@ti[:tag]}] and [/#{@ti[:tag]}] tags.", @bbtree.current_node
           return false
         end
@@ -223,14 +226,14 @@ module RubyBBCode
     # The validation code checks if the params match constraints
     # imposed by the node/tag/parent.
     def valid_param_supplied_as_text?
-      tag = @bbtree.current_node.definition
+      tag_def = @bbtree.current_node.definition
 
       # this conditional ensures whether the validation is apropriate to this tag type
-      if @ti.element_is_text? and within_open_tag? and tag[:require_between] and use_text_as_parameter?
+      if @ti.element_is_text? and within_open_tag? and tag_def[:require_between] and use_text_as_parameter?
 
         # check if valid
-        if @ti[:text].match(tag[:quick_param_format]).nil?
-          add_tag_error tag[:quick_param_format_description].gsub('%param%', @ti[:text])
+        if @ti[:text].match(tag_def[:quick_param_format]).nil?
+          add_tag_error tag_def[:quick_param_format_description].gsub('%param%', @ti[:text])
           return false
         end
       end
@@ -286,8 +289,8 @@ module RubyBBCode
     end
 
     def use_text_as_parameter?
-      tag = @bbtree.current_node.definition
-      tag[:allow_between_as_param] and @bbtree.current_node.params_not_set?
+      tag_def = @bbtree.current_node.definition
+      tag_def[:allow_between_as_param] and @bbtree.current_node.params_not_set?
     end
 
     def parent_tag
