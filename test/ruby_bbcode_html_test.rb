@@ -74,7 +74,7 @@ class RubyBbcodeHtmlTest < Minitest::Test
   end
 
   def test_quote
-    assert_equal '<div class="quote">quoting</div>',  '[quote]quoting[/quote]'.bbcode_to_html
+    assert_equal '<div class="quote">quoting</div>', '[quote]quoting[/quote]'.bbcode_to_html
     assert_equal '<div class="quote"><strong>someone wrote:</strong>quoting</div>', '[quote=someone]quoting[/quote]'.bbcode_to_html
     assert_equal '<div class="quote"><strong>Kitten wrote:</strong><div class="quote"><strong>creatiu wrote:</strong>f1</div>f2</div>',
                   '[quote=Kitten][quote=creatiu]f1[/quote]f2[/quote]'.bbcode_to_html
@@ -96,19 +96,19 @@ class RubyBbcodeHtmlTest < Minitest::Test
   end
 
   def test_youtube
-    assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>' ,
+    assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>',
                    '[youtube]E4Fbk52Mk1w[/youtube]'.bbcode_to_html
   end
 
   def test_youtube_with_full_url
     full_url = "http://www.youtube.com/watch?feature=player_embedded&v=E4Fbk52Mk1w"
-    assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>' ,
+    assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>',
                    "[youtube]#{full_url}[/youtube]".bbcode_to_html
   end
 
   def test_youtube_with_url_shortener
     full_url = "http://www.youtu.be/cSohjlYQI2A"
-    assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/cSohjlYQI2A"></param><embed src="http://www.youtube.com/v/cSohjlYQI2A" type="application/x-shockwave-flash" width="400" height="325"></embed></object>' ,
+    assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/cSohjlYQI2A"></param><embed src="http://www.youtube.com/v/cSohjlYQI2A" type="application/x-shockwave-flash" width="400" height="325"></embed></object>',
                    "[youtube]#{full_url}[/youtube]".bbcode_to_html
   end
 
