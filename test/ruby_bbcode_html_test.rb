@@ -185,4 +185,14 @@ class RubyBbcodeHtmlTest < Minitest::Test
 
     assert_equal input1, input1.bbcode_to_html
   end
+
+  def test_raised_exceptions
+    # Test whether exceptions are raised when the BBCode contains errors
+    assert_raises RuntimeError do
+      'this [b]should raise an exception'.bbcode_to_html
+    end
+    assert_raises RuntimeError do
+      '[ul][li]item 1[li]item 2[/ul]'.bbcode_to_html
+    end
+  end
 end
