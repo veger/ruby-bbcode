@@ -11,7 +11,7 @@ module RubyBBCode
       @text = escape_html ? text_to_parse.gsub('<', '&lt;').gsub('>', '&gt;').gsub('"', "&quot;") : text_to_parse
 
       @dictionary = dictionary # dictionary containing all allowed/defined tags
-      @bbtree = BBTree.new({:nodes => TagCollection.new}, dictionary)
+      @bbtree = BBTree.new({:nodes => TagCollection.new})
       @ti = nil
       @errors = []
     end
@@ -173,9 +173,10 @@ module RubyBBCode
 
     def valid_opening_tag?
       if @ti.element_is_opening_tag?
-        if @ti.only_allowed_in_parent_tags? and (!within_open_tag? or !@ti.allowed_in? parent_tag) and !self_closing_tag_reached_a_closer?
+        if @ti.only_allowed_in_parent_tags? and (!within_open_tag? or !@ti.allowed_in? parent_tag[:tag]) and !self_closing_tag_reached_a_closer?
           # Tag doesn't belong in the last opened tag
-          throw_child_requires_specific_parent_error; return false
+          throw_child_requires_specific_parent_error
+          return false
         end
 
         if @ti.invalid_quick_param?
@@ -193,7 +194,7 @@ module RubyBBCode
     def valid_constraints_on_child?
       if within_open_tag? and parent_has_constraints_on_children?
         # Check if the found tag is allowed
-        last_tag_def = @dictionary[parent_tag]
+        last_tag_def = parent_tag[:definition]
         allowed_tags = last_tag_def[:only_allow]
         if (!@ti[:is_tag] and last_tag_def[:require_between] != true and @ti[:text].lstrip != "") or (@ti[:is_tag] and (allowed_tags.include?(@ti[:tag]) == false))  # TODO: refactor this, it's just too long
           # Last opened tag does not allow tag
@@ -207,9 +208,18 @@ module RubyBBCode
     def valid_closing_element?
 
       if @ti.element_is_closing_tag?
-        if parent_tag != @ti[:tag] and !parent_of_self_closing_tag?
-          @errors << "Closing tag [/#{@ti[:tag]}] doesn't match [#{parent_tag}]"
+
+        if parent_tag.nil?
+          add_tag_error "Closing tag [/#{@ti[:tag]}] doesn't match an opening tag"
           return false
+        end
+
+        if parent_tag[:tag] != @ti[:tag] and !parent_of_self_closing_tag?
+          # Make an exception for 'supported tags'
+          if @ti.definition[:supported_tags].nil? or ! @ti.definition[:supported_tags].include? parent_tag[:tag]
+            add_tag_error "Closing tag [/#{@ti[:tag]}] doesn't match [#{parent_tag[:tag]}]"
+            return false
+          end
         end
 
         tag_def = @bbtree.current_node.definition
@@ -256,7 +266,7 @@ module RubyBBCode
 
     def validate_all_tags_closed_off
       # if we're still expecting a closing tag and we've come to the end of the string... throw error
-      @errors << "[#{@bbtree.tags_list.to_sentence(to_sentence_bbcode_tags)}] not closed" if expecting_a_closing_tag?
+      @errors << "[#{@bbtree.tags_list.collect { |tag| tag[:tag] }.to_sentence(to_sentence_bbcode_tags)}] not closed" if expecting_a_closing_tag?
     end
 
     def validate_stack_level_too_deep_potential
@@ -267,7 +277,7 @@ module RubyBBCode
 
     def throw_child_requires_specific_parent_error
       err = "[#{@ti[:tag]}] can only be used in [#{@ti.definition[:only_in].to_sentence(to_sentence_bbcode_tags)}]"
-      err += ", so using it in a [#{parent_tag}] tag is not allowed" if expecting_a_closing_tag?
+      err += ", so using it in a [#{parent_tag[:tag]}] tag is not allowed" if expecting_a_closing_tag?
       add_tag_error err
     end
 
@@ -276,8 +286,8 @@ module RubyBBCode
     end
 
     def throw_parent_prohibits_this_child_error
-      allowed_tags = @dictionary[parent_tag][:only_allow]
-      err = "[#{parent_tag}] can only contain [#{allowed_tags.to_sentence(to_sentence_bbcode_tags)}] tags, so "
+      allowed_tags = parent_tag[:definition][:only_allow]
+      err = "[#{parent_tag[:tag]}] can only contain [#{allowed_tags.to_sentence(to_sentence_bbcode_tags)}] tags, so "
       err += "[#{@ti[:tag]}]" if @ti[:is_tag]
       err += "\"#{@ti[:text]}\"" unless @ti[:is_tag]
       err += ' is not allowed'
@@ -321,6 +331,5 @@ module RubyBBCode
       @errors << message
       tag[:errors] << message
     end
-
   end
 end

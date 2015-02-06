@@ -12,11 +12,10 @@ module RubyBBCode
   class BBTree
     attr_accessor :current_node, :tags_list
 
-    def initialize(hash = { :nodes => TagCollection.new }, dictionary)
+    def initialize(hash = { :nodes => TagCollection.new })
       @bbtree = hash
       @current_node = TagNode.new(@bbtree)
       @tags_list = []
-      @dictionary = dictionary
     end
 
     def [](key)
@@ -49,13 +48,13 @@ module RubyBBCode
 
     # Return true if the parent tag only allows certain child tags
     def parent_has_constraints_on_children?
-      @dictionary[parent_tag][:only_allow] != nil
+      parent_tag[:definition][:only_allow] != nil
     end
 
     # Advance to next level (the node we just added)
     def escalate_bbtree(element)
-      @tags_list.push element[:tag]
       @current_node = TagNode.new(element)
+      @tags_list.push @current_node
     end
 
     # Step down the bbtree a notch because we've reached a closing tag
