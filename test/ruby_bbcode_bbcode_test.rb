@@ -162,6 +162,15 @@ class RubyBbcodeBbcodeTest < Minitest::Test
     assert_equal input1, input1.bbcode_show_errors
   end
 
+  def test_wrong_tags
+    assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["[b] not closed"]\'>[b]</span>Not closed', '[b]Not closed'.bbcode_show_errors
+    assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["[b] not closed"]\'>[b]</span>2 not <span class=\'bbcode_error\' data-bbcode-errors=\'["[i] not closed"]\'>[i]</span>closed', '[b]2 not [i]closed'.bbcode_show_errors
+
+    assert_equal 'Closing tag not matching<span class=\'bbcode_error\' data-bbcode-errors=\'["Closing tag [/b] doesn\'t match an opening tag"]\'>[/b]</span>', 'Closing tag not matching[/b]'.bbcode_show_errors
+
+    assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["[b] not closed"]\'>[b]</span>Other closing tag<span class=\'bbcode_error\' data-bbcode-errors=\'["Closing tag [/i] doesn\'t match [b]"]\'>[/i]</span>', '[b]Other closing tag[/i]'.bbcode_show_errors
+  end
+
   def test_failing_quick_param
     assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["The image parameters \'illegal\' are incorrect, \'<width>x<height>\' excepted"]\'>[img]</span>image[/img]', '[img=illegal]image[/img]'.bbcode_show_errors
   end

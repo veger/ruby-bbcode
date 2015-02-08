@@ -9,7 +9,7 @@ module RubyBBCode::Templates
   #   @opening_part = '[url=http://www.blah.com"]cool beans'
   #   @closing_part = '[/url]'
   class BBCodeErrorsTemplate
-    attr_accessor :opening_part, :closing_part
+    attr_accessor :opening_part
 
     def initialize(node)
       @node = node
@@ -45,6 +45,10 @@ module RubyBBCode::Templates
 
     def remove_unused_tokens!
       @opening_part.gsub!('%param%', '')
+    end
+
+    def closing_part
+      @node[:closed] == false ? '' : @closing_part
     end
 
     private

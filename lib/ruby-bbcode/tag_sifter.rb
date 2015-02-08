@@ -75,11 +75,16 @@ module RubyBBCode
             next unless add_element
           end
 
-          element = {:is_tag => false, :text => @ti.text, :errors => @ti[:errors] }
-          @bbtree.build_up_new_tag(element)
+          create_text_element
         when :closing_tag
-          @bbtree.retrogress_bbtree if parent_of_self_closing_tag? and within_open_tag?
-          @bbtree.retrogress_bbtree
+          if @ti[:wrong_closing]
+            # Convert into text, so it
+            @ti.handle_tag_as_text
+            create_text_element
+          else
+            @bbtree.retrogress_bbtree if parent_of_self_closing_tag? and within_open_tag?
+            @bbtree.retrogress_bbtree
+          end
         end
 
       end # end of scan loop
@@ -126,6 +131,11 @@ module RubyBBCode
     end
 
     private
+
+    def create_text_element
+      element = {:is_tag => false, :text => @ti.text, :errors => @ti[:errors] }
+      @bbtree.build_up_new_tag(element)
+    end
 
     # Gets the params, and format them if needed...
     def get_formatted_element_params
@@ -211,6 +221,7 @@ module RubyBBCode
 
         if parent_tag.nil?
           add_tag_error "Closing tag [/#{@ti[:tag]}] doesn't match an opening tag"
+          @ti[:wrong_closing] = true
           return false
         end
 
@@ -218,6 +229,7 @@ module RubyBBCode
           # Make an exception for 'supported tags'
           if @ti.definition[:supported_tags].nil? or ! @ti.definition[:supported_tags].include? parent_tag[:tag]
             add_tag_error "Closing tag [/#{@ti[:tag]}] doesn't match [#{parent_tag[:tag]}]"
+            @ti[:wrong_closing] = true
             return false
           end
         end
@@ -265,8 +277,13 @@ module RubyBBCode
     end
 
     def validate_all_tags_closed_off
-      # if we're still expecting a closing tag and we've come to the end of the string... throw error
-      @errors << "[#{@bbtree.tags_list.collect { |tag| tag[:tag] }.to_sentence(to_sentence_bbcode_tags)}] not closed" if expecting_a_closing_tag?
+      # if we're still expecting a closing tag and we've come to the end of the string... throw error(s)
+      if expecting_a_closing_tag?
+        @bbtree.tags_list.each do |tag|
+          add_tag_error "[#{tag[:tag]}] not closed", tag
+          tag[:closed] = false
+        end
+      end
     end
 
     def validate_stack_level_too_deep_potential

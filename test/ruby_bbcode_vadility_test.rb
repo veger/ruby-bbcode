@@ -32,10 +32,12 @@ class RubyBbcodeValidityTest < Minitest::Test
 
   def test_unordered_list_omit_closing
     errors = '[ul][li]item 1[li]item 2[/ul]'.bbcode_check_validity
-    assert_equal 3, errors.length
+    assert_equal 5, errors.length
+
     assert_includes errors, '[li] can only be used in [ul] and [ol], so using it in a [li] tag is not allowed'
     assert_includes errors, 'Closing tag [/ul] doesn\'t match [li]'
-    assert_includes errors, '[ul] and [li] not closed'
+    assert_includes errors, '[ul] not closed'
+    assert_includes errors, '[li] not closed' # twice
   end
 
   def test_illegal_link
@@ -53,7 +55,7 @@ class RubyBbcodeValidityTest < Minitest::Test
   end
 
   def test_different_start_and_ending_tags
-    assert_equal ["Closing tag [/i] doesn't match [b]"], "this [b]should not do formatting[/i]".bbcode_check_validity
+    assert_equal ["Closing tag [/i] doesn't match [b]", "[b] not closed"], "this [b]should not do formatting[/i]".bbcode_check_validity
   end
 
   def test_failing_between_texts
