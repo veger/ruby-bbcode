@@ -243,13 +243,18 @@ module RubyBBCode
           end
         end
 
-        tag_def = @bbtree.current_node.definition
-        if (tag_def[:require_between] or tag_def[:multi_tag]) and @bbtree.current_node[:between].nil?
+        
+        if current_tag_requires_between_but_none_given?
           add_tag_error "No text between [#{@ti[:tag]}] and [/#{@ti[:tag]}] tags.", @bbtree.current_node
           return false
         end
       end
       true
+    end
+    
+    def current_tag_requires_between_but_none_given?
+      tag_def = @bbtree.current_node.definition
+      (tag_def[:require_between] or (tag_def[:multi_tag]) and tag_def[:require_between] != false) and @bbtree.current_node[:between].nil?
     end
 
     def parent_of_self_closing_tag?
