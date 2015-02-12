@@ -254,7 +254,7 @@ module RubyBBCode
     
     def current_tag_requires_between_but_none_given?
       tag_def = @bbtree.current_node.definition
-      (tag_def[:require_between] or (tag_def[:multi_tag]) and tag_def[:require_between] != false) and @bbtree.current_node[:between].nil?
+      tag_def[:require_between] or (tag_def[:multi_tag] and tag_def[:require_between] != false) and @bbtree.current_node[:between].nil?
     end
 
     def parent_of_self_closing_tag?

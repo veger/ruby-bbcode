@@ -74,12 +74,25 @@ class RubyBbcodeValidityTest < Minitest::Test
         :require_between => false,
         :multi_tag => true,
         :description => 'This is a test',
-        :example => '[test]Test here[/test]',
+        :example => '[can_be_empty]Test here[/can_be_empty]',
         :param_tokens => [{:token => :can_be_empty}]
       }
     }
     
     assert '[can_be_empty][/can_be_empty]'.bbcode_check_validity(mydef) == true
+  end
+  
+  def test_failing_between_texts_for_multi_tags_by_default_requiring_between_text
+    mydef = {
+      :cant_be_empty => {
+        :multi_tag => true,
+        :description => 'This is a test',
+        :example => '[cant_be_empty]Test here[/cant_be_empty]',
+        :param_tokens => [{:token => :cant_be_empty}]
+      }
+    }
+    
+    assert '[cant_be_empty][/cant_be_empty]'.bbcode_check_validity(mydef) != true
   end
 
   def test_addition_of_tags
