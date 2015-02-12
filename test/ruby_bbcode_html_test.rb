@@ -100,11 +100,6 @@ class RubyBbcodeHtmlTest < Minitest::Test
                    '[youtube]E4Fbk52Mk1w[/youtube]'.bbcode_to_html
   end
 
-  def test_errors_dont_prevent_further_processing
-    assert_equal '[media][/media]<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>',
-                   '[media][/media][youtube]E4Fbk52Mk1w[/youtube]'.bbcode_to_html
-  end
-
   def test_youtube_with_full_url
     full_url = "http://www.youtube.com/watch?feature=player_embedded&v=E4Fbk52Mk1w"
     assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>',

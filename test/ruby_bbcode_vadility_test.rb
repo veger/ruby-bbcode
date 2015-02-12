@@ -67,6 +67,20 @@ class RubyBbcodeValidityTest < Minitest::Test
     assert_equal "<span class='bbcode_error' data-bbcode-errors='[\"No text between [media] and [/media] tags.\"]'>[media]</span>[/media][b]E4Fbk52Mk1w[/b]",
                    '[media][/media][b]E4Fbk52Mk1w[/b]'.bbcode_show_errors
   end
+  
+  def test_succeeding_between_texts_for_multi_tags_explicitly_marked_to_require_between_false
+    mydef = {
+      :can_be_empty => {
+        :require_between => false,
+        :multi_tag => true,
+        :description => 'This is a test',
+        :example => '[test]Test here[/test]',
+        :param_tokens => [{:token => :can_be_empty}]
+      }
+    }
+    
+    assert '[can_be_empty][/can_be_empty]'.bbcode_check_validity(mydef) == true
+  end
 
   def test_addition_of_tags
     mydef = {
