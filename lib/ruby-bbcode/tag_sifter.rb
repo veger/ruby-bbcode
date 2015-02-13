@@ -124,13 +124,22 @@ module RubyBBCode
     def handle_closing_tags_that_are_multi_as_text_if_it_doesnt_match_the_latest_opener_tag_on_the_stack
       if @ti.element_is_closing_tag?
         return if @bbtree.current_node[:definition].nil?
-        if parent_tag != @ti[:tag] and @bbtree.current_node[:definition][:multi_tag]       # if opening tag doesn't match this closing tag... and if the opener was a multi_tag...
+        if current_tag_is_of_differing_type_from_parent and @bbtree.current_node[:definition][:multi_tag]       # if opening tag doesn't match this closing tag... and if the opener was a multi_tag...
           @ti.handle_tag_as_text
         end
       end
     end
 
     private
+
+    def current_tag_is_of_same_type_as_parent
+      return false if parent_tag.nil?
+      parent_tag[:tag] == @ti[:tag]
+    end
+
+    def current_tag_is_of_differing_type_from_parent
+      !current_tag_is_of_same_type_as_parent
+    end
 
     def create_text_element
       element = {:is_tag => false, :text => @ti.text, :errors => @ti[:errors] }
@@ -234,13 +243,18 @@ module RubyBBCode
           end
         end
 
-        tag_def = @bbtree.current_node.definition
-        if tag_def[:require_between] and @bbtree.current_node[:between].nil?
+        
+        if current_tag_requires_between_but_none_given?
           add_tag_error "No text between [#{@ti[:tag]}] and [/#{@ti[:tag]}] tags.", @bbtree.current_node
           return false
         end
       end
       true
+    end
+    
+    def current_tag_requires_between_but_none_given?
+      tag_def = @bbtree.current_node.definition
+      tag_def[:require_between] or (tag_def[:multi_tag] and tag_def[:require_between] != false) and @bbtree.current_node[:between].nil?
     end
 
     def parent_of_self_closing_tag?

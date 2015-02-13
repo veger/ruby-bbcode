@@ -63,6 +63,38 @@ class RubyBbcodeValidityTest < Minitest::Test
     assert_equal ['The URL should start with http:// https://, ftp:// or /, instead of \'illegal url\''], '[url]illegal url[/url]'.bbcode_check_validity
   end
 
+  def test_failing_between_texts_on_multi_tags
+    assert_equal "<span class='bbcode_error' data-bbcode-errors='[\"No text between [media] and [/media] tags.\"]'>[media]</span>[/media][b]E4Fbk52Mk1w[/b]",
+                   '[media][/media][b]E4Fbk52Mk1w[/b]'.bbcode_show_errors
+  end
+  
+  def test_succeeding_between_texts_for_multi_tags_explicitly_marked_to_require_between_false
+    mydef = {
+      :can_be_empty => {
+        :require_between => false,
+        :multi_tag => true,
+        :description => 'This is a test',
+        :example => '[can_be_empty]Test here[/can_be_empty]',
+        :param_tokens => [{:token => :can_be_empty}]
+      }
+    }
+    
+    assert '[can_be_empty][/can_be_empty]'.bbcode_check_validity(mydef) == true
+  end
+  
+  def test_failing_between_texts_for_multi_tags_by_default_requiring_between_text
+    mydef = {
+      :cant_be_empty => {
+        :multi_tag => true,
+        :description => 'This is a test',
+        :example => '[cant_be_empty]Test here[/cant_be_empty]',
+        :param_tokens => [{:token => :cant_be_empty}]
+      }
+    }
+    
+    assert '[cant_be_empty][/cant_be_empty]'.bbcode_check_validity(mydef) != true
+  end
+
   def test_addition_of_tags
     mydef = {
       :test => {
