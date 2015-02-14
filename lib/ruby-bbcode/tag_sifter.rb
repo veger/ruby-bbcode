@@ -31,7 +31,6 @@ module RubyBBCode
 
         # if the tag isn't in the @dictionary list, then treat it as text
         @ti.handle_tag_as_text if @ti.element_is_tag? and !@ti.tag_in_dictionary?
-        handle_closing_tags_that_are_multi_as_text_if_it_doesnt_match_the_latest_opener_tag_on_the_stack
 
         validate_element
 
@@ -49,7 +48,7 @@ module RubyBBCode
         when :text
           tag_def = @bbtree.current_node.definition
           if tag_def and tag_def[:multi_tag] == true
-            set_parent_tag_from_multi_tag_to_concrete!
+            set_multi_tag_to_actual_tag
             tag_def = @bbtree.current_node.definition
           end
 
@@ -86,25 +85,25 @@ module RubyBBCode
             @bbtree.retrogress_bbtree
           end
         end
-
       end # end of scan loop
 
       validate_all_tags_closed_off
       validate_stack_level_too_deep_potential
     end
 
-    def set_parent_tag_from_multi_tag_to_concrete!
-      # if the proper tag can't be matched, we need to treat the parent tag as text instead!  Or throw an error message....
+    private
 
+    def set_multi_tag_to_actual_tag
+      # Try to find the actual tag
       tag = get_actual_tag
       if tag == :tag_not_found
-        @bbtree.redefine_parent_tag_as_text
-
-        @bbtree.nodes << TagNode.new(@ti.tag_data)      # escalate the bbtree with this element as though it's regular text data...
-        return
+        # Add error
+        add_tag_error "Unknown multi-tag type for [#{@bbtree.current_node[:tag]}]", @bbtree.current_node
+      else
+        # Update current_node with found information, so it behaves as the actual tag
+        @bbtree.current_node[:definition] = @dictionary[tag]
+        @bbtree.current_node[:tag] = tag
       end
-      @bbtree.current_node[:definition] = @dictionary[tag]
-      @bbtree.current_node[:tag] = tag
     end
 
     # The media tag support multiple other tags, this method checks the tag url param to find actual tag type (to use)
@@ -120,17 +119,6 @@ module RubyBBCode
       end
       :tag_not_found
     end
-
-    def handle_closing_tags_that_are_multi_as_text_if_it_doesnt_match_the_latest_opener_tag_on_the_stack
-      if @ti.element_is_closing_tag?
-        return if @bbtree.current_node[:definition].nil?
-        if parent_tag != @ti[:tag] and @bbtree.current_node[:definition][:multi_tag]       # if opening tag doesn't match this closing tag... and if the opener was a multi_tag...
-          @ti.handle_tag_as_text
-        end
-      end
-    end
-
-    private
 
     def create_text_element
       element = {:is_tag => false, :text => @ti.text, :errors => @ti[:errors] }
@@ -236,7 +224,9 @@ module RubyBBCode
 
         tag_def = @bbtree.current_node.definition
         if tag_def[:require_between] and @bbtree.current_node[:between].nil?
-          add_tag_error "No text between [#{@ti[:tag]}] and [/#{@ti[:tag]}] tags.", @bbtree.current_node
+          err = "No text between [#{@ti[:tag]}] and [/#{@ti[:tag]}] tags."
+          err = "Cannot determine multi-tag type: #{err}" if tag_def[:multi_tag]
+          add_tag_error err, @bbtree.current_node
           return false
         end
       end

@@ -180,12 +180,6 @@ class RubyBbcodeHtmlTest < Minitest::Test
     assert_equal output, input2.bbcode_to_html
   end
 
-  def test_failing_media_tag
-    input1 = "[media]http://www.youtoob.com/watch?v=cSohjlYQI2A[/media]"
-
-    assert_equal input1, input1.bbcode_to_html
-  end
-
   def test_raised_exceptions
     # Test whether exceptions are raised when the BBCode contains errors
     assert_raises RuntimeError do

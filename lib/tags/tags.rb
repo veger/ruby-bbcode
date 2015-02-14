@@ -113,6 +113,7 @@ module RubyBBCode
         :require_between => true},
       :media => {
         :multi_tag => true,
+        :require_between => true,
         :supported_tags => [
           :youtube,
           :vimeo

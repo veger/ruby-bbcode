@@ -61,6 +61,11 @@ class RubyBbcodeValidityTest < Minitest::Test
   def test_failing_between_texts
     assert_equal ['No text between [img] and [/img] tags.'], '[img][/img]'.bbcode_check_validity
     assert_equal ['The URL should start with http:// https://, ftp:// or /, instead of \'illegal url\''], '[url]illegal url[/url]'.bbcode_check_validity
+    assert_equal ['Cannot determine multi-tag type: No text between [media] and [/media] tags.'], '[media][/media]'.bbcode_check_validity
+  end
+
+  def test_failing_media_tag
+    assert_equal ['Unknown multi-tag type for [media]'], '[media]http://www.youtoob.com/watch?v=cSohjlYQI2A[/media]'.bbcode_check_validity
   end
 
   def test_addition_of_tags

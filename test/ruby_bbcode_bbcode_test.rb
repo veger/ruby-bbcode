@@ -157,9 +157,7 @@ class RubyBbcodeBbcodeTest < Minitest::Test
   end
 
   def test_failing_media_tag
-    input1 = '[media]http://www.youtoob.com/watch?v=cSohjlYQI2A[/media]'
-
-    assert_equal input1, input1.bbcode_show_errors
+    assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["Unknown multi-tag type for [media]"]\'>[media]</span>http://www.youtoob.com/watch?v=cSohjlYQI2A[/media]', '[media]http://www.youtoob.com/watch?v=cSohjlYQI2A[/media]'.bbcode_show_errors
   end
 
   def test_wrong_tags
