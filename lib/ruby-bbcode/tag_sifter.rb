@@ -55,8 +55,8 @@ module RubyBBCode
           if within_open_tag? and tag_def[:require_between]
             between = get_formatted_between
             @bbtree.current_node[:between] = between
-            if use_text_as_parameter? and not tag_def[:quick_param_format].nil?
-              value_array = between.scan(tag_def[:quick_param_format])[0]
+            if use_text_as_parameter?
+              value_array = tag_def[:quick_param_format].nil? ? true : between.scan(tag_def[:quick_param_format])[0]
               if value_array.nil?
                 if @ti[:invalid_quick_param].nil?
                   # Add text element (with error(s))
@@ -255,7 +255,7 @@ module RubyBBCode
       tag_def = @bbtree.current_node.definition
 
       # this conditional ensures whether the validation is apropriate to this tag type
-      if @ti.element_is_text? and within_open_tag? and tag_def[:require_between] and use_text_as_parameter?
+      if @ti.element_is_text? and within_open_tag? and tag_def[:require_between] and use_text_as_parameter? and not tag_def[:quick_param_format].nil?
 
         # check if valid
         if @ti[:text].match(tag_def[:quick_param_format]).nil?
