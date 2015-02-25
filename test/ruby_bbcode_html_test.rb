@@ -121,6 +121,20 @@ class RubyBbcodeHtmlTest < Minitest::Test
     assert_equal '2 is > 1', '2 is > 1'.bbcode_to_html(false)
   end
 
+  def test_uri_escaping
+    # There is no tag available, so create our own to test URI escaping
+    escape_param_def = {
+      :escapequery => {
+        :html_open => '<a href="%query%">%between%', :html_close => '</a>',
+        :require_between => true, :allow_quick_param => false, :allow_between_as_param => true,
+        :param_tokens => [{:token => :query, :uri_escape => true}]}
+    }
+    assert_equal '<a href="Escaped+string+%28to+be+used+as+URL+%26+more%29">Escaped string (to be used as URL & more)</a>',
+        '[escapequery]Escaped string (to be used as URL & more)[/escapequery]'.bbcode_to_html(true, escape_param_def)
+    assert_equal '<a href="http%3A%3A%2Fwww.text.com%2Fpage.php%3Fparam1%3D1%26param2%3D2">http::/www.text.com/page.php?param1=1&param2=2</a>',
+        '[escapequery]http::/www.text.com/page.php?param1=1&param2=2[/escapequery]'.bbcode_to_html(true, escape_param_def)
+  end
+
   def test_disable_tags
     assert_equal "[b]foobar[/b]", "[b]foobar[/b]".bbcode_to_html(true, {}, :disable, :b)
     assert_equal "[b]<em>foobar</em>[/b]", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :disable, :b)
