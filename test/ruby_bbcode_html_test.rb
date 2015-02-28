@@ -203,4 +203,34 @@ class RubyBbcodeHtmlTest < Minitest::Test
       '[ul][li]item 1[li]item 2[/ul]'.bbcode_to_html
     end
   end
+
+  def test_uppercase
+    assert_equal '<strong>simple</strong>', '[B]simple[/B]'.bbcode_to_html
+    assert_equal "<strong>line 1<br />\nline 2</strong>", "[B]line 1\nline 2[/B]".bbcode_to_html
+  end
+
+  def test_uppercase_with_params
+    assert_equal '<span style="font-size: 4px;">simple</span>', '[SIZE=4]simple[/SIZE]'.bbcode_to_html
+    assert_equal "<span style=\"font-size: 4px;\">line 1<br />\nline 2</span>", "[SIZE=4]line 1\nline 2[/SIZE]".bbcode_to_html
+  end
+
+  def test_uppercase_at_tag_open
+    assert_equal '<strong>simple</strong>', '[B]simple[/b]'.bbcode_to_html
+    assert_equal "<strong>line 1<br />\nline 2</strong>", "[B]line 1\nline 2[/b]".bbcode_to_html
+  end
+
+  def test_uppercase_at_tag_close
+    assert_equal '<strong>simple</strong>', '[b]simple[/B]'.bbcode_to_html
+    assert_equal "<strong>line 1<br />\nline 2</strong>", "[b]line 1\nline 2[/B]".bbcode_to_html
+  end
+
+  def test_nested_uppercase_tags
+    assert_equal '<ul><li>item 1</li><li>item 2</li></ul>', '[UL][LI]item 1[/LI][LI]item 2[/LI][/UL]'.bbcode_to_html
+    assert_equal "<ul><li>line 1<br />\nline 2</li><li>line 1<br />\nline 2</li></ul>", "[UL][LI]line 1\nline 2[/LI][LI]line 1\nline 2[/LI][/UL]".bbcode_to_html
+  end
+
+  def test_parent_uppercase_in_nested_tags
+    assert_equal '<ul><li>item 1</li><li>item 2</li></ul>', '[UL][li]item 1[/li][li]item 2[/li][/UL]'.bbcode_to_html
+    assert_equal "<ul><li>line 1<br />\nline 2</li><li>line 1<br />\nline 2</li></ul>", "[UL][li]line 1\nline 2[/li][li]line 1\nline 2[/li][/UL]".bbcode_to_html
+  end
 end
