@@ -100,7 +100,7 @@ module RubyBBCode
       ti[:is_tag] = (tag_info[0].start_with? '[')
       if ti[:is_tag]
         ti[:closing_tag] = (tag_info[2] == '/')
-        ti[:tag] = tag_info[3].to_sym
+        ti[:tag] = tag_info[3].to_sym.downcase
         ti[:params] = {}
         @definition = dictionary[ti[:tag]]
         if tag_info[5][0] == ?= and can_have_quick_param?
