@@ -7,6 +7,7 @@ Upcoming
 * Changed tag description symbols (to become descriptive), **breaks existing custom tag additiona!**
 * Add support to show the BBCode annotated with errors (when there are any)
 * Add support to escape token value using :uri_escape.
+* Recognize uppercase tags (issue #27)
 
 Version 1.0.1 - 04-Jan-2015
 
