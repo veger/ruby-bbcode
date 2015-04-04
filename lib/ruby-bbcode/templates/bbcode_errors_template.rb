@@ -59,7 +59,9 @@ module RubyBBCode::Templates
       end
 
       def self.error_attribute(errors)
-        "data-bbcode-errors='#{JSON.fast_generate(errors)}'"
+        # Escape (double) quotes so the JSON can be generated properly (and parsed properly by JavaScript)
+        escapedErrors = errors.map { |error| error.gsub("\"","&quot;").gsub("'", "&#39;")}
+        "data-bbcode-errors='#{JSON.fast_generate(escapedErrors)}'"
       end
   end
 end
