@@ -40,6 +40,17 @@ class RubyBbcodeValidityTest < Minitest::Test
     assert_includes errors, '[li] not closed' # twice
   end
 
+  def test_required_parameters
+    assert '[size=12]text[/size]'.bbcode_check_validity
+    assert '[size size=12]text[/size]'.bbcode_check_validity
+    assert_equal ['Tag [size] must have \'size\' parameter'], '[size]text[/size]'.bbcode_check_validity
+  end
+
+  def test_optional_parameters
+    assert '[img]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_check_validity
+    assert '[img width=100 height=100]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_check_validity
+  end
+
   def test_illegal_link
     assert_equal ['The URL should start with http:// https://, ftp:// or /, instead of \'index.html\''], '[url=index.html]Home[/url]'.bbcode_check_validity
     assert_equal ['The URL should start with http:// https://, ftp:// or /, instead of \'www.google.com\''], '[url=www.google.com]Google[/url]'.bbcode_check_validity

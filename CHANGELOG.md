@@ -9,6 +9,7 @@ Upcoming
 * Add support to escape token value using :uri_escape.
 * Recognize uppercase tags (issue #27)
 * Support [iframe-API](https://developers.google.com/youtube/iframe_api_reference) for YouTube videos (#18)
+* Support difference between optional and required parameters
 
 Version 1.0.1 - 04-Jan-2015
 

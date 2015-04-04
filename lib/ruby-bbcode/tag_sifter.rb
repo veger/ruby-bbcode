@@ -181,6 +181,16 @@ module RubyBBCode
           throw_invalid_quick_param_error @ti
           return false
         end
+
+        # Note that if allow_between_as_param is true, other checks already test the (correctness of the) 'between parameter'
+        unless @ti.definition[:param_tokens].nil? or @ti.definition[:allow_between_as_param] == true
+          # Check if all required parameters are added
+          @ti.definition[:param_tokens].each do |token|
+            if @ti[:params][token[:token]].nil? and token[:optional].nil?
+              add_tag_error "Tag [#{@ti[:tag]}] must have '#{token[:token]}' parameter"
+            end
+          end
+        end
       end
       true
     end
