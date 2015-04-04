@@ -36,7 +36,8 @@ module RubyBBCode::Templates
       # Iterate over known tokens and fill in their values, if provided
       @tag_definition[:param_tokens].each do |token|
         # Use %param% to insert the parameters and their values (and re-add %param%)
-        @opening_part.gsub!('%param%', " #{token[:token]}=#{@node[:params][token[:token]]}%param%") unless @node[:params][token[:token]].nil?
+        param_value = @node[:params][token[:token]]
+        @opening_part.gsub!('%param%', " #{token[:token]}=#{param_value}%param%") unless param_value.nil?
       end
     end
 
