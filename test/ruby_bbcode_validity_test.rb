@@ -49,6 +49,9 @@ class RubyBbcodeValidityTest < Minitest::Test
   def test_optional_parameters
     assert '[img]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_check_validity
     assert '[img width=100 height=100]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_check_validity
+
+    # Adding custom 'optional parameters' is not allowed though
+    assert_equal ['Tag [img] doesn\'t have a \'depth\' parameter'], '[img depth=100]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_check_validity
   end
 
   def test_illegal_link

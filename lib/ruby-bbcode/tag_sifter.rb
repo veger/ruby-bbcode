@@ -190,6 +190,13 @@ module RubyBBCode
               add_tag_error "Tag [#{@ti[:tag]}] must have '#{token[:token]}' parameter"
             end
           end
+
+          # Check if no 'custom parameters' are added
+          @ti[:params].keys.each do |token|
+            if @ti.definition[:param_tokens].find {|param_token| param_token[:token]==token}.nil?
+              add_tag_error "Tag [#{@ti[:tag]}] doesn't have a '#{token}' parameter"
+            end
+          end
         end
       end
       true
