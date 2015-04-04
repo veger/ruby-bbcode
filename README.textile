@@ -19,6 +19,15 @@ h2. Examples
 <pre><code>'[img=no_dimensions_here]image.png[/img]'.bbcode_show_errors
  => '<span class=\'bbcode_error\' data-bbcode-errors=\'["The image parameters \'no_dimensions_here\' are incorrect, \'<width>x<height>\' excepted"]\'>[img]</span>image.png[/img]'</code></pre>
 
+These HTML attributes containing the JSON representation of the errors can be used to inform the user about the problems.
+The following JavaScript/jQuery example makes use of the "Bootstrap tooltips plugin":http://getbootstrap.com/javascript/#tooltips to show the errors in tooltip popups:
+<pre><code>$(".bbcode_error").tooltip({
+  title: function() { 
+    var errors = JSON.parse($(this).attr('data-bbcode-errors'));
+    return errors.join("\n");
+  }
+});</code></pre>
+
 h2. Installing
 
 Add the following line to the Gemfile of your application:
