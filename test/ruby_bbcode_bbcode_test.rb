@@ -164,18 +164,18 @@ class RubyBbcodeBbcodeTest < Minitest::Test
     assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["[b] not closed"]\'>[b]</span>Not closed', '[b]Not closed'.bbcode_show_errors
     assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["[b] not closed"]\'>[b]</span>2 not <span class=\'bbcode_error\' data-bbcode-errors=\'["[i] not closed"]\'>[i]</span>closed', '[b]2 not [i]closed'.bbcode_show_errors
 
-    assert_equal 'Closing tag not matching<span class=\'bbcode_error\' data-bbcode-errors=\'["Closing tag [/b] doesn\'t match an opening tag"]\'>[/b]</span>', 'Closing tag not matching[/b]'.bbcode_show_errors
+    assert_equal 'Closing tag not matching<span class=\'bbcode_error\' data-bbcode-errors=\'["Closing tag [/b] doesn&#39;t match an opening tag"]\'>[/b]</span>', 'Closing tag not matching[/b]'.bbcode_show_errors
 
-    assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["[b] not closed"]\'>[b]</span>Other closing tag<span class=\'bbcode_error\' data-bbcode-errors=\'["Closing tag [/i] doesn\'t match [b]"]\'>[/i]</span>', '[b]Other closing tag[/i]'.bbcode_show_errors
+    assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["[b] not closed"]\'>[b]</span>Other closing tag<span class=\'bbcode_error\' data-bbcode-errors=\'["Closing tag [/i] doesn&#39;t match [b]"]\'>[/i]</span>', '[b]Other closing tag[/i]'.bbcode_show_errors
   end
 
   def test_failing_quick_param
-    assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["The image parameters \'illegal\' are incorrect, \'<width>x<height>\' excepted"]\'>[img]</span>image[/img]', '[img=illegal]image[/img]'.bbcode_show_errors
+    assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["The image parameters &#39;illegal&#39; are incorrect, &#39;<width>x<height>&#39; excepted"]\'>[img]</span>image[/img]', '[img=illegal]image[/img]'.bbcode_show_errors
   end
 
   def test_failing_between_texts
     assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["No text between [img] and [/img] tags."]\'>[img]</span>[/img]', '[img][/img]'.bbcode_show_errors
-    assert_equal '[url]<span class=\'bbcode_error\' data-bbcode-errors=\'["The URL should start with http:// https://, ftp:// or /, instead of \'illegal url\'"]\'>illegal url</span>[/url]', '[url]illegal url[/url]'.bbcode_show_errors
+    assert_equal '[url]<span class=\'bbcode_error\' data-bbcode-errors=\'["The URL should start with http:// https://, ftp:// or /, instead of &#39;illegal url&#39;"]\'>illegal url</span>[/url]', '[url]illegal url[/url]'.bbcode_show_errors
   end
 
   def test_missing_parent_tags
@@ -183,7 +183,7 @@ class RubyBbcodeBbcodeTest < Minitest::Test
   end
 
   def test_illegal_unallowed_childs
-    assert_equal '[ul]<span class=\'bbcode_error\' data-bbcode-errors=\'["[ul] can only contain [li] and [*] tags, so \"Illegal text\" is not allowed"]\'>Illegal text</span>[/ul]', '[ul]Illegal text[/ul]'.bbcode_show_errors
+    assert_equal '[ul]<span class=\'bbcode_error\' data-bbcode-errors=\'["[ul] can only contain [li] and [*] tags, so &quot;Illegal text&quot; is not allowed"]\'>Illegal text</span>[/ul]', '[ul]Illegal text[/ul]'.bbcode_show_errors
     assert_equal '[ul]<span class=\'bbcode_error\' data-bbcode-errors=\'["[ul] can only contain [li] and [*] tags, so [b] is not allowed"]\'>[b]</span>Illegal tag[/b][/ul]', '[ul][b]Illegal tag[/b][/ul]'.bbcode_show_errors
   end
 end
