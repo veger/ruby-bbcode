@@ -62,7 +62,7 @@ module RubyBBCode
         :only_allow => [],
         :require_between => true,
         :allow_quick_param => true, :allow_between_as_param => false,
-        :quick_param_format => /^(\d*)x(\d*)$/,
+        :quick_param_format => /^(\d+)x(\d+)$/,
         :param_tokens => [{:token => :width, :prefix => 'width="', :postfix => '" ', :optional => true },
                               { :token => :height,  :prefix => 'height="', :postfix => '" ', :optional => true } ],
         :quick_param_format_description => 'The image parameters \'%param%\' are incorrect, \'<width>x<height>\' excepted'},
@@ -88,7 +88,8 @@ module RubyBBCode
         :description => 'Change the size of the text',
         :example => '[size=32]This is 32px[/size]',
         :allow_quick_param => true, :allow_between_as_param => false,
-        :quick_param_format => /(\d*)/,
+        :quick_param_format => /(\d+)/,
+        :quick_param_format_description => 'The size parameter \'%param%\' is incorrect, a number is expected',
         :param_tokens => [{:token => :size}]},
       :color => {
         :html_open => '<span style="color: %color%;">', :html_close => '</span>',

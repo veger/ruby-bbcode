@@ -54,6 +54,16 @@ class RubyBbcodeValidityTest < Minitest::Test
     assert_equal ['Tag [img] doesn\'t have a \'depth\' parameter'], '[img depth=100]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_check_validity
   end
 
+  def test_quick_parameters
+    assert '[size=12]text[/size]'.bbcode_check_validity
+    assert_equal ['The size parameter \'\' is incorrect, a number is expected'], '[size=]text[/size]'.bbcode_check_validity
+    assert_equal ['The size parameter \'abc\' is incorrect, a number is expected'], '[size=abc]text[/size]'.bbcode_check_validity
+
+    assert '[img=100x200]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_check_validity
+    assert_equal ['The image parameters \'\' are incorrect, \'<width>x<height>\' excepted'], '[img=]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_check_validity
+    assert_equal ['The image parameters \'x\' are incorrect, \'<width>x<height>\' excepted'], '[img=x]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_check_validity
+  end
+
   def test_illegal_link
     assert_equal ['The URL should start with http:// https://, ftp:// or /, instead of \'index.html\''], '[url=index.html]Home[/url]'.bbcode_check_validity
     assert_equal ['The URL should start with http:// https://, ftp:// or /, instead of \'www.google.com\''], '[url=www.google.com]Google[/url]'.bbcode_check_validity
