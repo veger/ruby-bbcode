@@ -29,7 +29,7 @@ module RubyBBCode::Templates
     def inlay_params!
       # Iterate over known tokens and fill in their values, if provided
       @tag_definition[:param_tokens].each do |token|
-        param_value = @node[:params][token[:token]]
+        param_value = @node[:params][token[:token]] || token[:default]
         param_value = CGI.escape(param_value) if token[:uri_escape]
         @opening_part.gsub!("%#{token[:token].to_s}%", "#{token[:prefix]}#{param_value}#{token[:postfix]}") unless param_value.nil?
       end
