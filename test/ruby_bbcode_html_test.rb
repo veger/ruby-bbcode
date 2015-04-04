@@ -96,19 +96,19 @@ class RubyBbcodeHtmlTest < Minitest::Test
   end
 
   def test_youtube
-    assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>',
+    assert_equal '<iframe id="player" type="text/html" width="400" height="320" src="http://www.youtube.com/embed/E4Fbk52Mk1w?enablejsapi=1" frameborder="0"></iframe>',
                    '[youtube]E4Fbk52Mk1w[/youtube]'.bbcode_to_html
   end
 
   def test_youtube_with_full_url
     full_url = "http://www.youtube.com/watch?feature=player_embedded&v=E4Fbk52Mk1w"
-    assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/E4Fbk52Mk1w"></param><embed src="http://www.youtube.com/v/E4Fbk52Mk1w" type="application/x-shockwave-flash" width="400" height="325"></embed></object>',
+    assert_equal '<iframe id="player" type="text/html" width="400" height="320" src="http://www.youtube.com/embed/E4Fbk52Mk1w?enablejsapi=1" frameborder="0"></iframe>',
                    "[youtube]#{full_url}[/youtube]".bbcode_to_html
   end
 
   def test_youtube_with_url_shortener
     full_url = "http://www.youtu.be/cSohjlYQI2A"
-    assert_equal '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/cSohjlYQI2A"></param><embed src="http://www.youtube.com/v/cSohjlYQI2A" type="application/x-shockwave-flash" width="400" height="325"></embed></object>',
+    assert_equal '<iframe id="player" type="text/html" width="400" height="320" src="http://www.youtube.com/embed/cSohjlYQI2A?enablejsapi=1" frameborder="0"></iframe>',
                    "[youtube]#{full_url}[/youtube]".bbcode_to_html
   end
 
@@ -178,7 +178,7 @@ class RubyBbcodeHtmlTest < Minitest::Test
     input1 = "[media]http://www.youtube.com/watch?v=cSohjlYQI2A[/media]"
     input2 = "[media]http://vimeo.com/46141955[/media]"
 
-    output1 = "<object width=\"400\" height=\"325\"><param name=\"movie\" value=\"http://www.youtube.com/v/cSohjlYQI2A\"></param><embed src=\"http://www.youtube.com/v/cSohjlYQI2A\" type=\"application/x-shockwave-flash\" width=\"400\" height=\"325\"></embed></object>"
+    output1 = '<iframe id="player" type="text/html" width="400" height="320" src="http://www.youtube.com/embed/cSohjlYQI2A?enablejsapi=1" frameborder="0"></iframe>'
     output2 = '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'
 
     assert_equal output1, input1.bbcode_to_html

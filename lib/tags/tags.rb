@@ -97,7 +97,7 @@ module RubyBBCode
         :quick_param_format => /(([a-z]+)|(#[0-9a-f]{6}))/i,
         :param_tokens => [{:token => :color}]},
       :youtube => {
-        :html_open => '<object width="400" height="325"><param name="movie" value="http://www.youtube.com/v/%between%"></param><embed src="http://www.youtube.com/v/%between%" type="application/x-shockwave-flash" width="400" height="325"></embed></object>', :html_close => '',
+        :html_open => '<iframe id="player" type="text/html" width="400" height="320" src="http://www.youtube.com/embed/%between%?enablejsapi=1" frameborder="0"></iframe>', :html_close => '',
         :description => 'Youtube video',
         :example => '[youtube]E4Fbk52Mk1w[/youtube]',
         :only_allow => [],
