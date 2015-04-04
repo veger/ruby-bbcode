@@ -26,9 +26,7 @@ module RubyBBCode
           t.inlay_between_text!
 
           if node.allow_params?
-            if node.params_set?
-              t.inlay_params!
-            end
+            t.inlay_params!
             t.remove_unused_tokens!
           end
 
