@@ -98,6 +98,8 @@ class RubyBbcodeHtmlTest < Minitest::Test
   def test_youtube
     assert_equal '<iframe id="player" type="text/html" width="400" height="320" src="http://www.youtube.com/embed/E4Fbk52Mk1w?enablejsapi=1" frameborder="0"></iframe>',
                    '[youtube]E4Fbk52Mk1w[/youtube]'.bbcode_to_html
+    assert_equal '<iframe id="player" type="text/html" width="640" height="480" src="http://www.youtube.com/embed/E4Fbk52Mk1w?enablejsapi=1" frameborder="0"></iframe>',
+                   '[youtube width=640 height=480]E4Fbk52Mk1w[/youtube]'.bbcode_to_html
   end
 
   def test_youtube_with_full_url
@@ -179,7 +181,7 @@ class RubyBbcodeHtmlTest < Minitest::Test
     input2 = "[media]http://vimeo.com/46141955[/media]"
 
     output1 = '<iframe id="player" type="text/html" width="400" height="320" src="http://www.youtube.com/embed/cSohjlYQI2A?enablejsapi=1" frameborder="0"></iframe>'
-    output2 = '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'
+    output2 = '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="400" height="320" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'
 
     assert_equal output1, input1.bbcode_to_html
     assert_equal output2, input2.bbcode_to_html
@@ -188,10 +190,13 @@ class RubyBbcodeHtmlTest < Minitest::Test
   def test_vimeo_tag
     input = "[vimeo]http://vimeo.com/46141955[/vimeo]"
     input2 = "[vimeo]46141955[/vimeo]"
-    output = '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'
+    output = '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="400" height="320" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'
 
     assert_equal output, input.bbcode_to_html
     assert_equal output, input2.bbcode_to_html
+
+    assert_equal '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="640" height="480" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>',
+                   '[vimeo width=640 height=480]46141955[/vimeo]'.bbcode_to_html
   end
 
   def test_raised_exceptions

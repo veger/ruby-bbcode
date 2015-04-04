@@ -10,6 +10,7 @@ Upcoming
 * Recognize uppercase tags (issue #27)
 * Support [iframe-API](https://developers.google.com/youtube/iframe_api_reference) for YouTube videos (#18)
 * Support difference between optional and required parameters
+* Add optional parameters to youtube and vimeo tags to specify the dimensions of the video
 
 Version 1.0.1 - 04-Jan-2015
 

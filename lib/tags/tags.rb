@@ -99,20 +99,28 @@ module RubyBBCode
         :quick_param_format => /(([a-z]+)|(#[0-9a-f]{6}))/i,
         :param_tokens => [{:token => :color}]},
       :youtube => {
-        :html_open => '<iframe id="player" type="text/html" width="400" height="320" src="http://www.youtube.com/embed/%between%?enablejsapi=1" frameborder="0"></iframe>', :html_close => '',
-        :description => 'Youtube video',
+        :html_open => '<iframe id="player" type="text/html" width="%width%" height="%height%" src="http://www.youtube.com/embed/%between%?enablejsapi=1" frameborder="0"></iframe>', :html_close => '',
+        :description => 'YouTube video',
         :example => '[youtube]E4Fbk52Mk1w[/youtube]',
         :only_allow => [],
         :url_matches => [/youtube\.com.*[v]=([^&]*)/, /youtu\.be\/([^&]*)/, /y2u\.be\/([^&]*)/],
-        :require_between => true},
+        :require_between => true,
+        :param_tokens => [
+          { :token => :width, :optional => true, :default => 400 },
+          { :token => :height, :optional => true, :default => 320 }
+        ]},
       :vimeo => {
-        :html_open => '<iframe src="http://player.vimeo.com/video/%between%?badge=0" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>',
+        :html_open => '<iframe src="http://player.vimeo.com/video/%between%?badge=0" width="%width%" height="%height%" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>',
         :html_close => '',
         :description => 'Vimeo video',
         :example => '[vimeo]http://vimeo.com/46141955[/vimeo]',
         :only_allow => [],
         :url_matches => [/vimeo\.com\/([^&]*)/],
-        :require_between => true},
+        :require_between => true,
+        :param_tokens => [
+          { :token => :width, :optional => true, :default => 400 },
+          { :token => :height, :optional => true, :default => 320 }
+        ]},
       :media => {
         :multi_tag => true,
         :require_between => true,
