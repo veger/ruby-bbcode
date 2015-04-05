@@ -1,0 +1,15 @@
+language: ruby
+cache: bundler
+
+rvm:
+  - 1.8.7
+  - 1.9.3
+  - 2.1.0
+  - ruby-head
+
+notifications:
+  email:
+    recipients:
+      - maarten.bezemer@gmail.com
+    on_failure: change
+    on_success: never
