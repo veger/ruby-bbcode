@@ -7,6 +7,8 @@ Additionally, annotations can be added to the BBCode string the showing errors t
 
 The parser recognizes all "official tags":http://www.bbcode.org/reference.php and allows to easily extend this set with custom tags.
 
+See "changelog":CHANGELOG.md for the (recent) notable changes of this gem.
+
 h2. Examples
 
 <code>bbcode_to_html</code> can be used to convert a BBCode string to HTML:
@@ -51,4 +53,4 @@ Some of the ideas and the tests came from "bb-ruby":http://github.com/cpjolicoeu
 
 h2. License
 
-MIT License. See the included "MIT-LICENCE":https://github.com/veger/ruby-bbcode/blob/master/MIT-LICENSE file.
+MIT License. See the included "MIT-LICENCE":MIT-LICENSE file.
