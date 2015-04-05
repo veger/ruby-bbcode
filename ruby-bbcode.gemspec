@@ -8,6 +8,7 @@ Gem::Specification.new do |s|
   s.name        = "ruby-bbcode"
   s.version     = RubyBBCode::VERSION
   s.platform    = Gem::Platform::RUBY
+  s.required_ruby_version = '>= 1.9.3'
   s.author      = "Maarten Bezemer"
   s.email       = "maarten.bezemer@gmail.com"
   s.homepage    = "http://github.com/veger/ruby-bbcode"
