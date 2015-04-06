@@ -29,7 +29,6 @@ module RubyBBCode
     def nodes
       @bbtree[:nodes]
     end
-    alias :children :nodes   # needed due to the similarities between BBTree[:nodes] and TagNode[:nodes]... they're walked through in debugging.rb right now
 
     def type
       :bbtree
