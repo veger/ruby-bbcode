@@ -15,10 +15,6 @@ module RubyBBCode
       @tag_data[key] = value
     end
 
-    def tag_data
-      @tag_data
-    end
-
     # Returns the definition of this instance (when it represents a tag element)
     def definition
       @definition

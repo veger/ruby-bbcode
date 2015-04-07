@@ -18,20 +18,8 @@ module RubyBBCode
       @tags_list = []
     end
 
-    def [](key)
-      @bbtree[key]
-    end
-
-    def []=(key, value)
-      @bbtree[key] = value
-    end
-
     def nodes
       @bbtree[:nodes]
-    end
-
-    def type
-      :bbtree
     end
 
     def within_open_tag?

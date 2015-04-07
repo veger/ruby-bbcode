@@ -42,11 +42,6 @@ module RubyBBCode
       @element[:params].length == 0
     end
 
-    # Returns true if the tag has any parameters set.
-    def params_set?
-      @element[:params].length > 0
-    end
-
     # Returns true id the node that child nodes
     def has_children?
       type == :tag and children.length > 0
