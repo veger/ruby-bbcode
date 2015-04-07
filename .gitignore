@@ -3,3 +3,4 @@
 todo
 rdoc
 *.swp
+coverage/
