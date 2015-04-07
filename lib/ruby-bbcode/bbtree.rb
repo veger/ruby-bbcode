@@ -69,14 +69,6 @@ module RubyBBCode
       end
     end
 
-    # Handle parent tag as regular text (i.e. the tag is probably not recognized)
-    def redefine_parent_tag_as_text
-      @tags_list.pop
-      @current_node[:is_tag] = false
-      @current_node[:closing_tag] = false
-      @current_node.element[:text] = "[#{@current_node[:tag]}]"
-    end
-
     # Create a new node and adds it to the current node as a child node
     def build_up_new_tag(element)
       @current_node.children << TagNode.new(element)
