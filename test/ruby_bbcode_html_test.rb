@@ -238,4 +238,26 @@ class RubyBbcodeHtmlTest < Minitest::Test
     assert_equal '<ul><li>item 1</li><li>item 2</li></ul>', '[UL][li]item 1[/li][li]item 2[/li][/UL]'.bbcode_to_html
     assert_equal "<ul><li>line 1<br />\nline 2</li><li>line 1<br />\nline 2</li></ul>", "[UL][li]line 1\nline 2[/li][li]line 1\nline 2[/li][/UL]".bbcode_to_html
   end
+
+  # Checking the HTML output is the only way to see whether a tag is recognized
+  # The BBCode validity test ignores unknown tags (and treats them as text)
+  def test_modified_taglist
+    assert_equal '<strong>simple</strong>', '[b]simple[/b]'.bbcode_to_html
+
+    tags = RubyBBCode::Tags.tag_list
+    b_tag = tags.delete :b
+    begin
+      # Make sure we captured the contents of the b-tag
+      assert b_tag.instance_of? Hash
+
+      # Now no HTML is generated, as the tag is removed
+      assert_equal '[b]simple[/b]', '[b]simple[/b]'.bbcode_to_html
+    ensure
+      # Always restore as this change is permanent (and messes with other tests)
+      tags[:b] = b_tag
+    end
+
+    # Restored to the original/correct situation
+    assert_equal '<strong>simple</strong>', '[b]simple[/b]'.bbcode_to_html
+  end
 end
