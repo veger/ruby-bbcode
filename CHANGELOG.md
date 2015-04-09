@@ -1,6 +1,9 @@
 Upcoming
 --------
 
+Version 2.0.0 - 09-Apr-2015
+---------------------------
+
 * Support multiple errors within a text
 * Add parameters to #bbcode_check_validity to add/remove tags
 * Support regular tag parameters (`[tag param=value][/tag]`) instead of 'quick parameters' (`[tag=value][/tag]`)
@@ -13,6 +16,7 @@ Upcoming
 * Add optional parameters to youtube and vimeo tags to specify the dimensions of the video
 
 Version 1.0.1 - 04-Jan-2015
+---------------------------
 
 * Allow any version of activesupport since 3.2.3
 
