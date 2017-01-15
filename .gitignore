@@ -4,3 +4,5 @@ todo
 rdoc
 *.swp
 coverage/
+.bundle
+vendor
