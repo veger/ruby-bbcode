@@ -26,4 +26,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rake'
   s.add_development_dependency 'minitest'
   s.add_development_dependency 'coveralls', '>= 0.8.0'
+
+  # Ruby 1.9 compatibility
+  s.add_development_dependency 'term-ansicolor', '< 1.4'
+  s.add_development_dependency 'tins', '< 1.7'
 end
