@@ -251,7 +251,6 @@ module RubyBBCode
     end
 
     def parent_of_self_closing_tag?
-      tag_being_parsed = @ti.definition
       was_last_tag_self_closable = @bbtree.current_node[:definition][:self_closable] unless @bbtree.current_node[:definition].nil?
 
       was_last_tag_self_closable and last_tag_fit_in_this_tag?

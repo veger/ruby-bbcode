@@ -27,7 +27,6 @@ class TagSifterTest < MiniTest::Test
   # but that captures specifically the .be or .com and treats them differently...
   def test_youtubes_via_there_url_shortener
     url_from_shortener = "http://youtu.be/E4Fbk52Mk1w"
-    directory_format = "http://youtube.googleapis.com/v/E4Fbk52Mk1w"
     expected_output = 'E4Fbk52Mk1w'
     mock_regex_matches = @@tags[:youtube][:url_matches]
 
