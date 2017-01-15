@@ -1,6 +1,10 @@
 Upcoming
 --------
 
+Version 2.0.1 - 15-Jan-2015
+
+* Remove EOL newlines before/after self-closing tags (issue #29)
+
 Version 2.0.0 - 09-Apr-2015
 ---------------------------
 

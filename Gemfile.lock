@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ruby-bbcode (2.0.0)
+    ruby-bbcode (2.0.1)
       activesupport (>= 3.2.3)
 
 GEM
