@@ -46,7 +46,6 @@ module RubyBBCode
 
     # Step down the bbtree a notch because we've reached a closing tag
     def retrogress_bbtree
-      # print @tags_list[-1].inspect
       if @tags_list[-1].definition[:self_closable]
         # It is possible that the next (self_closable) tag is on the next line
         # Remove newline of current tag and parent tag as they are (probably) not intented as an actual newline here but as tag separator
@@ -58,8 +57,7 @@ module RubyBBCode
       # The parsed data manifests in @bbtree.current_node.children << TagNode.new(element) which I think is more confusing than needed
 
       if within_open_tag?
-        # Set the current node to be the node we've just parsed over which is infact within another node??...
-        @current_node = TagNode.new(self.nodes.last)
+        @current_node = @tags_list[-1]
       else # If we're still at the root of the BBTree or have returned back to the root via encountring closing tags...
         @current_node = TagNode.new({:nodes => self.nodes})  # Note:  just passing in self works too...
       end
