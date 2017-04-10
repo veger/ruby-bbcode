@@ -1,7 +1,11 @@
 Upcoming
 --------
 
-Version 2.0.1 - 15-Jan-2015
+Version 2.0.2 - 10-Apr-2017
+
+* Fix error when tags are in self-closing tags (issue #30)
+
+Version 2.0.1 - 15-Jan-2017
 
 * Remove EOL newlines before/after self-closing tags (issue #29)
 

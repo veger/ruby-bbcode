@@ -2,5 +2,5 @@ module RubyBBCode
   # Version of RubyBBCode
   #
   # Follows semantic versioning: http://semver.org/
-  VERSION = "2.0.1"
+  VERSION = "2.0.2"
 end
