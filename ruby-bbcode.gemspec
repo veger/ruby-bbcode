@@ -16,11 +16,11 @@ Gem::Specification.new do |s|
   s.description = "Convert BBCode to HTML and check whether the BBCode is valid."
   s.license     = "MIT"
 
-  s.files = Dir["lib/**/*"] + ["MIT-LICENSE", "Rakefile", "README.textile", "CHANGELOG.md"]
+  s.files = Dir["lib/**/*"] + ["MIT-LICENSE", "Rakefile", "README.md", "CHANGELOG.md"]
   s.test_files = Dir["test/**/*"]
 
   s.rdoc_options << '--title' << 'Ruby BBCode' << '--main' << 'README.md'
-  s.extra_rdoc_files = ['README.textile', 'CHANGELOG.md', 'MIT-LICENSE']
+  s.extra_rdoc_files = ['README.md', 'CHANGELOG.md', 'MIT-LICENSE']
 
   s.add_dependency 'activesupport', '>= 3.2.3'
   s.add_development_dependency 'rake'
