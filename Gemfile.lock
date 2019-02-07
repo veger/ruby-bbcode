@@ -2,17 +2,17 @@ PATH
   remote: .
   specs:
     ruby-bbcode (2.0.2)
-      activesupport (>= 3.2.3)
+      activesupport (>= 4.2.2)
 
 GEM
   remote: http://rubygems.org/
   specs:
-    activesupport (4.2.0)
-      i18n (~> 0.7)
-      json (~> 1.7, >= 1.7.7)
+    activesupport (5.2.2)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (>= 0.7, < 2)
       minitest (~> 5.1)
-      thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
+    concurrent-ruby (1.1.4)
     coveralls (0.8.20)
       json (>= 1.8, < 3)
       simplecov (~> 0.14.1)
@@ -20,10 +20,12 @@ GEM
       thor (~> 0.19.4)
       tins (~> 1.6)
     docile (1.1.5)
-    i18n (0.7.0)
+    i18n (1.5.3)
+      concurrent-ruby (~> 1.0)
     json (1.8.6)
     minitest (5.10.1)
     rake (12.0.0)
+    rdoc (6.1.1)
     simplecov (0.14.1)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
@@ -44,6 +46,7 @@ DEPENDENCIES
   coveralls (>= 0.8.0)
   minitest
   rake
+  rdoc
   ruby-bbcode!
   term-ansicolor (< 1.4)
   tins (< 1.7)
