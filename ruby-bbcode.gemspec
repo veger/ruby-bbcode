@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.name        = "ruby-bbcode"
   s.version     = RubyBBCode::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.required_ruby_version = '>= 1.9.3'
+  s.required_ruby_version = '>= 2.3.0'
   s.author      = "Maarten Bezemer"
   s.email       = "maarten.bezemer@gmail.com"
   s.homepage    = "http://github.com/veger/ruby-bbcode"
@@ -28,7 +28,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'minitest'
   s.add_development_dependency 'coveralls', '>= 0.8.0'
 
-  # Ruby 1.9 compatibility
-  s.add_development_dependency 'term-ansicolor', '< 1.4'
-  s.add_development_dependency 'tins', '< 1.7'
+  s.add_development_dependency 'term-ansicolor'
 end
