@@ -1,11 +1,19 @@
 Upcoming
 --------
 
+Version 2.0.3 - 07-Feb-2018
+---------------------------
+
+* Require Ruby version 2.3.0 or higher
+* Require activesupport version 4.2.2 or higher
+
 Version 2.0.2 - 10-Apr-2017
+---------------------------
 
 * Fix error when tags are in self-closing tags (issue #30)
 
 Version 2.0.1 - 15-Jan-2017
+---------------------------
 
 * Remove EOL newlines before/after self-closing tags (issue #29)
 
