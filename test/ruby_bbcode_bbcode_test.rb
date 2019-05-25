@@ -182,6 +182,10 @@ class RubyBbcodeBbcodeTest < Minitest::Test
     assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["[li] can only be used in [ul] and [ol]"]\'>[li]</span>[/li]', '[li][/li]'.bbcode_show_errors
   end
 
+  def test_unknown_tags
+    assert_equal '[align=center]This is an unknown tag[/align]', '[align=center]This is an unknown tag[/align]'.bbcode_show_errors
+  end
+
   def test_illegal_unallowed_childs
     assert_equal '[ul]<span class=\'bbcode_error\' data-bbcode-errors=\'["[ul] can only contain [li] and [*] tags, so &quot;Illegal text&quot; is not allowed"]\'>Illegal text</span>[/ul]', '[ul]Illegal text[/ul]'.bbcode_show_errors
     assert_equal '[ul]<span class=\'bbcode_error\' data-bbcode-errors=\'["[ul] can only contain [li] and [*] tags, so [b] is not allowed"]\'>[b]</span>Illegal tag[/b][/ul]', '[ul][b]Illegal tag[/b][/ul]'.bbcode_show_errors

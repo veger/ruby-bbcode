@@ -124,6 +124,8 @@ module RubyBBCode
         ti[:text] = tag_info[9]
       end
       ti
+    rescue StandardError => e
+      { complete_match: tag_info[0], is_tag: false, errors: [], text: tag_info[0] }
     end
   end
 end
