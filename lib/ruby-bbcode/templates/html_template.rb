@@ -18,6 +18,7 @@ module RubyBBCode::Templates
     # Newlines are converted to html <br /> syntax before being returned.
     def self.convert_text(node)
       return '' if node[:text].nil?
+
       # convert_newlines_to_br
       node[:text].gsub("\r\n", "\n").gsub("\n", "<br />\n")
     end
@@ -31,7 +32,7 @@ module RubyBBCode::Templates
       @tag_definition[:param_tokens].each do |token|
         param_value = @node[:params][token[:token]] || token[:default]
         param_value = CGI.escape(param_value) if token[:uri_escape]
-        @opening_part.gsub!("%#{token[:token].to_s}%", "#{token[:prefix]}#{param_value}#{token[:postfix]}") unless param_value.nil?
+        @opening_part.gsub!("%#{token[:token]}%", "#{token[:prefix]}#{param_value}#{token[:postfix]}") unless param_value.nil?
       end
     end
 

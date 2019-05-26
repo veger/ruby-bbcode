@@ -15,7 +15,7 @@ module RubyBBCode
     #   and a tag element has the form of
     #       { :is_tag=>true, :tag=>:i, :nodes => [] }
     # * +nodes+
-    def initialize(element, nodes = [])
+    def initialize(element)
       @element = element
     end
 
@@ -39,12 +39,12 @@ module RubyBBCode
 
     # Returns true if the tag does not have any parameters set.
     def params_not_set?
-      @element[:params].length == 0
+      @element[:params].empty?
     end
 
-    # Returns true id the node that child nodes
+    # Returns true if the node that child nodes
     def has_children?
-      type == :tag and children.length > 0
+      (type == :tag) && !children.empty?
     end
 
     # Returns true when the quick parameter was invalid (i.e. it did not match the required format)

@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class RubyBbcodeHtmlTest < Minitest::Test
-
   def test_multiline
     assert_equal "line1<br />\nline2", "line1\nline2".bbcode_to_html
     assert_equal "line1<br />\nline2", "line1\r\nline2".bbcode_to_html
@@ -68,21 +67,21 @@ class RubyBbcodeHtmlTest < Minitest::Test
 
   def test_two_lists
     assert_equal '<ul><li>item1</li><li>item2</li></ul><ul><li>item1</li><li>item2</li></ul>',
-                   '[ul][li]item1[/li][li]item2[/li][/ul][ul][li]item1[/li][li]item2[/li][/ul]'.bbcode_to_html
+                 '[ul][li]item1[/li][li]item2[/li][/ul][ul][li]item1[/li][li]item2[/li][/ul]'.bbcode_to_html
   end
 
   def test_whitespace_in_only_allowed_tags
     assert_equal "<ol><br />\n<li>item 1</li><br />\n<li>item 2</li><br />\n</ol>",
-                   "[ol]\n[li]item 1[/li]\n[li]item 2[/li]\n[/ol]".bbcode_to_html
+                 "[ol]\n[li]item 1[/li]\n[li]item 2[/li]\n[/ol]".bbcode_to_html
     assert_equal "<ol> <li>item 1</li>  <li>item 2</li>\t</ol>",
-                   "[ol] [li]item 1[/li]  [li]item 2[/li]\t[/ol]".bbcode_to_html
+                 "[ol] [li]item 1[/li]  [li]item 2[/li]\t[/ol]".bbcode_to_html
   end
 
   def test_quote
     assert_equal '<div class="quote">quoting</div>', '[quote]quoting[/quote]'.bbcode_to_html
     assert_equal '<div class="quote"><strong>someone wrote:</strong>quoting</div>', '[quote=someone]quoting[/quote]'.bbcode_to_html
     assert_equal '<div class="quote"><strong>Kitten wrote:</strong><div class="quote"><strong>creatiu wrote:</strong>f1</div>f2</div>',
-                  '[quote=Kitten][quote=creatiu]f1[/quote]f2[/quote]'.bbcode_to_html
+                 '[quote=Kitten][quote=creatiu]f1[/quote]f2[/quote]'.bbcode_to_html
   end
 
   def test_link
@@ -93,30 +92,30 @@ class RubyBbcodeHtmlTest < Minitest::Test
 
   def test_image
     assert_equal '<img src="http://www.ruby-lang.org/images/logo.gif" alt="" />',
-                   '[img]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_to_html
+                 '[img]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_to_html
     assert_equal '<img src="http://www.ruby-lang.org/images/logo.gif" width="95" height="96" alt="" />',
-                   '[img=95x96]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_to_html
+                 '[img=95x96]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_to_html
     assert_equal '<img src="http://www.ruby-lang.org/images/logo.gif" width="123" height="456" alt="" />',
-                   '[img width=123 height=456]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_to_html
+                 '[img width=123 height=456]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_to_html
   end
 
   def test_youtube
     assert_equal '<iframe id="player" type="text/html" width="400" height="320" src="http://www.youtube.com/embed/E4Fbk52Mk1w?enablejsapi=1" frameborder="0"></iframe>',
-                   '[youtube]E4Fbk52Mk1w[/youtube]'.bbcode_to_html
+                 '[youtube]E4Fbk52Mk1w[/youtube]'.bbcode_to_html
     assert_equal '<iframe id="player" type="text/html" width="640" height="480" src="http://www.youtube.com/embed/E4Fbk52Mk1w?enablejsapi=1" frameborder="0"></iframe>',
-                   '[youtube width=640 height=480]E4Fbk52Mk1w[/youtube]'.bbcode_to_html
+                 '[youtube width=640 height=480]E4Fbk52Mk1w[/youtube]'.bbcode_to_html
   end
 
   def test_youtube_with_full_url
-    full_url = "http://www.youtube.com/watch?feature=player_embedded&v=E4Fbk52Mk1w"
+    full_url = 'http://www.youtube.com/watch?feature=player_embedded&v=E4Fbk52Mk1w'
     assert_equal '<iframe id="player" type="text/html" width="400" height="320" src="http://www.youtube.com/embed/E4Fbk52Mk1w?enablejsapi=1" frameborder="0"></iframe>',
-                   "[youtube]#{full_url}[/youtube]".bbcode_to_html
+                 "[youtube]#{full_url}[/youtube]".bbcode_to_html
   end
 
   def test_youtube_with_url_shortener
-    full_url = "http://www.youtu.be/cSohjlYQI2A"
+    full_url = 'http://www.youtu.be/cSohjlYQI2A'
     assert_equal '<iframe id="player" type="text/html" width="400" height="320" src="http://www.youtube.com/embed/cSohjlYQI2A?enablejsapi=1" frameborder="0"></iframe>',
-                   "[youtube]#{full_url}[/youtube]".bbcode_to_html
+                 "[youtube]#{full_url}[/youtube]".bbcode_to_html
   end
 
   def test_html_escaping
@@ -131,49 +130,51 @@ class RubyBbcodeHtmlTest < Minitest::Test
   def test_uri_escaping
     # There is no tag available, so create our own to test URI escaping
     escape_param_def = {
-      :escapequery => {
-        :html_open => '<a href="%query%">%between%', :html_close => '</a>',
-        :require_between => true, :allow_quick_param => false, :allow_between_as_param => true,
-        :param_tokens => [{:token => :query, :uri_escape => true}]}
+      escapequery: {
+        html_open: '<a href="%query%">%between%', html_close: '</a>',
+        require_between: true, allow_quick_param: false, allow_between_as_param: true,
+        param_tokens: [{ token: :query, uri_escape: true }]
+      }
     }
     assert_equal '<a href="Escaped+string+%28to+be+used+as+URL+%26+more%29">Escaped string (to be used as URL & more)</a>',
-        '[escapequery]Escaped string (to be used as URL & more)[/escapequery]'.bbcode_to_html(true, escape_param_def)
+                 '[escapequery]Escaped string (to be used as URL & more)[/escapequery]'.bbcode_to_html(true, escape_param_def)
     assert_equal '<a href="http%3A%3A%2Fwww.text.com%2Fpage.php%3Fparam1%3D1%26param2%3D2">http::/www.text.com/page.php?param1=1&param2=2</a>',
-        '[escapequery]http::/www.text.com/page.php?param1=1&param2=2[/escapequery]'.bbcode_to_html(true, escape_param_def)
+                 '[escapequery]http::/www.text.com/page.php?param1=1&param2=2[/escapequery]'.bbcode_to_html(true, escape_param_def)
   end
 
   def test_disable_tags
-    assert_equal "[b]foobar[/b]", "[b]foobar[/b]".bbcode_to_html(true, {}, :disable, :b)
-    assert_equal "[b]<em>foobar</em>[/b]", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :disable, :b)
-    assert_equal "[b][i]foobar[/i][/b]", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :disable, :b, :i)
+    assert_equal '[b]foobar[/b]', '[b]foobar[/b]'.bbcode_to_html(true, {}, :disable, :b)
+    assert_equal '[b]<em>foobar</em>[/b]', '[b][i]foobar[/i][/b]'.bbcode_to_html(true, {}, :disable, :b)
+    assert_equal '[b][i]foobar[/i][/b]', '[b][i]foobar[/i][/b]'.bbcode_to_html(true, {}, :disable, :b, :i)
   end
 
   def test_enable_tags
-    assert_equal "<strong>foobar</strong>" , "[b]foobar[/b]".bbcode_to_html(true, {}, :enable, :b)
-    assert_equal "<strong>[i]foobar[/i]</strong>", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :enable, :b)
-    assert_equal "<strong><em>foobar</em></strong>", "[b][i]foobar[/i][/b]".bbcode_to_html(true, {}, :enable, :b, :i)
+    assert_equal '<strong>foobar</strong>', '[b]foobar[/b]'.bbcode_to_html(true, {}, :enable, :b)
+    assert_equal '<strong>[i]foobar[/i]</strong>', '[b][i]foobar[/i][/b]'.bbcode_to_html(true, {}, :enable, :b)
+    assert_equal '<strong><em>foobar</em></strong>', '[b][i]foobar[/i][/b]'.bbcode_to_html(true, {}, :enable, :b, :i)
   end
 
   def test_to_html_bang_method
-    foo = "[b]foobar[/b]"
-    assert_equal "<strong>foobar</strong>", foo.bbcode_to_html!
-    assert_equal "<strong>foobar</strong>", foo
+    foo = '[b]foobar[/b]'
+    assert_equal '<strong>foobar</strong>', foo.bbcode_to_html!
+    assert_equal '<strong>foobar</strong>', foo
   end
 
   def test_addition_of_tags
     mydef = {
-      :test => {
-        :html_open => '<test>', :html_close => '</test>',
-        :description => 'This is a test',
-        :example => '[test]Test here[/test]'}
+      test: {
+        html_open: '<test>', html_close: '</test>',
+        description: 'This is a test',
+        example: '[test]Test here[/test]'
+      }
     }
     assert_equal 'pre <test>Test here</test> post', 'pre [test]Test here[/test] post'.bbcode_to_html(true, mydef)
     assert_equal 'pre <strong><test>Test here</test></strong> post', 'pre [b][test]Test here[/test][/b] post'.bbcode_to_html(true, mydef)
   end
 
   def test_multiple_tag_test
-    assert_equal "<strong>bold</strong><em>italic</em><u>underline</u><div class=\"quote\">quote</div><a href=\"https://test.com\">link</a>",
-                   "[b]bold[/b][i]italic[/i][u]underline[/u][quote]quote[/quote][url=https://test.com]link[/url]".bbcode_to_html
+    assert_equal '<strong>bold</strong><em>italic</em><u>underline</u><div class="quote">quote</div><a href="https://test.com">link</a>',
+                 '[b]bold[/b][i]italic[/i][u]underline[/u][quote]quote[/quote][url=https://test.com]link[/url]'.bbcode_to_html
   end
 
   def test_no_xss_hax
@@ -182,8 +183,8 @@ class RubyBbcodeHtmlTest < Minitest::Test
   end
 
   def test_media_tag
-    input1 = "[media]http://www.youtube.com/watch?v=cSohjlYQI2A[/media]"
-    input2 = "[media]http://vimeo.com/46141955[/media]"
+    input1 = '[media]http://www.youtube.com/watch?v=cSohjlYQI2A[/media]'
+    input2 = '[media]http://vimeo.com/46141955[/media]'
 
     output1 = '<iframe id="player" type="text/html" width="400" height="320" src="http://www.youtube.com/embed/cSohjlYQI2A?enablejsapi=1" frameborder="0"></iframe>'
     output2 = '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="400" height="320" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'
@@ -193,15 +194,15 @@ class RubyBbcodeHtmlTest < Minitest::Test
   end
 
   def test_vimeo_tag
-    input = "[vimeo]http://vimeo.com/46141955[/vimeo]"
-    input2 = "[vimeo]46141955[/vimeo]"
+    input = '[vimeo]http://vimeo.com/46141955[/vimeo]'
+    input2 = '[vimeo]46141955[/vimeo]'
     output = '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="400" height="320" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'
 
     assert_equal output, input.bbcode_to_html
     assert_equal output, input2.bbcode_to_html
 
     assert_equal '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="640" height="480" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>',
-                   '[vimeo width=640 height=480]46141955[/vimeo]'.bbcode_to_html
+                 '[vimeo width=640 height=480]46141955[/vimeo]'.bbcode_to_html
   end
 
   def test_raised_exceptions

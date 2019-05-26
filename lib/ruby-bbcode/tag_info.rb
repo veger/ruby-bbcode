@@ -15,10 +15,8 @@ module RubyBBCode
       @tag_data[key] = value
     end
 
-    # Returns the definition of this instance (when it represents a tag element)
-    def definition
-      @definition
-    end
+    # Definition of this instance (when it represents a tag element)
+    attr_reader :definition
 
     # Returns the text (when this instance represents a text element)
     def text
@@ -51,12 +49,12 @@ module RubyBBCode
 
     # Returns true if this instance represents an opening tag element
     def element_is_opening_tag?
-      self[:is_tag] and !self[:closing_tag]
+      self[:is_tag] && !self[:closing_tag]
     end
 
     # Returns true if this instance represents a closing tag element
     def element_is_closing_tag?
-      self[:is_tag] and  self[:closing_tag]
+      self[:is_tag] &&  self[:closing_tag]
     end
 
     # Returns true if this tag element is included in the set of available tags
@@ -71,7 +69,7 @@ module RubyBBCode
 
     # Returns true if the tag element is allowed in the provided parent_tag
     def allowed_in?(parent_tag)
-      !only_allowed_in_parent_tags? or @definition[:only_in].include?(parent_tag)
+      !only_allowed_in_parent_tags? || @definition[:only_in].include?(parent_tag)
     end
 
     # Returns true if this tag has quick parameter support
@@ -99,7 +97,7 @@ module RubyBBCode
         ti[:tag] = tag_info[3].to_sym.downcase
         ti[:params] = {}
         @definition = dictionary[ti[:tag]]
-        if tag_info[5][0] == ?= and can_have_quick_param?
+        if (tag_info[5][0] == '=') && can_have_quick_param?
           quick_param = tag_info[5][1..-1]
           # Get list of parameter values and add them as (regular) parameters
           value_array = quick_param.scan(@definition[:quick_param_format])[0]
@@ -111,7 +109,7 @@ module RubyBBCode
               ti[:params][param_tokens[i][:token]] = value
             end
           end
-        elsif tag_info[5][0] == ?\s
+        elsif tag_info[5][0] == "\s"
           regex_string = '((\w+)=([\w#]+)) | ((\w+)="([^"]+)") | ((\w+)=\'([^\']+)\')'
           tag_info[5].scan(/#{regex_string}/ix) do |param_info|
             param = param_info[1] || param_info[4] || param_info[7]

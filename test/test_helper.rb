@@ -2,18 +2,17 @@ require 'coveralls'
 Coveralls.wear!
 
 require 'ruby-bbcode'
-require "minitest/autorun"
+require 'minitest/autorun'
 
 # This hack allows us to make all the private methods of a class public.
 class Class
   def publicize_methods
-    saved_private_instance_methods = self.private_instance_methods
-    self.class_eval { public(*saved_private_instance_methods) }
+    saved_private_instance_methods = private_instance_methods
+    class_eval { public(*saved_private_instance_methods) }
     yield
-    self.class_eval { private(*saved_private_instance_methods) }
+    class_eval { private(*saved_private_instance_methods) }
   end
 end
-
 
 # This is for measuring memory usage...
 def get_current_memory_usage

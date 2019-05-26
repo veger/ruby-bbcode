@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class RubyBbcodeBbcodeTest < Minitest::Test
-
   def test_multiline
     assert_equal "line1\nline2", "line1\nline2".bbcode_show_errors
     assert_equal "line1\r\nline2", "line1\r\nline2".bbcode_show_errors
@@ -63,21 +62,21 @@ class RubyBbcodeBbcodeTest < Minitest::Test
 
   def test_two_lists
     assert_equal '[ul][li]item1[/li][li]item2[/li][/ul][ul][li]item1[/li][li]item2[/li][/ul]',
-                   '[ul][li]item1[/li][li]item2[/li][/ul][ul][li]item1[/li][li]item2[/li][/ul]'.bbcode_show_errors
+                 '[ul][li]item1[/li][li]item2[/li][/ul][ul][li]item1[/li][li]item2[/li][/ul]'.bbcode_show_errors
   end
 
   def test_whitespace_in_only_allowed_tags
     assert_equal "[ol]\n[li]item 1[/li]\n[li]item 2[/li]\n[/ol]",
-                   "[ol]\n[li]item 1[/li]\n[li]item 2[/li]\n[/ol]".bbcode_show_errors
+                 "[ol]\n[li]item 1[/li]\n[li]item 2[/li]\n[/ol]".bbcode_show_errors
     assert_equal "[ol] [li]item 1[/li]  [li]item 2[/li]\t[/ol]",
-                   "[ol] [li]item 1[/li]  [li]item 2[/li]\t[/ol]".bbcode_show_errors
+                 "[ol] [li]item 1[/li]  [li]item 2[/li]\t[/ol]".bbcode_show_errors
   end
 
   def test_quote
     assert_equal '[quote]quoting[/quote]', '[quote]quoting[/quote]'.bbcode_show_errors
     assert_equal '[quote author=someone]quoting[/quote]', '[quote=someone]quoting[/quote]'.bbcode_show_errors
     assert_equal '[quote author=Kitten][quote author=creatiu]f1[/quote]f2[/quote]',
-                  '[quote author=Kitten][quote=creatiu]f1[/quote]f2[/quote]'.bbcode_show_errors
+                 '[quote author=Kitten][quote=creatiu]f1[/quote]f2[/quote]'.bbcode_show_errors
   end
 
   def test_link
@@ -88,26 +87,26 @@ class RubyBbcodeBbcodeTest < Minitest::Test
 
   def test_image
     assert_equal '[img]http://www.ruby-lang.org/images/logo.gif[/img]',
-                   '[img]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_show_errors
+                 '[img]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_show_errors
     assert_equal '[img width=95 height=96]http://www.ruby-lang.org/images/logo.gif[/img]',
-                   '[img=95x96]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_show_errors
+                 '[img=95x96]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_show_errors
     assert_equal '[img width=123 height=456]http://www.ruby-lang.org/images/logo.gif[/img]',
-                   '[img width=123 height=456]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_show_errors
+                 '[img width=123 height=456]http://www.ruby-lang.org/images/logo.gif[/img]'.bbcode_show_errors
   end
 
   def test_youtube
     assert_equal '[youtube]E4Fbk52Mk1w[/youtube]',
-                   '[youtube]E4Fbk52Mk1w[/youtube]'.bbcode_show_errors
+                 '[youtube]E4Fbk52Mk1w[/youtube]'.bbcode_show_errors
   end
 
   def test_youtube_with_full_url
     assert_equal '[youtube]E4Fbk52Mk1w[/youtube]',
-                   '[youtube]http://www.youtube.com/watch?feature=player_embedded&v=E4Fbk52Mk1w[/youtube]'.bbcode_show_errors
+                 '[youtube]http://www.youtube.com/watch?feature=player_embedded&v=E4Fbk52Mk1w[/youtube]'.bbcode_show_errors
   end
 
   def test_youtube_with_url_shortener
     assert_equal '[youtube]cSohjlYQI2A[/youtube]',
-                   '[youtube]http://www.youtu.be/cSohjlYQI2A[/youtube]'.bbcode_show_errors
+                 '[youtube]http://www.youtu.be/cSohjlYQI2A[/youtube]'.bbcode_show_errors
   end
 
   def test_disable_tags
@@ -117,17 +116,18 @@ class RubyBbcodeBbcodeTest < Minitest::Test
   end
 
   def test_enable_tags
-    assert_equal '[b]foobar[/b]' , '[b]foobar[/b]'.bbcode_show_errors({}, :enable, :b)
+    assert_equal '[b]foobar[/b]', '[b]foobar[/b]'.bbcode_show_errors({}, :enable, :b)
     assert_equal '[b][i]foobar[/i][/b]', '[b][i]foobar[/i][/b]'.bbcode_show_errors({}, :enable, :b)
     assert_equal '[b][i]foobar[/i][/b]', '[b][i]foobar[/i][/b]'.bbcode_show_errors({}, :enable, :b, :i)
   end
 
   def test_addition_of_tags
     mydef = {
-      :test => {
-        :html_open => '<test>', :html_close => '</test>',
-        :description => 'This is a test',
-        :example => '[test]Test here[/test]'}
+      test: {
+        html_open: '<test>', html_close: '</test>',
+        description: 'This is a test',
+        example: '[test]Test here[/test]'
+      }
     }
     assert_equal 'pre [test]Test here[/test] post', 'pre [test]Test here[/test] post'.bbcode_show_errors(mydef)
     assert_equal 'pre [b][test]Test here[/test][/b] post', 'pre [b][test]Test here[/test][/b] post'.bbcode_show_errors(mydef)
@@ -135,7 +135,7 @@ class RubyBbcodeBbcodeTest < Minitest::Test
 
   def test_multiple_tag_test
     assert_equal '[b]bold[/b][i]italic[/i][u]underline[/u][quote]quote[/quote][url url=https://test.com]link[/url]',
-                   '[b]bold[/b][i]italic[/i][u]underline[/u][quote]quote[/quote][url=https://test.com]link[/url]'.bbcode_show_errors
+                 '[b]bold[/b][i]italic[/i][u]underline[/u][quote]quote[/quote][url=https://test.com]link[/url]'.bbcode_show_errors
   end
 
   def test_no_xss_hax

@@ -9,7 +9,7 @@ begin
 rescue LoadError
   require 'rdoc/rdoc'
   require 'rake/rdoctask'
-	require 'rdoc/task'
+  require 'rdoc/task'
   RDoc::Task = Rake::RDocTask
 end
 
@@ -21,8 +21,6 @@ RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.rdoc_files.include('CHANGELOG.md')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
-
-
 
 Bundler::GemHelper.install_tasks
 
@@ -42,4 +40,4 @@ Rake::TestTask.new(:current) do |t|
   t.verbose = true
 end
 
-task :default => :test
+task default: :test

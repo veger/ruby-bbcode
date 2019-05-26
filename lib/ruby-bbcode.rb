@@ -43,38 +43,41 @@ module RubyBBCode
 
     @tag_sifter.process_text
     return @tag_sifter.errors unless @tag_sifter.valid?
+
     true
   end
 
+  class << self
+    protected
 
-  protected
-
-  # This method provides the final set of bbcode tags, it merges the default tags with the given additional_tags
-  # and blacklists(method = :disable) or whitelists the list of tags with the given tags parameter.
-  def self.determine_applicable_tags(additional_tags, method, *tags)
-    use_tags = @@tags.merge(additional_tags)
-    if method == :disable then               # if method is set to :disable
-      tags.each { |t| use_tags.delete(t) }   # blacklist (remove) the supplied tags
-    else  # method is not :disable, but has any other value
-      # Only use the supplied tags (whitelist)
-      new_use_tags = {}
-      tags.each { |t| new_use_tags[t] = use_tags[t] if use_tags.key?(t) }
-      use_tags = new_use_tags
+    # This method provides the final set of bbcode tags, it merges the default tags with the given additional_tags
+    # and blacklists(method = :disable) or whitelists the list of tags with the given tags parameter.
+    def determine_applicable_tags(additional_tags, method, *tags)
+      use_tags = @@tags.merge(additional_tags)
+      if method == :disable
+        # if method is set to :disable blacklist (remove) the supplied tags
+        tags.each { |t| use_tags.delete(t) }
+      else
+        # only use the supplied tags (whitelist) if method is not :disable
+        new_use_tags = {}
+        tags.each { |t| new_use_tags[t] = use_tags[t] if use_tags.key?(t) }
+        use_tags = new_use_tags
+      end
+      use_tags
     end
-    use_tags
-  end
 
-  # This method parses the given text (with BBCode tags) into a BBTree representation
-  # The escape_html parameter (default: true) escapes HTML tags that were present in the given text and therefore blocking (mallicious) HTML in the original text
-  # The additional_tags parameter is used to add additional BBCode tags that should be accepted
-  # The method parameter determines whether the tags parameter needs to be used to blacklist (when set to :disable) or whitelist (when not set to :disable) the list of BBCode tags
-  # The method raises an exception when the text could not be parsed due to errors
-  def self.parse(text, escape_html = true, additional_tags = {}, method = :disable, *tags)
-    text = text.clone
-    use_tags = determine_applicable_tags(additional_tags, method, *tags)
+    # This method parses the given text (with BBCode tags) into a BBTree representation
+    # The escape_html parameter (default: true) escapes HTML tags that were present in the given text and therefore blocking (mallicious) HTML in the original text
+    # The additional_tags parameter is used to add additional BBCode tags that should be accepted
+    # The method parameter determines whether the tags parameter needs to be used to blacklist (when set to :disable) or whitelist (when not set to :disable) the list of BBCode tags
+    # The method raises an exception when the text could not be parsed due to errors
+    def parse(text, escape_html = true, additional_tags = {}, method = :disable, *tags)
+      text = text.clone
+      use_tags = determine_applicable_tags(additional_tags, method, *tags)
 
-    @tag_sifter = TagSifter.new(text, use_tags, escape_html)
-    @tag_sifter.process_text
+      @tag_sifter = TagSifter.new(text, use_tags, escape_html)
+      @tag_sifter.process_text
+    end
   end
 end
 
@@ -94,7 +97,7 @@ String.class_eval do
   # The method parameter determines whether the tags parameter needs to be used to blacklist (when set to :disable) or whitelist (when not set to :disable) the list of BBCode tags
   # The method raises an exception when the text could not be parsed due to errors
   def bbcode_to_html!(escape_html = true, additional_tags = {}, method = :disable, *tags)
-    self.replace(RubyBBCode.to_html(self, escape_html, additional_tags, method, *tags))
+    replace(RubyBBCode.to_html(self, escape_html, additional_tags, method, *tags))
   end
 
   # Convert a string with BBCode markup into its corresponding HTML markup

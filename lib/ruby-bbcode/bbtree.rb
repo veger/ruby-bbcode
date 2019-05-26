@@ -12,7 +12,7 @@ module RubyBBCode
   class BBTree
     attr_accessor :current_node, :tags_list
 
-    def initialize(hash = { :nodes => TagCollection.new })
+    def initialize(hash = { nodes: TagCollection.new })
       @bbtree = hash
       @current_node = TagNode.new(@bbtree)
       @tags_list = []
@@ -23,13 +23,14 @@ module RubyBBCode
     end
 
     def within_open_tag?
-      @tags_list.length > 0
+      !@tags_list.empty?
     end
-    alias :expecting_a_closing_tag? :within_open_tag?  # just giving this method multiple names for semantical purposes
+    alias expecting_a_closing_tag? within_open_tag? # just giving this method multiple names for semantical purposes
 
     # Returns the parent tag, if suitable/available
     def parent_tag
       return nil unless within_open_tag?
+
       @tags_list.last
     end
 
@@ -49,18 +50,19 @@ module RubyBBCode
       if @tags_list[-1].definition[:self_closable]
         # It is possible that the next (self_closable) tag is on the next line
         # Remove newline of current tag and parent tag as they are (probably) not intented as an actual newline here but as tag separator
-        @tags_list[-1][:nodes][0][:text].chomp! unless @tags_list[-1][:nodes][0][:text].nil?
-        @tags_list[-2][:nodes][0][:text].chomp! unless @tags_list.length < 2 or @tags_list[-2][:nodes][0][:text].nil?
+        @tags_list[-1][:nodes][0][:text]&.chomp!
+        @tags_list[-2][:nodes][0][:text].chomp! unless (@tags_list.length < 2) || @tags_list[-2][:nodes][0][:text].nil?
       end
 
-      @tags_list.pop     # remove latest tag in tags_list since it's closed now...
+      @tags_list.pop # remove latest tag in tags_list since it's closed now...
       # The parsed data manifests in @bbtree.current_node.children << TagNode.new(element) which I think is more confusing than needed
 
-      if within_open_tag?
-        @current_node = @tags_list[-1]
-      else # If we're still at the root of the BBTree or have returned back to the root via encountring closing tags...
-        @current_node = TagNode.new({:nodes => self.nodes})  # Note:  just passing in self works too...
-      end
+      @current_node = if within_open_tag?
+                        @tags_list[-1]
+                      else
+                        # we're still at the root of the BBTree or have returned back to the root via encountering closing tags...
+                        TagNode.new(nodes: nodes)
+                      end
     end
 
     # Create a new node and adds it to the current node as a child node
@@ -69,11 +71,11 @@ module RubyBBCode
     end
 
     def to_html(tags = {})
-      self.nodes.to_html(tags)
+      nodes.to_html(tags)
     end
 
     def to_bbcode(tags = {})
-      self.nodes.to_bbcode(tags)
+      nodes.to_bbcode(tags)
     end
   end
 end

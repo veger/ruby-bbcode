@@ -15,15 +15,14 @@ module RubyBBCode::Templates
       @node = node
       @tag_definition = node.definition # tag_definition
       @opening_part = "[#{node[:tag]}#{node.allow_params? ? '%param%' : ''}]"
-      unless @node[:errors].empty?
-        @opening_part = "<span class='bbcode_error' #{BBCodeErrorsTemplate.error_attribute(@node[:errors])}>#{@opening_part}</span>"
-      end
+      @opening_part = "<span class='bbcode_error' #{BBCodeErrorsTemplate.error_attribute(@node[:errors])}>#{@opening_part}</span>" unless @node[:errors].empty?
       @closing_part = "[/#{node[:tag]}]"
     end
 
     def self.convert_text(node)
       # Keep the text as it was
       return "<span class='bbcode_error' #{error_attribute(node[:errors])}>#{node[:text]}</span>" unless node[:errors].empty?
+
       node[:text]
     end
 
@@ -41,8 +40,7 @@ module RubyBBCode::Templates
       end
     end
 
-    def inlay_closing_part!
-    end
+    def inlay_closing_part!; end
 
     def remove_unused_tokens!
       @opening_part.gsub!('%param%', '')
@@ -54,15 +52,16 @@ module RubyBBCode::Templates
 
     private
 
-      def get_between
-        return @node[:between] if @tag_definition[:require_between] and @node[:between]
-        ''
-      end
+    def get_between
+      return @node[:between] if @tag_definition[:require_between] && @node[:between]
 
-      def self.error_attribute(errors)
-        # Escape (double) quotes so the JSON can be generated properly (and parsed properly by JavaScript)
-        escapedErrors = errors.map { |error| error.gsub("\"","&quot;").gsub("'", "&#39;")}
-        "data-bbcode-errors='#{JSON.fast_generate(escapedErrors)}'"
-      end
+      ''
+    end
+
+    def self.error_attribute(errors)
+      # Escape (double) quotes so the JSON can be generated properly (and parsed properly by JavaScript)
+      escapedErrors = errors.map { |error| error.gsub('"', '&quot;').gsub("'", '&#39;') }
+      "data-bbcode-errors='#{JSON.fast_generate(escapedErrors)}'"
+    end
   end
 end

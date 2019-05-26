@@ -1,6 +1,8 @@
 Upcoming
 --------
 
+* Use rubocup and sonargraph and fix minor issues
+
 Version 2.0.3 - 07-Feb-2018
 ---------------------------
 
