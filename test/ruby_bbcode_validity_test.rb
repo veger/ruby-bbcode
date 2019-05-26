@@ -1,6 +1,10 @@
 require 'test_helper'
 
 class RubyBbcodeValidityTest < Minitest::Test
+  def before_setup
+    RubyBBCode.reset
+  end
+
   def test_multiple_errors
     input = '[b]Bold not closed, [li]Illegal list item[/li]'
     errors = input.bbcode_check_validity

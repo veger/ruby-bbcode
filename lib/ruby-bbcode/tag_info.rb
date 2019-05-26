@@ -84,20 +84,33 @@ module RubyBBCode
 
     protected
 
+    # Returns a default info structure used by all tags
+    def default_tag_info(tag_info)
+      {
+        errors: [],
+        complete_match: tag_info[0]
+      }
+    end
+
     # Convert the result of the TagSifter#process_text regex into a more usable hash, that is used by the rest of the parser.
     # tag_info should a result of the regex of TagSifter#process_text
     # Returns the tag hash
     def find_tag_info(tag_info, dictionary)
-      ti = {}
-      ti[:errors] = []
-      ti[:complete_match] = tag_info[0]
+      ti = default_tag_info(tag_info)
       ti[:is_tag] = (tag_info[0].start_with? '[')
       if ti[:is_tag]
         ti[:closing_tag] = (tag_info[2] == '/')
         ti[:tag] = tag_info[3].to_sym.downcase
         ti[:params] = {}
         @definition = dictionary[ti[:tag]]
-        if (tag_info[5][0] == '=') && can_have_quick_param?
+        if !tag_in_dictionary?
+          # Tag is not defined in dictionary, so treat as text
+          raise "unknown tag #{ti[:tag]}" unless RubyBBCode.configuration.ignore_unknown_tags
+
+          ti = default_tag_info(tag_info)
+          ti[:is_tag] = false
+          ti[:text] = tag_info[0]
+        elsif (tag_info[5][0] == '=') && can_have_quick_param?
           quick_param = tag_info[5][1..-1]
           # Get list of parameter values and add them as (regular) parameters
           value_array = quick_param.scan(@definition[:quick_param_format])[0]

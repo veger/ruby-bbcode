@@ -1,6 +1,10 @@
 require 'test_helper'
 
 class RubyBbcodeHtmlTest < Minitest::Test
+  def before_setup
+    RubyBBCode.reset
+  end
+
   def test_multiline
     assert_equal "line1<br />\nline2", "line1\nline2".bbcode_to_html
     assert_equal "line1<br />\nline2", "line1\r\nline2".bbcode_to_html
@@ -203,6 +207,16 @@ class RubyBbcodeHtmlTest < Minitest::Test
 
     assert_equal '<iframe src="http://player.vimeo.com/video/46141955?badge=0" width="640" height="480" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>',
                  '[vimeo width=640 height=480]46141955[/vimeo]'.bbcode_to_html
+  end
+
+  def test_unknown_tag
+    RubyBBCode.configuration.ignore_unknown_tags = false
+    assert_raises RuntimeError do
+      '[unknown]This is an unknown tag[/unknown]'.bbcode_to_html
+    end
+
+    RubyBBCode.configuration.ignore_unknown_tags = true
+    assert_equal '[unknown]This is an unknown tag[/unknown]', '[unknown]This is an unknown tag[/unknown]'.bbcode_to_html
   end
 
   def test_raised_exceptions
