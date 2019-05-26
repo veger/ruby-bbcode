@@ -1,6 +1,10 @@
 require 'test_helper'
 
 class RubyBbcodeBbcodeTest < Minitest::Test
+  def before_setup
+    RubyBBCode.reset
+  end
+
   def test_multiline
     assert_equal "line1\nline2", "line1\nline2".bbcode_show_errors
     assert_equal "line1\r\nline2", "line1\r\nline2".bbcode_show_errors
@@ -180,6 +184,16 @@ class RubyBbcodeBbcodeTest < Minitest::Test
 
   def test_missing_parent_tags
     assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["[li] can only be used in [ul] and [ol]"]\'>[li]</span>[/li]', '[li][/li]'.bbcode_show_errors
+  end
+
+  def test_unknown_tag
+    RubyBBCode.configuration.ignore_unknown_tags = false
+    assert_raises RuntimeError do
+      '[unknown]This is an unknown tag[/unknown]'.bbcode_show_errors
+    end
+
+    RubyBBCode.configuration.ignore_unknown_tags = true
+    assert_equal '[unknown]This is an unknown tag[/unknown]', '[unknown]This is an unknown tag[/unknown]'.bbcode_show_errors
   end
 
   def test_illegal_unallowed_childs

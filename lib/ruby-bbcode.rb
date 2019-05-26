@@ -1,4 +1,5 @@
 require 'tags/tags'
+require 'ruby-bbcode/configuration'
 require 'ruby-bbcode/tag_info'
 require 'ruby-bbcode/tag_sifter'
 require 'ruby-bbcode/tag_node'
@@ -10,6 +11,22 @@ require 'ruby-bbcode/bbtree'
 # The used parser also checks whether the BBCode is valid and gives errors for incorrect BBCode texts.
 module RubyBBCode
   include ::RubyBBCode::Tags
+
+  class << self
+    attr_writer :configuration
+  end
+
+  def self.configuration
+    @configuration ||= Configuration.new
+  end
+
+  def self.reset
+    @configuration = Configuration.new
+  end
+
+  def self.configure
+    yield(configuration)
+  end
 
   # This method converts the given text (with BBCode tags) into a HTML representation
   # The escape_html parameter (default: true) escapes HTML tags that were present in the given text and therefore blocking (mallicious) HTML in the original text
