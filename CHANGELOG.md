@@ -2,6 +2,7 @@ Upcoming
 --------
 
 * Use rubocup and sonargraph and fix minor issues
+* Make behavior of unknown tags configurable ([#36](https://github.com/veger/ruby-bbcode/issues/36))
 
 Version 2.0.3 - 07-Feb-2018
 ---------------------------

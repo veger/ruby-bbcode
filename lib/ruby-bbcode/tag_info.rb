@@ -105,11 +105,15 @@ module RubyBBCode
         @definition = dictionary[ti[:tag]]
         if !tag_in_dictionary?
           # Tag is not defined in dictionary, so treat as text
-          raise "unknown tag #{ti[:tag]}" unless RubyBBCode.configuration.ignore_unknown_tags
+          raise "unknown tag #{ti[:tag]}" if RubyBBCode.configuration.ignore_unknown_tags == :exception
 
           ti = default_tag_info(tag_info)
           ti[:is_tag] = false
-          ti[:text] = tag_info[0]
+          ti[:text] = if RubyBBCode.configuration.ignore_unknown_tags == :text
+                        tag_info[0]
+                      else
+                        ''
+                      end
         elsif (tag_info[5][0] == '=') && can_have_quick_param?
           quick_param = tag_info[5][1..-1]
           # Get list of parameter values and add them as (regular) parameters
