@@ -29,9 +29,6 @@ module RubyBBCode
       @text.scan(/#{regex_string}/ix) do |tag_info|
         @ti = TagInfo.new(tag_info, @dictionary)
 
-        # if the tag isn't in the @dictionary list, then treat it as text
-        @ti.handle_tag_as_text if @ti.element_is_tag? && !@ti.tag_in_dictionary?
-
         validate_element
 
         case @ti.type
@@ -138,7 +135,7 @@ module RubyBBCode
     # Get 'between tag' for tag
     def get_formatted_between
       between = @ti[:text]
-      # perform special formatting for cenrtain tags
+      # perform special formatting for certain tags
       between = match_url_id(between, @bbtree.current_node.definition[:url_matches]) if @bbtree.current_node.definition[:url_matches]
       between
     end
