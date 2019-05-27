@@ -232,7 +232,7 @@ module RubyBBCode
         end
 
         tag_def = @bbtree.current_node.definition
-        if tag_def[:require_between] && @bbtree.current_node[:between].nil?
+        if tag_def[:require_between] && @bbtree.current_node[:between].nil? && @bbtree.current_node[:nodes].empty?
           err = "No text between [#{@ti[:tag]}] and [/#{@ti[:tag]}] tags."
           err = "Cannot determine multi-tag type: #{err}" if tag_def[:multi_tag]
           add_tag_error err, @bbtree.current_node
@@ -254,13 +254,17 @@ module RubyBBCode
       end
       false
     end
-
     # This validation is for text elements with between text
     # that might be construed as a param.
     # The validation code checks if the params match constraints
     # imposed by the node/tag/parent.
     def valid_param_supplied_as_text?
       tag_def = @bbtree.current_node.definition
+
+      if within_open_tag? && use_text_as_parameter? && @ti[:is_tag] && has_no_text_node?
+        add_tag_error 'between parameter must be plain text'
+        return false
+      end
 
       # this conditional ensures whether the validation is apropriate to this tag type
       if @ti.element_is_text? && within_open_tag? && tag_def[:require_between] && use_text_as_parameter? && !tag_def[:quick_param_format].nil?
@@ -315,6 +319,10 @@ module RubyBBCode
       { words_connector: '], [',
         two_words_connector: '] and [',
         last_word_connector: '] and [' }
+    end
+
+    def has_no_text_node?
+      @bbtree.current_node[:nodes].blank? || @bbtree.current_node[:nodes][0][:text].nil?
     end
 
     def expecting_a_closing_tag?

@@ -24,7 +24,7 @@ module RubyBBCode::Templates
     end
 
     def inlay_between_text!
-      @opening_part.gsub!('%between%', @node[:between]) if between_text_as_param?
+      @opening_part.gsub!('%between%', format_between) if between_text_as_param?
     end
 
     def inlay_params!
@@ -37,7 +37,7 @@ module RubyBBCode::Templates
     end
 
     def inlay_closing_part!
-      @closing_part.gsub!('%between%', @node[:between]) if between_text_as_param?
+      @closing_part.gsub!('%between%', format_between) if between_text_as_param?
     end
 
     def remove_unused_tokens!
@@ -51,6 +51,10 @@ module RubyBBCode::Templates
     # Return true if the between text is needed as param
     def between_text_as_param?
       @tag_definition[:require_between]
+    end
+
+    def format_between
+      @node[:between] || ''
     end
   end
 end

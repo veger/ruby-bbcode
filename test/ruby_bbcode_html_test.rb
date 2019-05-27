@@ -91,6 +91,7 @@ class RubyBbcodeHtmlTest < Minitest::Test
   def test_link
     assert_equal '<a href="http://www.google.com">http://www.google.com</a>', '[url]http://www.google.com[/url]'.bbcode_to_html
     assert_equal '<a href="http://google.com">Google</a>', '[url=http://google.com]Google[/url]'.bbcode_to_html
+    assert_equal '<a href="http://google.com"><strong>Bold Google</strong></a>', '[url=http://google.com][b]Bold Google[/b][/url]'.bbcode_to_html
     assert_equal '<a href="/index.html">Home</a>', '[url=/index.html]Home[/url]'.bbcode_to_html
   end
 

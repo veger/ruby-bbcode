@@ -86,6 +86,7 @@ class RubyBbcodeBbcodeTest < Minitest::Test
   def test_link
     assert_equal '[url url=http://www.google.com]http://www.google.com[/url]', '[url]http://www.google.com[/url]'.bbcode_show_errors
     assert_equal '[url url=http://google.com]Google[/url]', '[url=http://google.com]Google[/url]'.bbcode_show_errors
+    assert_equal '[url url=http://google.com][b]Bold Google[/b][/url]', '[url=http://google.com][b]Bold Google[/b][/url]'.bbcode_show_errors
     assert_equal '[url url=/index.html]Home[/url]', '[url=/index.html]Home[/url]'.bbcode_show_errors
   end
 
@@ -180,6 +181,7 @@ class RubyBbcodeBbcodeTest < Minitest::Test
   def test_failing_between_texts
     assert_equal '<span class=\'bbcode_error\' data-bbcode-errors=\'["No text between [img] and [/img] tags."]\'>[img]</span>[/img]', '[img][/img]'.bbcode_show_errors
     assert_equal '[url]<span class=\'bbcode_error\' data-bbcode-errors=\'["The URL should start with http:// https://, ftp:// or /, instead of &#39;illegal url&#39;"]\'>illegal url</span>[/url]', '[url]illegal url[/url]'.bbcode_show_errors
+    assert_equal '[url]<span class=\'bbcode_error\' data-bbcode-errors=\'["between parameter must be plain text"]\'>[b]</span>Bold Google[/b][/url]', '[url][b]Bold Google[/b][/url]'.bbcode_show_errors
   end
 
   def test_missing_parent_tags
