@@ -204,7 +204,7 @@ module RubyBBCode
         # Check if the found tag is allowed
         last_tag_def = parent_tag[:definition]
         allowed_tags = last_tag_def[:only_allow]
-        if (!@ti[:is_tag] && (last_tag_def[:require_between] != true) && (@ti[:text].lstrip != '')) || (@ti[:is_tag] && (allowed_tags.include?(@ti[:tag]) == false)) # TODO: refactor this, it's just too long
+        if (!@ti.element_is_tag? && (last_tag_def[:require_between] != true) && (@ti[:text].lstrip != '')) || (@ti.element_is_tag? && (allowed_tags.include?(@ti[:tag]) == false)) # TODO: refactor this, it's just too long
           # Last opened tag does not allow tag
           throw_parent_prohibits_this_child_error
           return false
@@ -261,7 +261,7 @@ module RubyBBCode
     def valid_param_supplied_as_text?
       tag_def = @bbtree.current_node.definition
 
-      if within_open_tag? && use_text_as_parameter? && @ti[:is_tag] && has_no_text_node?
+      if within_open_tag? && use_text_as_parameter? && @ti.element_is_tag? && has_no_text_node?
         add_tag_error 'between parameter must be plain text'
         return false
       end
@@ -305,8 +305,8 @@ module RubyBBCode
     def throw_parent_prohibits_this_child_error
       allowed_tags = parent_tag[:definition][:only_allow]
       err = "[#{parent_tag[:tag]}] can only contain [#{allowed_tags.to_sentence(to_sentence_bbcode_tags)}] tags, so "
-      err += "[#{@ti[:tag]}]" if @ti[:is_tag]
-      err += "\"#{@ti[:text]}\"" unless @ti[:is_tag]
+      err += "[#{@ti[:tag]}]" if @ti.element_is_tag?
+      err += "\"#{@ti[:text]}\"" unless @ti.element_is_tag?
       err += ' is not allowed'
       add_tag_error err
     end
