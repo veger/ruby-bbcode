@@ -6,32 +6,32 @@ class ConfigurationTest < MiniTest::Test
   end
 
   def test_configuration
-    assert_equal true, RubyBBCode.configuration.ignore_unknown_tags
+    refute_equal :ignore, RubyBBCode.configuration.ignore_unknown_tags
 
-    RubyBBCode.configuration.ignore_unknown_tags = false
+    RubyBBCode.configuration.ignore_unknown_tags = :ignore
 
-    assert_equal false, RubyBBCode.configuration.ignore_unknown_tags
+    assert_equal :ignore, RubyBBCode.configuration.ignore_unknown_tags
   end
 
   def test_configuration_reset
-    assert_equal true, RubyBBCode.configuration.ignore_unknown_tags
+    refute_equal :exception, RubyBBCode.configuration.ignore_unknown_tags
 
-    RubyBBCode.configuration.ignore_unknown_tags = false
+    RubyBBCode.configuration.ignore_unknown_tags = :exception
 
-    assert_equal false, RubyBBCode.configuration.ignore_unknown_tags
+    assert_equal :exception, RubyBBCode.configuration.ignore_unknown_tags
 
     RubyBBCode.reset
 
-    assert_equal true, RubyBBCode.configuration.ignore_unknown_tags
+    refute_equal :exception, RubyBBCode.configuration.ignore_unknown_tags
   end
 
   def test_configuration_block
-    assert_equal true, RubyBBCode.configuration.ignore_unknown_tags
+    refute_equal :ignore, RubyBBCode.configuration.ignore_unknown_tags
 
     RubyBBCode.configure do |config|
-      config.ignore_unknown_tags = false
+      config.ignore_unknown_tags = :ignore
     end
 
-    assert_equal false, RubyBBCode.configuration.ignore_unknown_tags
+    assert_equal :ignore, RubyBBCode.configuration.ignore_unknown_tags
   end
 end

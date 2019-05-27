@@ -187,12 +187,15 @@ class RubyBbcodeBbcodeTest < Minitest::Test
   end
 
   def test_unknown_tag
-    RubyBBCode.configuration.ignore_unknown_tags = false
+    RubyBBCode.configuration.ignore_unknown_tags = :exception
     assert_raises RuntimeError do
       '[unknown]This is an unknown tag[/unknown]'.bbcode_show_errors
     end
 
-    RubyBBCode.configuration.ignore_unknown_tags = true
+    RubyBBCode.configuration.ignore_unknown_tags = :ignore
+    assert_equal 'This is an unknown tag', '[unknown]This is an unknown tag[/unknown]'.bbcode_show_errors
+
+    RubyBBCode.configuration.ignore_unknown_tags = :text
     assert_equal '[unknown]This is an unknown tag[/unknown]', '[unknown]This is an unknown tag[/unknown]'.bbcode_show_errors
   end
 
