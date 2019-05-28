@@ -25,15 +25,14 @@ module RubyBBCode
     # once this tree is built, the to_html method can be invoked where the tree is finally
     # converted into HTML syntax.
     def process_text
-      regex_string = '((\[ (\/)? ( \* | (\w+)) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \] (\s*)) | ([^\[]+))'
-      @text.scan(/#{regex_string}/ix) do |tag_info|
+      @text.scan(TagInfo::REGEX) do |tag_info|
         @ti = TagInfo.new(tag_info, @dictionary)
 
         validate_element
 
         case @ti.type
         when :opening_tag
-          element = { is_tag: true, tag: @ti[:tag], definition: @ti.definition, opening_whitespace: @ti[:whitespace], errors: @ti[:errors], nodes: TagCollection.new }
+          element = { is_tag: true, tag: @ti[:tag], definition: @ti.definition, opening_whitespace: @ti.whitespace, errors: @ti[:errors], nodes: TagCollection.new }
           element[:invalid_quick_param] = true if @ti.invalid_quick_param?
           element[:params] = get_formatted_element_params
 
@@ -76,7 +75,7 @@ module RubyBBCode
 
           create_text_element
         when :closing_tag
-          @bbtree.current_node[:closing_whitespace] = @ti[:whitespace]
+          @bbtree.current_node[:closing_whitespace] = @ti.whitespace
           if @ti[:wrong_closing]
             # Convert into text, so it
             @ti.handle_tag_as_text

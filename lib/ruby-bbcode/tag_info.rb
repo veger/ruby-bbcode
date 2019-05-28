@@ -3,11 +3,15 @@ module RubyBBCode
   # This class was made mostly just to keep track of all of the confusing the logic conditions that are checked.
   #
   class TagInfo
+    REGEX_STRING = '(?:(\[ (\/)? (\* | (?:\w+)) ((?:=[^\[\]]+) | (?:\s\w+=\w+)* | (?:[^\]]*))? \] (\s*)) | ([^\[]+))'.gsub(' ', '').freeze
+    REGEX = /#{REGEX_STRING}/i.freeze
+
     COMPLETE_MATCH = 0
-    CLOSING_MATCH = 2
-    TAG_MATCH = 3
-    TAG_PARAM_MATCH = 5
-    WHITESPACE_AFTER_TAG = 9
+    CLOSING_MATCH = 1
+    TAG_MATCH = 2
+    TAG_PARAM_MATCH = 3
+    WHITESPACE_AFTER_TAG = 4
+    TEXT = 5
 
     def initialize(tag_info, dictionary)
       @tag_data = find_tag_info(tag_info, dictionary)
@@ -109,7 +113,7 @@ module RubyBBCode
     # Returns the tag hash
     def find_tag_info(tag_info, dictionary)
       ti = default_tag_info(tag_info)
-      ti[:is_tag] = (tag_info[COMPLETE_MATCH].start_with? '[')
+      ti[:is_tag] = (tag_info[COMPLETE_MATCH]&.start_with? '[')
       if ti[:is_tag]
         ti[:closing_tag] = (tag_info[CLOSING_MATCH] == '/')
         ti[:tag] = tag_info[TAG_MATCH].to_sym.downcase
@@ -148,7 +152,7 @@ module RubyBBCode
         end
       else
         # Plain text
-        ti[:text] = tag_info[COMPLETE_MATCH]
+        ti[:text] = tag_info[TEXT]
       end
       ti
     end
