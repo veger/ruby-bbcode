@@ -50,14 +50,17 @@ class RubyBbcodeBbcodeTest < Minitest::Test
 
   def test_ordered_list
     assert_equal '[ol][li]item 1[/li][li]item 2[/li][/ol]', '[ol][li]item 1[/li][li]item 2[/li][/ol]'.bbcode_show_errors
+    assert_equal "[ol]\n[li]item 1[/li]\n[li]item 2[/li]\n[/ol]", "[ol]\n[li]item 1[/li]\n[li]item 2[/li]\n[/ol]".bbcode_show_errors
   end
 
   def test_unordered_list
     assert_equal '[ul][li]item 1[/li][li]item 2[/li][/ul]', '[ul][li]item 1[/li][li]item 2[/li][/ul]'.bbcode_show_errors
+    assert_equal "[ul]\n\t[li]item 1[/li]\n\t[li]item 2[/li]\n[/ul]", "[ul]\n\t[li]item 1[/li]\n\t[li]item 2[/li]\n[/ul]".bbcode_show_errors
   end
 
   def test_list_common_syntax
     assert_equal '[list][*]item 1[/*][*]item 2[/*][/list]', '[list][*]item 1[*]item 2[/list]'.bbcode_show_errors
+    assert_equal "[list]\n[*]item 1[/*]\n[*]item 2[/*]\n[/list]", "[list]\n[*]item 1\n[*]item 2\n[/list]".bbcode_show_errors
   end
 
   def test_list_common_syntax_explicit_closing
@@ -78,6 +81,7 @@ class RubyBbcodeBbcodeTest < Minitest::Test
 
   def test_quote
     assert_equal '[quote]quoting[/quote]', '[quote]quoting[/quote]'.bbcode_show_errors
+    assert_equal "[quote]\nquoting\n[/quote]", "[quote]\nquoting\n[/quote]".bbcode_show_errors
     assert_equal '[quote author=someone]quoting[/quote]', '[quote=someone]quoting[/quote]'.bbcode_show_errors
     assert_equal '[quote author=Kitten][quote author=creatiu]f1[/quote]f2[/quote]',
                  '[quote author=Kitten][quote=creatiu]f1[/quote]f2[/quote]'.bbcode_show_errors

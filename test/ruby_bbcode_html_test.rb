@@ -8,6 +8,8 @@ class RubyBbcodeHtmlTest < Minitest::Test
   def test_multiline
     assert_equal "line1<br />\nline2", "line1\nline2".bbcode_to_html
     assert_equal "line1<br />\nline2", "line1\r\nline2".bbcode_to_html
+    assert_equal "<ul>\n<li>line1</li>\n<li>line2</li>\n</ul>", "[ul]\n[li]line1[/li]\n[li]line2[/li]\n[/ul]".bbcode_to_html
+    assert_equal "<strong><br />\nline 1<br />\nline 2</strong>", "[b]\nline 1\nline 2[/b]".bbcode_to_html
   end
 
   def test_strong
@@ -58,11 +60,11 @@ class RubyBbcodeHtmlTest < Minitest::Test
 
   def test_list_common_syntax
     assert_equal '<ul><li>item 1</li><li>item 2</li></ul>', '[list][*]item 1[*]item 2[/list]'.bbcode_to_html
-    assert_equal '<ul><li><strong>item 1</strong> test</li><li>item 2</li></ul>', "[list]\n[*][b]item 1[/b] test[*]item 2[/list]".bbcode_to_html
+    assert_equal '<ul><li><strong>item 1</strong> test</li><li>item 2</li></ul>', '[list][*][b]item 1[/b] test[*]item 2[/list]'.bbcode_to_html
   end
 
   def test_newline_list_common_syntax
-    assert_equal '<ul><li>item 1</li><li>item 2</li></ul>', "[list]\n[*]item 1\n[*]item 2\n[/list]".bbcode_to_html
+    assert_equal "<ul>\n<li>item 1</li>\n<li>item 2</li>\n\n</ul>", "[list]\n[*]item 1\n[*]item 2\n\n[/list]".bbcode_to_html
   end
 
   def test_list_common_syntax_explicit_closing
@@ -75,7 +77,7 @@ class RubyBbcodeHtmlTest < Minitest::Test
   end
 
   def test_whitespace_in_only_allowed_tags
-    assert_equal "<ol><br />\n<li>item 1</li><br />\n<li>item 2</li><br />\n</ol>",
+    assert_equal "<ol>\n<li>item 1</li>\n<li>item 2</li>\n</ol>",
                  "[ol]\n[li]item 1[/li]\n[li]item 2[/li]\n[/ol]".bbcode_to_html
     assert_equal "<ol> <li>item 1</li>  <li>item 2</li>\t</ol>",
                  "[ol] [li]item 1[/li]  [li]item 2[/li]\t[/ol]".bbcode_to_html
@@ -83,6 +85,8 @@ class RubyBbcodeHtmlTest < Minitest::Test
 
   def test_quote
     assert_equal '<div class="quote">quoting</div>', '[quote]quoting[/quote]'.bbcode_to_html
+    assert_equal "<div class=\"quote\">\nquoting\n</div>", "[quote]\nquoting\n[/quote]".bbcode_to_html
+    assert_equal "<div class=\"quote\">\nfirst line<br />\nsecond line\n</div>", "[quote]\nfirst line\nsecond line\n[/quote]".bbcode_to_html
     assert_equal '<div class="quote"><strong>someone wrote:</strong>quoting</div>', '[quote=someone]quoting[/quote]'.bbcode_to_html
     assert_equal '<div class="quote"><strong>Kitten wrote:</strong><div class="quote"><strong>creatiu wrote:</strong>f1</div>f2</div>',
                  '[quote=Kitten][quote=creatiu]f1[/quote]f2[/quote]'.bbcode_to_html

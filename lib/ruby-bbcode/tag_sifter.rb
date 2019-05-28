@@ -25,7 +25,7 @@ module RubyBBCode
     # once this tree is built, the to_html method can be invoked where the tree is finally
     # converted into HTML syntax.
     def process_text
-      regex_string = '((\[ (\/)? ( \* | (\w+)) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \]) | ([^\[]+))'
+      regex_string = '((\[ (\/)? ( \* | (\w+)) ((=[^\[\]]+) | (\s\w+=\w+)* | ([^\]]*))? \] (\s*)) | ([^\[]+))'
       @text.scan(/#{regex_string}/ix) do |tag_info|
         @ti = TagInfo.new(tag_info, @dictionary)
 
@@ -33,11 +33,14 @@ module RubyBBCode
 
         case @ti.type
         when :opening_tag
-          element = { is_tag: true, tag: @ti[:tag], definition: @ti.definition, errors: @ti[:errors], nodes: TagCollection.new }
+          element = { is_tag: true, tag: @ti[:tag], definition: @ti.definition, opening_whitespace: @ti[:whitespace], errors: @ti[:errors], nodes: TagCollection.new }
           element[:invalid_quick_param] = true if @ti.invalid_quick_param?
           element[:params] = get_formatted_element_params
 
-          @bbtree.retrogress_bbtree if self_closing_tag_reached_a_closer?
+          if self_closing_tag_reached_a_closer?
+            transfer_whitespace_to_closing_tag
+            @bbtree.retrogress_bbtree
+          end
 
           @bbtree.build_up_new_tag(element)
 
@@ -73,12 +76,16 @@ module RubyBBCode
 
           create_text_element
         when :closing_tag
+          @bbtree.current_node[:closing_whitespace] = @ti[:whitespace]
           if @ti[:wrong_closing]
             # Convert into text, so it
             @ti.handle_tag_as_text
             create_text_element
           else
-            @bbtree.retrogress_bbtree if parent_of_self_closing_tag? && within_open_tag?
+            if parent_of_self_closing_tag? && within_open_tag?
+              transfer_whitespace_to_closing_tag
+              @bbtree.retrogress_bbtree
+            end
             @bbtree.retrogress_bbtree
           end
         end
@@ -89,6 +96,25 @@ module RubyBBCode
     end
 
     private
+
+    def transfer_whitespace_to_closing_tag
+      last_text_node = node_last_text(parent_tag)
+      unless last_text_node.nil?
+        last_text_node[:text].scan(/(\s+)$/) do |result|
+          parent_tag[:closing_whitespace] = result[0]
+          last_text_node[:text] = last_text_node[:text][0..-result[0].length - 1]
+        end
+      end
+    end
+
+    # Return the node that holds the last piece of text for the given node (self or child)
+    def node_last_text(node)
+      return node if node.type == :text
+      return node_last_text(node.children[-1]) unless node.children.empty?
+
+      # node does not hold text
+      nil
+    end
 
     def set_multi_tag_to_actual_tag
       # Try to find the actual tag
@@ -254,6 +280,7 @@ module RubyBBCode
       end
       false
     end
+
     # This validation is for text elements with between text
     # that might be construed as a param.
     # The validation code checks if the params match constraints

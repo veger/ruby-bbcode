@@ -14,12 +14,12 @@ module RubyBBCode::Templates
     def initialize(node)
       @node = node
       @tag_definition = node.definition # tag_definition
-      @opening_part = "[#{node[:tag]}#{node.allow_params? ? '%param%' : ''}]"
+      @opening_part = "[#{node[:tag]}#{node.allow_params? ? '%param%' : ''}]" + add_whitespace(node[:opening_whitespace])
       @opening_part = "<span class='bbcode_error' #{BBCodeErrorsTemplate.error_attribute(@node[:errors])}>#{@opening_part}</span>" unless @node[:errors].empty?
-      @closing_part = "[/#{node[:tag]}]"
+      @closing_part = "[/#{node[:tag]}]" + add_whitespace(node[:closing_whitespace])
     end
 
-    def self.convert_text(node)
+    def self.convert_text(node, _parent_node)
       # Keep the text as it was
       return "<span class='bbcode_error' #{error_attribute(node[:errors])}>#{node[:text]}</span>" unless node[:errors].empty?
 
@@ -51,6 +51,10 @@ module RubyBBCode::Templates
     end
 
     private
+
+    def add_whitespace(whitespace)
+      whitespace || ''
+    end
 
     def get_between
       return @node[:between] if @tag_definition[:require_between] && @node[:between]

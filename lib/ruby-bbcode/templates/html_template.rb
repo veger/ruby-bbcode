@@ -10,17 +10,26 @@ module RubyBBCode::Templates
 
     def initialize(node)
       @node = node
-      @tag_definition = node.definition # tag_definition
-      @opening_part = node.definition[:html_open].dup
-      @closing_part = node.definition[:html_close].dup
+      @tag_definition = node.definition
+      @opening_part = node.definition[:html_open] + add_whitespace(:opening_whitespace)
+      @closing_part = node.definition[:html_close] + add_whitespace(:closing_whitespace)
     end
 
     # Newlines are converted to html <br /> syntax before being returned.
-    def self.convert_text(node)
+    def self.convert_text(node, parent_node)
       return '' if node[:text].nil?
 
-      # convert_newlines_to_br
-      node[:text].gsub("\r\n", "\n").gsub("\n", "<br />\n")
+      text = node[:text]
+      whitespace = ''
+
+      if !parent_node.nil? && parent_node.definition[:block_tag]
+        # Strip EOL whitespace, so it does not get converted
+        text.scan(/(\s+)$/) do |result|
+          whitespace = result[0]
+          text = text[0..-result[0].length - 1]
+        end
+      end
+      convert_newlines(text) + whitespace
     end
 
     def inlay_between_text!
@@ -46,7 +55,19 @@ module RubyBBCode::Templates
       end
     end
 
+    def self.convert_newlines(text)
+      text.gsub("\r\n", "\n").gsub("\n", "<br />\n")
+    end
+
     private
+
+    def add_whitespace(key)
+      whitespace = @node[key]
+      return '' if whitespace.nil?
+
+      whitespace = HtmlTemplate.convert_newlines(whitespace) unless @tag_definition[:block_tag]
+      whitespace
+    end
 
     # Return true if the between text is needed as param
     def between_text_as_param?

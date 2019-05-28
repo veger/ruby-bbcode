@@ -3,6 +3,12 @@ module RubyBBCode
   # This class was made mostly just to keep track of all of the confusing the logic conditions that are checked.
   #
   class TagInfo
+    COMPLETE_MATCH = 0
+    CLOSING_MATCH = 2
+    TAG_MATCH = 3
+    TAG_PARAM_MATCH = 5
+    WHITESPACE_AFTER_TAG = 9
+
     def initialize(tag_info, dictionary)
       @tag_data = find_tag_info(tag_info, dictionary)
     end
@@ -21,6 +27,11 @@ module RubyBBCode
     # Returns the text (when this instance represents a text element)
     def text
       @tag_data[:text]
+    end
+
+    # Returns the whitespace that was available directly after the tag definition
+    def whitespace
+      @tag_data[:whitespace]
     end
 
     # Returns the type of the cuvvrent tag/node, which is either :opening_tag, :closing_tag, or :text
@@ -88,7 +99,8 @@ module RubyBBCode
     def default_tag_info(tag_info)
       {
         errors: [],
-        complete_match: tag_info[0]
+        complete_match: tag_info[COMPLETE_MATCH],
+        whitespace: tag_info[WHITESPACE_AFTER_TAG]
       }
     end
 
@@ -97,10 +109,10 @@ module RubyBBCode
     # Returns the tag hash
     def find_tag_info(tag_info, dictionary)
       ti = default_tag_info(tag_info)
-      ti[:is_tag] = (tag_info[0].start_with? '[')
+      ti[:is_tag] = (tag_info[COMPLETE_MATCH].start_with? '[')
       if ti[:is_tag]
-        ti[:closing_tag] = (tag_info[2] == '/')
-        ti[:tag] = tag_info[3].to_sym.downcase
+        ti[:closing_tag] = (tag_info[CLOSING_MATCH] == '/')
+        ti[:tag] = tag_info[TAG_MATCH].to_sym.downcase
         ti[:params] = {}
         @definition = dictionary[ti[:tag]]
         if !tag_in_dictionary?
@@ -110,12 +122,12 @@ module RubyBBCode
           ti = default_tag_info(tag_info)
           ti[:is_tag] = false
           ti[:text] = if RubyBBCode.configuration.ignore_unknown_tags == :text
-                        tag_info[0]
+                        tag_info[COMPLETE_MATCH]
                       else
                         ''
                       end
-        elsif (tag_info[5][0] == '=') && can_have_quick_param?
-          quick_param = tag_info[5][1..-1]
+        elsif (tag_info[TAG_PARAM_MATCH][0] == '=') && can_have_quick_param?
+          quick_param = tag_info[TAG_PARAM_MATCH][1..-1]
           # Get list of parameter values and add them as (regular) parameters
           value_array = quick_param.scan(@definition[:quick_param_format])[0]
           if value_array.nil?
@@ -126,9 +138,9 @@ module RubyBBCode
               ti[:params][param_tokens[i][:token]] = value
             end
           end
-        elsif tag_info[5][0] == "\s"
+        elsif tag_info[TAG_PARAM_MATCH][0] == "\s"
           regex_string = '((\w+)=([\w#]+)) | ((\w+)="([^"]+)") | ((\w+)=\'([^\']+)\')'
-          tag_info[5].scan(/#{regex_string}/ix) do |param_info|
+          tag_info[TAG_PARAM_MATCH].scan(/#{regex_string}/ix) do |param_info|
             param = param_info[1] || param_info[4] || param_info[7]
             value = param_info[2] || param_info[5] || param_info[8]
             ti[:params][param.to_sym] = value
@@ -136,7 +148,7 @@ module RubyBBCode
         end
       else
         # Plain text
-        ti[:text] = tag_info[9]
+        ti[:text] = tag_info[COMPLETE_MATCH]
       end
       ti
     end

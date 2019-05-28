@@ -33,37 +33,42 @@ module RubyBBCode
       :ul => {
         html_open: '<ul>', html_close: '</ul>',
         description: 'Unordered list',
+        block_tag: true,
         example: '[ul][li]List item[/li][li]Another list item[/li][/ul].',
         only_allow: [:li, '*'.to_sym]
       },
       :code => {
         html_open: '<pre>', html_close: '</pre>',
         description: 'Code block with mono-spaced text',
-        example: 'This is [code]mono-spaced code[/code].'
+        example: 'This is [code]mono-spaced code[/code].',
+        block_tag: true
       },
       :ol => {
         html_open: '<ol>', html_close: '</ol>',
         description: 'Ordered list',
         example: '[ol][li]List item[/li][li]Another list item[/li][/ol].',
+        block_tag: true,
         only_allow: [:li, '*'.to_sym]
       },
       :li => {
         html_open: '<li>', html_close: '</li>',
         description: 'List item',
         example: '[ul][li]List item[/li][li]Another list item[/li][/ul].',
+        block_tag: true,
         only_in: %i[ul ol]
       },
       :list => {
         html_open: '<ul>', html_close: '</ul>',
         description: 'Unordered list',
         example: '[list][*]List item[*]Another list item[/list].',
+        block_tag: true,
         only_allow: ['*'.to_sym]
       },
       '*'.to_sym => {
         html_open: '<li>', html_close: '</li>',
         description: 'List item',
         example: '[list][*]List item[*]Another list item[/list].',
-        self_closable: true,
+        self_closable: true, block_tag: true,
         only_in: %i[list ul ol]
       },
       :img => {
@@ -72,7 +77,7 @@ module RubyBBCode
         example: '[img]http://www.google.com/intl/en_ALL/images/logo.gif[/img].',
         only_allow: [],
         require_between: true,
-        allow_quick_param: true, allow_between_as_param: false,
+        allow_quick_param: true, allow_between_as_param: false, block_tag: true,
         quick_param_format: /^(\d+)x(\d+)$/,
         param_tokens: [{ token: :width, prefix: 'width="', postfix: '" ', optional: true },
                        { token: :height, prefix: 'height="', postfix: '" ', optional: true }],
@@ -92,7 +97,7 @@ module RubyBBCode
         html_open: '<div class="quote">%author%', html_close: '</div>',
         description: 'Quote another person',
         example: '[quote]BBCode is great[/quote]',
-        allow_quick_param: true, allow_between_as_param: false,
+        allow_quick_param: true, allow_between_as_param: false, block_tag: true,
         quick_param_format: /(.*)/,
         param_tokens: [{ token: :author, prefix: '<strong>', postfix: ' wrote:</strong>', optional: true }]
       },
@@ -119,7 +124,7 @@ module RubyBBCode
         example: '[youtube]E4Fbk52Mk1w[/youtube]',
         only_allow: [],
         url_matches: [/youtube\.com.*[v]=([^&]*)/, %r{youtu\.be/([^&]*)}, %r{y2u\.be/([^&]*)}],
-        require_between: true,
+        require_between: true, block_tag: true,
         param_tokens: [
           { token: :width, optional: true, default: 400 },
           { token: :height, optional: true, default: 320 }
@@ -132,7 +137,7 @@ module RubyBBCode
         example: '[vimeo]http://vimeo.com/46141955[/vimeo]',
         only_allow: [],
         url_matches: [%r{vimeo\.com/([^&]*)}],
-        require_between: true,
+        require_between: true, block_tag: true,
         param_tokens: [
           { token: :width, optional: true, default: 400 },
           { token: :height, optional: true, default: 320 }
