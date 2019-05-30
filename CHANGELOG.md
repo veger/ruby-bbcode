@@ -4,6 +4,7 @@ Upcoming
 * Use rubocup and sonargraph and fix minor issues
 * Make behavior of unknown tags configurable ([#36](https://github.com/veger/ruby-bbcode/issues/36))
 * Allow tags inside link tags ([#32](https://github.com/veger/ruby-bbcode/issues/32))
+* Do not convert newlines to HTML br element for 'block tags' ([#31](https://github.com/veger/ruby-bbcode/issues/31))
 
 Version 2.0.3 - 07-Feb-2018
 ---------------------------
