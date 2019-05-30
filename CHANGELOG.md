@@ -9,7 +9,7 @@ Version 2.1.0 - 30-May-2019
 * Allow tags inside link tags ([#32](https://github.com/veger/ruby-bbcode/issues/32))
 * Do not convert newlines to HTML br element for 'block tags' ([#31](https://github.com/veger/ruby-bbcode/issues/31))
 
-Version 2.0.3 - 07-Feb-2018
+Version 2.0.3 - 07-Feb-2019
 ---------------------------
 
 * Require Ruby version 2.3.0 or higher
