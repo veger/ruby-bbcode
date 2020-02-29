@@ -37,7 +37,7 @@ GEM
     parser (2.6.3.0)
       ast (~> 2.4.0)
     rainbow (3.0.0)
-    rake (12.3.2)
+    rake (13.0.1)
     rdoc (6.1.1)
     reverse_markdown (1.1.0)
       nokogiri
