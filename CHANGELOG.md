@@ -1,6 +1,11 @@
 Upcoming
 --------
 
+Version 2.1.1 - 27-May-2020
+---------------------------
+
+* Bump activesupport to version 5.2.4.3
+
 Version 2.1.0 - 30-May-2019
 ---------------------------
 
