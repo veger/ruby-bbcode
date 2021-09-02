@@ -25,7 +25,8 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files = ['README.md', 'CHANGELOG.md', 'MIT-LICENSE']
 
   s.add_dependency 'activesupport', '>= 4.2.2'
-  s.add_development_dependency 'coveralls', '>= 0.8.0'
+  s.add_development_dependency 'simplecov'
+  s.add_development_dependency 'simplecov-lcov'
   s.add_development_dependency 'irb'
   s.add_development_dependency 'minitest'
   s.add_development_dependency 'rake'

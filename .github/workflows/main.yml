@@ -16,10 +16,29 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby}}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-      - name: Run tests
+
+      - name: Run Tests
         run: bundle exec rake
+
+      - name: Coveralls Update
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: run-${{ matrix.ruby }}
+          parallel: true
+
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
