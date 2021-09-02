@@ -1,6 +1,6 @@
 # Ruby-BBCode
 
-[![gem version](https://badge.fury.io/rb/ruby-bbcode.svg)](https://badge.fury.io/rb/ruby-bbcode) [![Build Status](https://travis-ci.org/veger/ruby-bbcode.svg?branch=master)](https://travis-ci.org/veger/ruby-bbcode) [![Code Coverage](https://coveralls.io/repos/github/veger/ruby-bbcode/badge.svg?branch=master)](https://coveralls.io/github/veger/ruby-bbcode?branch=master)
+[![gem version](https://badge.fury.io/rb/ruby-bbcode.svg)](https://badge.fury.io/rb/ruby-bbcode) [![Code Coverage](https://coveralls.io/repos/github/veger/ruby-bbcode/badge.svg?branch=master)](https://coveralls.io/github/veger/ruby-bbcode?branch=master)
 
 This gem adds support for [BBCode](http:/www.bbcode.org/) to Ruby. The BBCode is parsed by a parser before converted to HTML, allowing to convert nested BBCode tags in strings to their correct HTML equivalent. The parser also checks whether the BBCode is valid and gives errors for incorrect BBCode texts.
 Additionally, annotations can be added to the BBCode string the showing errors that are present, assuming there are any errors.
