@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [2.3, head]
+        ruby: [2.5, head]
     runs-on: ubuntu-latest
 
     steps:

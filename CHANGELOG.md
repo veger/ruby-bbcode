@@ -1,6 +1,8 @@
 Upcoming
 --------
 
+* Bump minimum ruby version to 2.5.0
+
 Version 2.1.1 - 27-May-2020
 ---------------------------
 

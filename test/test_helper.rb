@@ -12,6 +12,7 @@ SimpleCov.start do
     formatter SimpleCov::Formatter::LcovFormatter
   end
 
+  enable_coverage :branch
   add_filter "/test/"
 end
 
