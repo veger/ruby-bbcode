@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ConfigurationTest < MiniTest::Test
+class ConfigurationTest < Minitest::Test
   def before_setup
     RubyBBCode.reset
   end

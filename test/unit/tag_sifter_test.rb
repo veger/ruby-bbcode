@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TagSifterTest < MiniTest::Test
+class TagSifterTest < Minitest::Test
   include RubyBBCode::Tags
   def test_youtube_parser
     url1 = 'http://www.youtube.com/watch?v=E4Fbk52Mk1w'

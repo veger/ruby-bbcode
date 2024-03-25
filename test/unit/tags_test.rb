@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TagSifterTest < MiniTest::Test
+class TagSifterTest < Minitest::Test
   def test_taglist_modification
     tags = RubyBBCode::Tags.tag_list
     assert_nil RubyBBCode::Tags.tag_list[:test]
