@@ -39,8 +39,7 @@ GEM
       psych (>= 4.0.0)
     reline (0.5.0)
       io-console (~> 0.5)
-    rexml (3.3.6)
-      strscan
+    rexml (3.3.9)
     ruby2_keywords (0.0.5)
     simplecov (0.22.0)
       docile (~> 1.1)
@@ -60,7 +59,6 @@ GEM
       thor (~> 0.19, >= 0.19.4)
       yard (~> 0.9)
     stringio (3.1.0)
-    strscan (3.1.0)
     sync (0.5.0)
     term-ansicolor (1.7.2)
       tins (~> 1.0)
